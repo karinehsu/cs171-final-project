@@ -64,7 +64,7 @@ var main_tooltip = d3.select("body")
 // Default domains for x_scale_main and y_scale_main.  
 // Ranges should take up the entirety of the vis
 var x_scale_main = d3.scale.linear().domain([0, 1]).range([0, main_vis.w]);
-var y_scale_main = d3.scale.linear().domain([0, 1]).range([0, main_vis.h]);
+var y_scale_main = d3.scale.linear().domain([0, 1]).range([0, main_vis.h - margin.bottom]);
 
 // Axis should default orientation to bottom and left
 var x_axis_main = d3.svg.axis().scale(x_scale_main).orient("bottom");
@@ -80,11 +80,54 @@ var main = function () {
     
     // Landing page should be a bar chart of top 10 most
     // actively-traded cryptocurrencies by volume
+    runCryptocoinchartsQuery("listCoins", {}, createMainVisual);
     runCryptocoinchartsQuery("listCoins", {}, loadTopTenCurrencies);
 
 
 }
 
+var createMainVisual = function (data) {
+
+    // should be independent of data, so later remove data
+    if (!data) {
+        return;
+    }
+
+    // Add the X Axis to the main vis
+    main_svg.append("g")
+        .attr("class", "x axis")
+        .attr("transform", "translate(0," + (height - margin.bottom) + ")")
+        .call(x_axis_main);
+
+    // Add the Y Axis to the main vis
+    main_svg.append("g")
+        .attr("class", "y axis")
+        .call(y_axis_main);
+
+    // Add the axis label for the y axis
+    main_canvas.append("text")
+       .attr("class", "axis-label")
+       .attr("transform", "rotate(-90)")
+       .attr("y", 0)
+       .attr("x", 0 - (main_vis.h / 2) - main_vis.y)
+       .attr("dy", "1em")
+       .style("text-anchor", "middle")
+       .text("Volume of Trade (#BTC)");
+
+    main_canvas.append("text")
+        .attr("class", "axis-label")
+        .attr("transform", "translate(" + ((main_vis.w + main_vis.x) / 2) + " ," + (main_vis.h + main_vis.y * 3) + ")")
+        .attr("dy", "1em")
+        .style("text-anchor", "middle")
+        .text("Cryptocurrency");
+
+    main_canvas.append("text")
+        .attr("class", "axis-label")
+        .attr("transform", "translate(" + ((main_vis.w + main_vis.x) / 2) + " ," + 0 + ")")
+        .attr("dy", "1em")
+        .style("text-anchor", "middle")
+        .text("Volume of Trade for Cryptocurrencies in last 24 Hours");
+}
 /**
  * loadTopTenCurrencies(data)
  *
@@ -124,16 +167,13 @@ var loadTopTenCurrencies = function (data) {
     x_scale_main.domain([data_ten[0].id, data_ten[9].id]);
     y_scale_main.domain([data_ten[0].volume_btc, data_ten[9].volume_btc]);
 
-    // Add the X Axis
-    main_svg.append("g")
-        .attr("class", "x axis")
-        .attr("transform", "translate(0," + height + ")")
-        .call(x_axis_main);
-
-    // Add the Y Axis
-    main_svg.append("g")
-        .attr("class", "y axis")
+    // Update the X and Y axis for main vis
+    main_canvas.selectAll(".y")
+        .style("visibility", "visible")
         .call(y_axis_main);
+    main_canvas.selectAll(".x")
+        .style("visibility", "visible")
+        .call(x_axis_main);
 
     var barWidth = width / data_ten.length;
 
@@ -144,7 +184,7 @@ var loadTopTenCurrencies = function (data) {
 
     bar.append("rect")
         .attr("y", function (d) { return y_scale_main(d.volume_btc); })
-        .attr("height", function (d) { return main_vis.h - y_scale_main(d.volume_btc); })
+        .attr("height", function (d) { return main_vis.h - margin.bottom - y_scale_main(d.volume_btc); })
         .attr("width", barWidth - 1)
         .attr("fill", "steelblue")
         .on("mouseover", function (d, i) {
@@ -160,7 +200,7 @@ var loadTopTenCurrencies = function (data) {
 
     bar.append("text")
         .attr("x", barWidth / 3)
-        .attr("y", function (d) { return main_vis.h + 3; }) // slightly below the axis
+        .attr("y", function (d) { return main_vis.h - margin.bottom + 3; }) // slightly below the axis
         .attr("dy", ".75em")
         .text(function (d) { return d.name; })
         .on("mouseover", function (d, i) {
