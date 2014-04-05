@@ -53,6 +53,14 @@ var main_svg = main_canvas.append("g").attr({
         transform: "translate(" + margin.left + "," + margin.top + ")"
 });
 
+// tool tip for main
+var main_tooltip = d3.select("body")
+	.append("div")
+    .attr("class", "tooltip1")
+	.style("position", "absolute")
+	.style("z-index", "10000000000000000000")
+	.style("visibility", "hidden");
+
 // Default domains for x_scale_main and y_scale_main.  
 // Ranges should take up the entirety of the vis
 var x_scale_main = d3.scale.linear().domain([0, 1]).range([0, main_vis.w]);
@@ -138,45 +146,33 @@ var loadTopTenCurrencies = function (data) {
         .attr("y", function (d) { return y_scale_main(d.volume_btc); })
         .attr("height", function (d) { return main_vis.h - y_scale_main(d.volume_btc); })
         .attr("width", barWidth - 1)
-        .attr("fill", "lightsteelblue");
+        .attr("fill", "steelblue")
+        .on("mouseover", function (d, i) {
+
+            // if it has a data, then display the data using a tooltip
+            main_tooltip.html("<b>" + d.name + " (" + d.id + ")</b><br>Trading Price (" + d.id + "/BTC): " + d.price_btc + "<br>Trading Volumn (BTC/day): " + d.volume_btc);
+
+            return main_tooltip.style("visibility", "visible");
+
+        })
+        .on("mousemove", function (d) { return main_tooltip.style("top", (event.pageY - 10) + "px").style("left", (event.pageX + 10) + "px"); })
+        .on("mouseout", function (d) { return main_tooltip.style("visibility", "hidden"); });
 
     bar.append("text")
-        .attr("x", barWidth / 2)
+        .attr("x", barWidth / 3)
         .attr("y", function (d) { return main_vis.h + 3; }) // slightly below the axis
         .attr("dy", ".75em")
-        .text(function (d) { return d.id; });
+        .text(function (d) { return d.name; })
+        .on("mouseover", function (d, i) {
 
-    //var bars = main_svg.selectAll("rect")
-    //    .data(data_ten)
-    //    .enter()
-    //    .append("rect")
-    //    .attr("x", function (d, i) {
-    //        return (main_vis.w / 10) * i;
-    //    })
-    //    .attr("y", function (d, i) {
-    //        return y_scale_main(d.volume_btc);;
-    //    })
-    //    .attr("width", function (d, i) {
-    //        return main_vis.w / 10;
-    //    })
-    //    .attr("height", function (d, i) {
-    //        return main_vis.h - y_scale_main(d.volume_btc);
-    //    })
-    //    .attr("fill", "lightsteelblue");
+            // if it has a data, then display the data using a tooltip
+            main_tooltip.html("<b>" + d.name + " (" + d.id + ")</b><br>Trading Price (" + d.id + "/BTC): " + d.price_btc + "<br>Trading Velocity (BTC/day): " + d.volume_btc);
 
-    //main_svg.selectAll("text")
-    //    .data(data_ten)
-    //    .enter()
-    //    .append("text")
-    //    .attr("x", function (d, i) {
-    //        console.log(d);
-    //        return (main_vis.w / 10) * i;
-    //    })
-    //    .attr("y", function (d, i) {
-    //        return y_scale_main(d.volume_btc);
-    //    })
-    //    .attr("dy", ".75em")
-    //    .text(function (d) { return d.id; });
+            return main_tooltip.style("visibility", "visible");
+
+        })
+        .on("mousemove", function (d) { return main_tooltip.style("top", (event.pageY - 10) + "px").style("left", (event.pageX + 10) + "px"); })
+        .on("mouseout", function (d) { return main_tooltip.style("visibility", "hidden"); });
 }
 
 /**
