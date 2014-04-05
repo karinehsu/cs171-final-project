@@ -25,7 +25,7 @@ var main_canvas = d3.select("#vis").append("svg").attr({
 })
 
 // append a svg
-var svg = canvas.append("g").attr({
+var svg = main_canvas.append("g").attr({
         transform: "translate(" + 0 + "," + 0 + ")"
     })
     .append("g")
@@ -33,27 +33,24 @@ var svg = canvas.append("g").attr({
         transform: "translate(" + margin.left + "," + margin.top + ")"
 });
 
-var runAjaxQuery = function () {
+var runAjaxQuery = function (endpoint, params) {
 
-    $.ajax({
-        url: "https://www.cryptocoincharts.info/v2/tools/api",
-        async: true,
-        jsonpCallback: 'getdata',
-        dataType: 'jsonp',
-        success: function (data, status) {
+    console.log("Running");
+    $.get("http://www.cryptocoincharts.info/v2/api/" + endpoint, function (data, status) {
+        console.log(data);
 
-            // check status, then update accordingly
-            if (status == "success") {
+        // check status, then update accordingly
+        if (status == "success") {
 
-            }
-            else {
-                // if fails, then debug
-            }
         }
-
-    });
+        else {
+            // if fails, then debug
+        }
+    })
 
 }
+
+runAjaxQuery("listCoins");
 
 
 
