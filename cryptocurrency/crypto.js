@@ -70,6 +70,8 @@ var y_scale_main = d3.scale.linear().domain([0, 1]).range([0, main_vis.h - margi
 var x_axis_main = d3.svg.axis().scale(x_scale_main).orient("bottom");
 var y_axis_main = d3.svg.axis().scale(y_scale_main).orient("left");
 
+var main_visual_active = false;
+
 /**
  * main()
  *
@@ -80,18 +82,12 @@ var main = function () {
     
     // Landing page should be a bar chart of top 10 most
     // actively-traded cryptocurrencies by volume
-    runCryptocoinchartsQuery("listCoins", {}, createMainVisual);
     runCryptocoinchartsQuery("listCoins", {}, loadTopTenCurrencies);
 
 
 }
 
-var createMainVisual = function (data) {
-
-    // should be independent of data, so later remove data
-    if (!data) {
-        return;
-    }
+var createMainVisual = function () {
 
     // Add the X Axis to the main vis
     main_svg.append("g")
@@ -143,6 +139,9 @@ var loadTopTenCurrencies = function (data) {
     if (!data) {
         return;
     }
+    if (!main_visual_active) {
+        createMainVisual();
+    }
 
     // parse out the values and store as floats
     data.forEach(function (d, i) {
@@ -191,7 +190,6 @@ var loadTopTenCurrencies = function (data) {
 
             // if it has a data, then display the data using a tooltip
             main_tooltip.html("<b>" + d.name + " (" + d.id + ")</b><br>Trading Price (" + d.id + "/BTC): " + d.price_btc + "<br>Trading Volumn (BTC/day): " + d.volume_btc);
-
             return main_tooltip.style("visibility", "visible");
 
         })
@@ -207,7 +205,6 @@ var loadTopTenCurrencies = function (data) {
 
             // if it has a data, then display the data using a tooltip
             main_tooltip.html("<b>" + d.name + " (" + d.id + ")</b><br>Trading Price (" + d.id + "/BTC): " + d.price_btc + "<br>Trading Velocity (BTC/day): " + d.volume_btc);
-
             return main_tooltip.style("visibility", "visible");
 
         })
