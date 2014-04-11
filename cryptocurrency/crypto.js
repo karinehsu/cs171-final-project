@@ -73,6 +73,17 @@ var y_axis_main = d3.svg.axis().scale(y_scale_main).orient("left");
 var main_visual_active = false;
 
 /**
+ * Object methods
+ **/
+Object.size = function (obj) {
+    var size = 0, key;
+    for (key in obj) {
+        if (obj.hasOwnProperty(key)) size++;
+    }
+    return size;
+};
+
+/**
  * main()
  *
  * @Brief: Serves as main() function, will be run at start of script.
@@ -82,10 +93,93 @@ var main = function () {
     
     // Landing page should be a bar chart of top 10 most
     // actively-traded cryptocurrencies by volume
+
+    //getWorldMap();
+
     runCryptocoinchartsQuery("listCoins", {}, loadTopTenCurrencies);
 
 
 }
+
+/**
+ * loadWorldMap()
+ *
+ * @Brief: Loads the world map in the main vis
+ *
+ **/
+var loadWorldMap = function (data) {
+    console.log(data);
+}
+
+
+/**
+ * getWorldMap()
+ *
+ * @Brief: Gets the data for the world map
+ *
+ **/
+var getWorldMap = function () {
+
+    var params = new Object();
+    params["json"] = "onlineNow";
+    runBlockchainQuery("nodes-globe", params, loadWorldMap)
+}
+
+var runBlockchainQuery = function (endpoint, params, callback) {
+    console.log("Running runBlockchainQuery");
+
+    var BLOCKCHAIN_API_BASE = "https://blockchain.info/";
+    var url = BLOCKCHAIN_API_BASE + endpoint;
+
+    if (Object.size(params) > 0) {
+        url += "?";
+        for (var key in params) {
+            url += key + "=" + params[key];
+        }
+    }
+
+    console.log(url);
+
+    xhr = new XMLHttpRequest();
+    xhr.open('GET', "http://www.bitcoinglobe.com/bitcoin.json", true);
+    xhr.onreadystatechange = function(e) {
+        if (xhr.readyState === 4) {
+            if (xhr.status === 200) {
+                var data = JSON.parse(xhr.responseText);
+
+                console.log(data);
+                //window.data = data;
+                //var i = 0;
+                //for (i = 0; i < data.length; i++) {
+                //    globe.addData(data[i][1], {
+                //        format : 'magnitude',
+                //        name : data[i][0],
+                //        animated : true
+                //    });
+                //}
+                //new TWEEN.Tween(globe).to({time: 0},500).easing(TWEEN.Easing.Cubic.EaseOut).start();
+
+                //globe.createPoints();
+                //globe.animate();
+            }
+        }
+    };
+    
+    xhr.send(null);
+
+
+    //$.get(url, function (data, status) {
+
+    //    // check status, then make callback
+    //    if (status == "success") {
+    //        callback(data);
+    //    }
+    //    else {
+    //        // if fails, then debug
+    //    }
+    //}, "jsonp");
+}
+
 
 var createMainVisual = function () {
 
