@@ -11,6 +11,11 @@
     shape-rendering: crispEdges;
 }
 
+ path {
+    stroke-width: 1;
+    fill: none;
+}
+
 .tooltip1 {
         text-align: left;
         padding: 10px;

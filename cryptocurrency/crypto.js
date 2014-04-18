@@ -64,13 +64,26 @@ var main_tooltip = d3.select("body")
 // Default domains for x_scale_main and y_scale_main.  
 // Ranges should take up the entirety of the vis
 var x_scale_main = d3.scale.linear().domain([0, 1]).range([0, main_vis.w]);
-var y_scale_main = d3.scale.linear().domain([0, 1]).range([0, main_vis.h - margin.bottom]);
+var y_scale_main = d3.scale.linear().domain([0, 1]).range([main_vis.h - margin.bottom, 0]);
 
 // Axis should default orientation to bottom and left
 var x_axis_main = d3.svg.axis().scale(x_scale_main).orient("bottom");
 var y_axis_main = d3.svg.axis().scale(y_scale_main).orient("left");
 
 var main_visual_active = false;
+
+var color = d3.scale.category10();
+
+/**
+ * Object methods
+ **/
+Object.size = function (obj) {
+    var size = 0, key;
+    for (key in obj) {
+        if (obj.hasOwnProperty(key)) size++;
+    }
+    return size;
+};
 
 /**
  * main()
@@ -82,10 +95,212 @@ var main = function () {
     
     // Landing page should be a bar chart of top 10 most
     // actively-traded cryptocurrencies by volume
-    runCryptocoinchartsQuery("listCoins", {}, loadTopTenCurrencies);
+
+    loadBigData();
+    //getWorldMap();
+
+    //runCryptocoinchartsQuery("listCoins", {}, loadTopTenCurrencies);
 
 
 }
+
+var loadBigData = function () {
+
+    //d3.text("https://api.bitcoinaverage.com/history/USD/per_day_all_time_history.csv", function(text) {
+    //    var data = d3.csv.parseRows(text);
+        
+    //    console.log(data);
+
+    //    var headers = data.shift();
+    //    console.log(head);
+    //    console.log(data);
+
+    //    createMainVisual();
+
+    //    var parseDate = d3.time.format("%Y%m%d").parse;
+
+    //    var line = d3.svg.line()
+    //        .interpolate("basis")
+    //        .x(function (d) { return x_scale_main(d[0]); })
+    //        .y(function (d) { return y_scale_main(d[3]); });
+
+    //});
+    d3.csv("https://api.bitcoinaverage.com/history/USD/per_day_all_time_history.csv", function (data) {
+        console.log(data.length);
+        console.log(data[0]);
+
+        color.domain(d3.keys(data[0]).filter(function (key) { return key !== "datetime"; }));
+
+        
+
+        var parseDate = d3.time.format("%Y-%m-%d %X").parse;
+        //var parseDate = d3.time.format("%Y").parse
+        data.forEach(function (d) {
+            d.datetime = parseDate(d.datetime);
+            d.average = parseFloat(d.average);
+            d.low = parseFloat(d.low);
+            d.high = parseFloat(d.high);
+            //d.datetime = new Date(d.datetime);
+        });
+
+        console.log(data[0]);
+
+        createMainVisual();
+
+        console.log(typeof (data[0].datetime));
+
+        x_scale_main = d3.time.scale().domain(d3.extent(data, function (d) { return d.datetime; })).range([0, main_vis.w]);
+        y_scale_main.domain(d3.extent(data, function (d) { return d.average; }));
+        x_axis_main.scale(x_scale_main);
+
+        x_axis_main.ticks(5);
+
+        var line = d3.svg.line()
+            .interpolate("basis")
+            .x(function (d) { return 50; })
+            .y(function (d) {
+                if (d.average) {
+                    console.log(y_scale_main(d.average));
+                    return y_scale_main(d.average);
+                }
+                else {
+                    return 100;
+                }
+            });
+
+        var line1 = d3.svg.line()
+            .interpolate("basis")
+            .x(x_scale_main(data.datetime))
+            .y(y_scale_main(data.average));
+
+        console.log(parseInt(data[0].datetime));
+
+        // Update the X and Y axis for main vis
+        main_canvas.selectAll(".y")
+            .style("visibility", "visible")
+            .call(y_axis_main);
+        main_canvas.selectAll(".x")
+            .style("visibility", "visible")
+            .call(x_axis_main);
+
+        var smallData = [];
+        for (var i = 0; i < 10; ++i) {
+            smallData.push(data[i]);
+        }
+
+        var allData = data;
+
+        var estimate = main_svg.selectAll(".line")
+            .data(allData)
+            .enter()
+            .append("path")
+            .attr("d", line(allData));
+            
+            //.attr("d", function(d) {
+            //    console.log(d);
+            //});
+
+
+
+    })
+}
+
+/**
+ * loadWorldMap()
+ *
+ * @Brief: Loads the world map in the main vis
+ *
+ **/
+var loadWorldMap = function (data) {
+    console.log(data);
+}
+
+
+/**
+ * getWorldMap()
+ *
+ * @Brief: Gets the data for the world map
+ *
+ **/
+var getWorldMap = function () {
+
+    var params = new Object();
+    params["json"] = "onlineNow";
+    runBlockchainQuery("nodes-globe", params, loadWorldMap)
+}
+
+var runBlockchainQuery = function (endpoint, params, callback) {
+    console.log("Running runBlockchainQuery");
+
+    var BLOCKCHAIN_API_BASE = "https://blockchain.info/";
+    var url = BLOCKCHAIN_API_BASE + endpoint;
+
+    if (Object.size(params) > 0) {
+        url += "?";
+        for (var key in params) {
+            url += key + "=" + params[key];
+        }
+    }
+
+    console.log(url);
+
+    //xhr = new XMLHttpRequest();
+    //xhr.open('GET', "http://www.bitcoinglobe.com/bitcoin.json", true);
+    //xhr.onreadystatechange = function(e) {
+    //    if (xhr.readyState === 4) {
+    //        if (xhr.status === 200) {
+    //            var data = JSON.parse(xhr.responseText);
+
+    //            console.log(data);
+    //            //window.data = data;
+    //            //var i = 0;
+    //            //for (i = 0; i < data.length; i++) {
+    //            //    globe.addData(data[i][1], {
+    //            //        format : 'magnitude',
+    //            //        name : data[i][0],
+    //            //        animated : true
+    //            //    });
+    //            //}
+    //            //new TWEEN.Tween(globe).to({time: 0},500).easing(TWEEN.Easing.Cubic.EaseOut).start();
+
+    //            //globe.createPoints();
+    //            //globe.animate();
+    //        }
+    //    }
+    //};
+    
+    //xhr.send(null);
+
+
+    //$.get(url, function (data, status) {
+
+    //    // check status, then make callback
+    //    if (status == "success") {
+    //        callback(data);
+    //    }
+    //    else {
+    //        // if fails, then debug
+    //    }
+    //}, "jsonp");
+
+    $.ajax({
+        url: url + "&cors=true",
+        async: false,
+        jsonpCallback: 'getdata',
+        dataType: 'jsonp',
+        success: function (data, status) {
+
+            // check status, then update data if status == success 200
+            if (status == "success") {
+                console.log(data);
+             
+            }
+
+        }
+
+    });
+}
+
 
 var createMainVisual = function () {
 
