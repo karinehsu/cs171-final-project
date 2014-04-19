@@ -28,7 +28,7 @@ var margin = {
 };
 
 var width = 1080 - margin.left - margin.right;
-var height = 300 - margin.bottom - margin.top;
+var height = 500 - margin.bottom - margin.top;
 
 // main_vis size attributes
 var main_vis = {
@@ -39,18 +39,11 @@ var main_vis = {
 };
 
 // main canvas for our visualization
-var main_canvas = d3.select("#main_vis").append("svg").attr({
+var main_svg = d3.select("#main_vis").append("svg").attr({
     width: width + margin.left + margin.right,
     height: height + margin.top + margin.bottom
-})
-
-// append a svg
-var main_svg = main_canvas.append("g").attr({
-        transform: "translate(" + 0 + "," + 0 + ")"
-    })
-    .append("g")
-    .attr({
-        transform: "translate(" + margin.left + "," + margin.top + ")"
+}).append("g").attr({
+    transform: "translate(" + margin.left + "," + margin.top + ")"
 });
 
 // tool tip for main
@@ -106,32 +99,11 @@ var main = function () {
 
 var loadBigData = function () {
 
-    //d3.text("https://api.bitcoinaverage.com/history/USD/per_day_all_time_history.csv", function(text) {
-    //    var data = d3.csv.parseRows(text);
-        
-    //    console.log(data);
-
-    //    var headers = data.shift();
-    //    console.log(head);
-    //    console.log(data);
-
-    //    createMainVisual();
-
-    //    var parseDate = d3.time.format("%Y%m%d").parse;
-
-    //    var line = d3.svg.line()
-    //        .interpolate("basis")
-    //        .x(function (d) { return x_scale_main(d[0]); })
-    //        .y(function (d) { return y_scale_main(d[3]); });
-
-    //});
     d3.csv("https://api.bitcoinaverage.com/history/USD/per_day_all_time_history.csv", function (data) {
         console.log(data.length);
         console.log(data[0]);
 
         color.domain(d3.keys(data[0]).filter(function (key) { return key !== "datetime"; }));
-
-        
 
         var parseDate = d3.time.format("%Y-%m-%d %X").parse;
         //var parseDate = d3.time.format("%Y").parse
@@ -157,10 +129,10 @@ var loadBigData = function () {
 
         var line = d3.svg.line()
             .interpolate("basis")
-            .x(function (d) { return 50; })
+            .x(function (d) { return x_scale_main(d.datetime); })
             .y(function (d) {
                 if (d.average) {
-                    console.log(y_scale_main(d.average));
+                    //console.log(y_scale_main(d.average));
                     return y_scale_main(d.average);
                 }
                 else {
@@ -168,38 +140,32 @@ var loadBigData = function () {
                 }
             });
 
-        var line1 = d3.svg.line()
-            .interpolate("basis")
-            .x(x_scale_main(data.datetime))
-            .y(y_scale_main(data.average));
-
         console.log(parseInt(data[0].datetime));
 
         // Update the X and Y axis for main vis
-        main_canvas.selectAll(".y")
+        main_svg.selectAll(".y")
             .style("visibility", "visible")
             .call(y_axis_main);
-        main_canvas.selectAll(".x")
+        main_svg.selectAll(".x")
             .style("visibility", "visible")
             .call(x_axis_main);
 
+        var dataGroup = main_svg.append("g").attr({
+            "class": "dataGroup"
+        });
+
         var smallData = [];
-        for (var i = 0; i < 10; ++i) {
+        var length = data.length / 2;
+        for (var i = 0; i < length; ++i) {
             smallData.push(data[i]);
         }
 
         var allData = data;
 
-        var estimate = main_svg.selectAll(".line")
-            .data(allData)
-            .enter()
-            .append("path")
-            .attr("d", line(allData));
-            
-            //.attr("d", function(d) {
-            //    console.log(d);
-            //});
-
+        dataGroup.append("path").attr({
+            "class": "dataLine",
+            "d": line(data),
+        }).style("stroke", "red");
 
 
     })
@@ -316,7 +282,7 @@ var createMainVisual = function () {
         .call(y_axis_main);
 
     // Add the axis label for the y axis
-    main_canvas.append("text")
+    main_svg.append("text")
        .attr("class", "axis-label")
        .attr("transform", "rotate(-90)")
        .attr("y", 0)
@@ -325,14 +291,14 @@ var createMainVisual = function () {
        .style("text-anchor", "middle")
        .text("Volume of Trade (#BTC)");
 
-    main_canvas.append("text")
+    main_svg.append("text")
         .attr("class", "axis-label")
         .attr("transform", "translate(" + ((main_vis.w + main_vis.x) / 2) + " ," + (main_vis.h + main_vis.y * 3) + ")")
         .attr("dy", "1em")
         .style("text-anchor", "middle")
         .text("Cryptocurrency");
 
-    main_canvas.append("text")
+    main_svg.append("text")
         .attr("class", "axis-label")
         .attr("transform", "translate(" + ((main_vis.w + main_vis.x) / 2) + " ," + 0 + ")")
         .attr("dy", "1em")
@@ -382,10 +348,10 @@ var loadTopTenCurrencies = function (data) {
     y_scale_main.domain([data_ten[0].volume_btc, data_ten[9].volume_btc]);
 
     // Update the X and Y axis for main vis
-    main_canvas.selectAll(".y")
+    main_svg.selectAll(".y")
         .style("visibility", "visible")
         .call(y_axis_main);
-    main_canvas.selectAll(".x")
+    main_svg.selectAll(".x")
         .style("visibility", "visible")
         .call(x_axis_main);
 
