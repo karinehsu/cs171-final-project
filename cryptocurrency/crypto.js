@@ -42,7 +42,9 @@ var main_vis = {
 var main_svg = d3.select("#main_vis").append("svg").attr({
     width: width + margin.left + margin.right,
     height: height + margin.top + margin.bottom
-}).append("g").attr({
+})
+
+var main_g = main_svg.append("g").attr({
     transform: "translate(" + margin.left + "," + margin.top + ")"
 });
 
@@ -66,11 +68,6 @@ var y_axis_main = d3.svg.axis().scale(y_scale_main).orient("left");
 var main_visual_active = false;
 
 var color = d3.scale.category10();
-var brush; 
-    brush = d3.svg.brush()
-        .x(timeScale)
-        .on("brush", brushed);
-
 /**
  * Object methods
  **/
@@ -147,14 +144,14 @@ var loadBigData = function () {
         console.log(parseInt(data[0].datetime));
 
         // Update the X and Y axis for main vis
-        main_svg.selectAll(".y")
+        main_g.selectAll(".y")
             .style("visibility", "visible")
             .call(y_axis_main);
-        main_svg.selectAll(".x")
+        main_g.selectAll(".x")
             .style("visibility", "visible")
             .call(x_axis_main);
 
-        var dataGroup = main_svg.append("g").attr({
+        var dataGroup = main_g.append("g").attr({
             "class": "dataGroup"
         });
 
@@ -275,13 +272,13 @@ var runBlockchainQuery = function (endpoint, params, callback) {
 var createMainVisual = function () {
 
     // Add the X Axis to the main vis
-    main_svg.append("g")
+    main_g.append("g")
         .attr("class", "x axis")
-        .attr("transform", "translate(0," + (height - margin.bottom) + ")")
+        .attr("transform", "translate(" + main_vis.x + "," + (height - margin.bottom) + ")")
         .call(x_axis_main);
 
     // Add the Y Axis to the main vis
-    main_svg.append("g")
+    main_g.append("g")
         .attr("class", "y axis")
         .call(y_axis_main);
 
@@ -300,7 +297,7 @@ var createMainVisual = function () {
         .attr("transform", "translate(" + ((main_vis.w + main_vis.x) / 2) + " ," + (main_vis.h + main_vis.y * 3) + ")")
         .attr("dy", "1em")
         .style("text-anchor", "middle")
-        .text("Cryptocurrency");
+        .text("Year");
 
     main_svg.append("text")
         .attr("class", "axis-label")

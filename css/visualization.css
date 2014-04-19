@@ -24,4 +24,12 @@
         border: 0px;
         border-radius: 8px;
         pointer-events: none;
-    }
+}
+
+#main_vis {
+    padding-left: 25px;
+    padding-right: 25px;
+    padding-top: 25px;
+    padding-bottom: 25px;
+
+}
