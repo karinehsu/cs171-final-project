@@ -540,9 +540,12 @@ var loadTopTenCurrencies = function (data) {
     if (!data) {
         return;
     }
-    if (!main_visual_active) {
-        createMainVisual();
-    }
+
+    var dataGroup = main_g.selectAll(".dataGroup");
+    var dots = dataGroup.selectAll(".dataPoint");
+    dots.remove();
+    dataGroup.selectAll("path").remove();
+    main_g.selectAll('rect').remove();
 
     // parse out the values and store as floats
     data.forEach(function (d, i) {
@@ -662,6 +665,10 @@ var updateGraphType = function (element) {
 $(document).ready(function () {
     $('.graph-type').click(function () {
         updateGraphType($(this));
+    })
+
+    $('#topTen').click(function () {
+        runCryptocoinchartsQuery("listCoins", {}, loadTopTenCurrencies);
     })
 
     main();
