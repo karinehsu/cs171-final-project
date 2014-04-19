@@ -337,7 +337,7 @@ var createMainVisual = function () {
         .attr("transform", "translate(" + ((main_vis.w + main_vis.x) / 2) + " ," + 0 + ")")
         .attr("dy", "1em")
         .style("text-anchor", "middle")
-        .text("Volume of Trade for Cryptocurrencies in last 24 Hours");
+        .text("Price for Cryptocurrencies");
 }
 /**
  * loadTopTenCurrencies(data)
