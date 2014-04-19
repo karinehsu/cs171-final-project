@@ -155,13 +155,7 @@ var loadBigData = function () {
             "class": "dataGroup"
         });
 
-        var smallData = [];
-        var length = data.length / 2;
-        for (var i = 0; i < length; ++i) {
-            smallData.push(data[i]);
-        }
-
-        var allData = data;
+        console.log(data[data.length - 1]);
 
         dataGroup.append("path").attr({
             "class": "dataLine",
@@ -274,7 +268,7 @@ var createMainVisual = function () {
     // Add the X Axis to the main vis
     main_g.append("g")
         .attr("class", "x axis")
-        .attr("transform", "translate(" + main_vis.x + "," + (height - margin.bottom) + ")")
+        .attr("transform", "translate(0," + (height - margin.bottom) + ")")
         .call(x_axis_main);
 
     // Add the Y Axis to the main vis
