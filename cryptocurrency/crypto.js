@@ -102,13 +102,21 @@ Object.size = function (obj) {
  **/
 var main = function () {
     
-    // Landing page should be a bar chart of top 10 most
-    // actively-traded cryptocurrencies by volume
-
+    loadLeftPanel();
+    loadRightPanel();
     loadBigData();
-    //getWorldMap();
 
     //runCryptocoinchartsQuery("listCoins", {}, loadTopTenCurrencies);
+
+
+}
+
+var loadLeftPanel = function () {
+
+
+}
+
+var loadRightPanel = function () {
 
 
 }

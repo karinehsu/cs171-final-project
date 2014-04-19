@@ -1,13 +1,23 @@
+/* General Stuff */
+body {
+    padding-top: 50px;
+    min-height: 1000px;
+}
+
 .header_container {
     margin: auto;
     padding-left: 20px;
     padding-right: 20px;
 }
 
+/* Navigation Stuff */
 .masthead .dropdown-menu {
     width: 100%;
 }
 
+.navbar-custom {
+    background-color: rgba(245, 245, 245, 0.8);
+}
 
 
 .axis-label {
@@ -50,5 +60,20 @@
 
     margin-left: 0px;
     margin-right: 0px;
+}
+
+#left_panel {
+    background-color: rgba(115, 20, 35, 0.8);
+    height: 100%;
+    position: fixed;
+}
+
+#center_panel {
+    margin: auto;
+    float: center;
+}
+
+#right_panel {
+
 }
 
