@@ -27,8 +27,12 @@ var margin = {
     left: 75
 };
 
-var width = 1080 - margin.left - margin.right;
+var canvas_width = parseInt(d3.select("#main_vis").style("width"), 10);
+console.log(canvas_width);
+var width =  canvas_width - margin.left - margin.right;
 var height = 500 - margin.bottom - margin.top;
+
+console.log(width);
 
 // main_vis size attributes
 var main_vis = {
@@ -42,7 +46,18 @@ var main_vis = {
 var main_svg = d3.select("#main_vis").append("svg").attr({
     width: width + margin.left + margin.right,
     height: height + margin.top + margin.bottom
-})
+}).attr("preserveAspectRatio", "xMidYMid").attr("id", "svg").attr("viewBox", "0 0 " + (width + margin.left + margin.right) + " " + (height + margin.top + margin.bottom));
+
+console.log(main_svg);
+var svg = $("#svg");
+var aspect = svg.width() / svg.height();
+var container = svg.parent();
+
+$(window).on("resize", function () {
+    var targetWidth = container.width();
+    svg.attr("width", targetWidth);
+    svg.attr("height", Math.round(targetWidth / aspect));
+}).trigger("resize");
 
 var main_g = main_svg.append("g").attr({
     transform: "translate(" + margin.left + "," + margin.top + ")"
@@ -101,23 +116,16 @@ var main = function () {
 var loadBigData = function () {
 
     d3.csv("https://api.bitcoinaverage.com/history/USD/per_day_all_time_history.csv", function (data) {
-        console.log(data.length);
-        console.log(data[0]);
-
-        color.domain(d3.keys(data[0]).filter(function (key) { return key !== "datetime"; }));
-
+        
         var parseDate = d3.time.format("%Y-%m-%d %X").parse;
-        //var parseDate = d3.time.format("%Y").parse
         data.forEach(function (d) {
             d.datetime = parseDate(d.datetime);
             d.average = parseFloat(d.average);
             d.low = parseFloat(d.low);
             d.high = parseFloat(d.high);
-            //d.datetime = new Date(d.datetime);
         });
 
-        console.log(data[0]);
-
+        // create visual
         createMainVisual();
 
         console.log(typeof (data[0].datetime));
@@ -140,8 +148,6 @@ var loadBigData = function () {
                     return 100;
                 }
             });
-
-        console.log(parseInt(data[0].datetime));
 
         // Update the X and Y axis for main vis
         main_g.selectAll(".y")
@@ -300,6 +306,7 @@ var createMainVisual = function () {
         .style("text-anchor", "middle")
         .text("Price of Bitcoin Over Time");
 }
+
 /**
  * loadTopTenCurrencies(data)
  *
