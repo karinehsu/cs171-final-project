@@ -117,6 +117,24 @@ var main = function () {
 
 }
 
+/*KARINE*/
+
+// var brush = d3.svg.brush().x(x_scale_main).on("brush", brushed);
+
+// function brushed() {
+//     xScaleDetail.domain(brush.empty() ? xScaleOverview.domain() : brush.extent());
+//     svg.select(".timeArea").attr("d", detailArea(dataSet));
+//     svg.select(".xDetail.axis").call(xAxisDetail);
+//     svg.selectAll(".detailVis .dataPoint").attr({
+//         "cx":function(d) { return xScaleDetail(d.month); },
+//         "cy":function(d) { return yScaleDetail(d.count); }
+//     });
+
+//     x_scale_main = d3.time.scale().domain(d3.extent(BTC_ALL, function (d) { return d.datetime; })).range([0, main_vis.w]);
+//     y_scale_main.domain(d3.extent(BTC_ALL, function (d) { return d.average; }));
+
+// }
+
 var loadLeftPanel = function () {
 
 
@@ -368,6 +386,10 @@ var loadBTCCandlestickGraph = function () {
     
 
 }
+
+var loadbidAskSpread = function () {
+}
+
 /**
  * loadWorldMap()
  *
