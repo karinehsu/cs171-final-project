@@ -178,18 +178,22 @@ var loadBTCLineGraph = function () {
         .style("visibility", "visible")
         .call(x_axis_main);
 
+    var rects = main_svg.selectAll("rect").remove();
+
     var dataGroup = main_g.selectAll(".dataGroup");
     console.log(dataGroup);
 
-    if (dataGroup[0].length < 1) {
-
-        console.log("new line");
-
+    if (dataGroup < 1) {
+        console.log("adding g");
         // if we didn't already have the graph
         dataGroup = main_g.append("g").attr({
             "class": "dataGroup"
         });
+    }
 
+    if (dataGroup.selectAll("path") < 1) {
+
+        console.log("new line");
         dataGroup.append("svg:path").attr({
             "class": "dataLine",
             "d": line(BTC_ALL),
@@ -206,7 +210,7 @@ var loadBTCLineGraph = function () {
         }).style("stroke", "red");
 
         var dots = dataGroup.selectAll(".dataPoint");
-        dots.remove();
+        dots.attr("r", 0);
     }
 
 }
@@ -225,7 +229,6 @@ var loadBTCLineoGraph = function () {
         .x(function (d) { return x_scale_main(d.datetime); })
         .y(function (d) {
             if (d.average) {
-                //console.log(y_scale_main(d.average));
                 return y_scale_main(d.average);
             }
         });
@@ -238,38 +241,133 @@ var loadBTCLineoGraph = function () {
         .style("visibility", "visible")
         .call(x_axis_main);
 
+    var rects = main_svg.selectAll("rect").remove();
+
     var dataGroup = main_g.selectAll(".dataGroup");
 
-    //console.log(dataGroup);
+    if (dataGroup.selectAll("path") < 1) {
 
-    dataGroup.selectAll("path").attr({
-        "class": "dataLine",
-        "d": line(BTC_ALL),
-    }).style("stroke", "red");
+        console.log("new line");
+        dataGroup.append("svg:path").attr({
+            "class": "dataLine",
+            "d": line(BTC_ALL),
+        }).style("stroke", "red");
+    }
+    else {
 
-    var dots = dataGroup.selectAll("dataPoint");
+        console.log("old line");
 
-    if (dots[0].length < 1) {
+        // else just update
+        dataGroup.selectAll("path").attr({
+            "class": "dataLine",
+            "d": line(BTC_ALL),
+        }).style("stroke", "red");
+
+    }
+
+    var dots = dataGroup.selectAll(".dataPoint");
+
+    if (dots < 1) {
+        console.log("new dots");
         // Add the dots if never put on before
         dots.data(BTC_ALL).enter().append("circle").attr({
             "cx": function (d) { return x_scale_main(d.datetime); },
             "cy": function (d) { return y_scale_main(d.average); },
             "r": 2,
-            "class": "dataPoint"
+            "class": "dataPoint",
         }).style("fill", "blue");
     }
     else {
-        dots.selectAll("circle").attr({
+
+        console.log("old dots");
+        console.log(dots.selectAll("circle"));
+        dots.selectAll("circle").data(BTC_ALL).attr({
             "cx": function (d) { return x_scale_main(d.datetime); },
             "cy": function (d) { return y_scale_main(d.average); },
             "r": 2,
-            "class": "dataPoint"
+            "class": "dataPoint",
         }).style("border", "blue");
+
+        dots.attr("r", 2);
+    }
+    
+}
+
+var loadBTCCandlestickGraph = function () {
+
+    x_scale_main = d3.time.scale().domain(d3.extent(BTC_ALL, function (d) { return d.datetime; })).range([0, main_vis.w]);
+    y_scale_main.domain([(d3.min (BTC_ALL, function (d) { return d.low; })), (d3.max(BTC_ALL, function (d) { return d.high; }))]);
+    console.log([(d3.min(BTC_ALL, function (d) { return d.low; })), (d3.max(BTC_ALL, function (d) { return d.high; }))]);
+    x_axis_main.scale(x_scale_main);
+
+    x_axis_main.ticks(5);
+
+    // Update the X and Y axis for main vis
+    main_g.selectAll(".y")
+        .style("visibility", "visible")
+        .call(y_axis_main);
+    main_g.selectAll(".x")
+        .style("visibility", "visible")
+        .call(x_axis_main);
+
+    var dataGroup = main_g.selectAll(".dataGroup");
+    var dots = dataGroup.selectAll(".dataPoint");
+    dots.remove();
+    dataGroup.selectAll("path").remove();
+
+    var rects = main_svg.selectAll("rect");
+
+    if (rects < 1) {
+        main_svg.selectAll("rect")
+        .data(BTC_ALL)
+        .enter().append("svg:rect")
+        .attr("x", function (d) {
+            return x_scale_main(d.datetime) + margin.left;
+        })
+        .attr("y", function (d) {
+            if (d.low) {
+                return y_scale_main(d.low) - margin.top;
+            }
+            else {
+                return y_scale_main(d.average) - margin.top;
+            }
+
+        })
+        .attr("height", function (d) {
+            if (d.high) {
+                return y_scale_main(d.low) - y_scale_main(d.high);
+            }
+            else {
+                return 3;
+            }
+        })
+        .attr("width", function (d) {
+            return 0.5 * (main_vis.w - 2 * main_vis.x) / BTC_ALL.length;
+        })
+        .attr("fill", function (d) {
+            if (d.low && d.high) {
+                return "green";
+            }
+            else {
+                return "red";
+            }
+        });
+    }
+    else {
+        main_svg.selectAll("rect")
+        .data(BTC_ALL)
+        .attr("height", function (d) {
+            if (d.high) {
+                return y_scale_main(d.low) - y_scale_main(d.high);
+            }
+            else {
+                return 3;
+            }
+        });
     }
     
 
 }
-
 /**
  * loadWorldMap()
  *
@@ -531,7 +629,7 @@ var updateGraphType = function (element) {
         loadBTCLineoGraph();
     }
     else if (graph_type.localeCompare("candlestick-graph") == 0) {
-        console.log("candlestick-graph")
+        loadBTCCandlestickGraph();
 
     } 
 }
