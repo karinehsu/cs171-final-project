@@ -65,68 +65,64 @@
             </div>
         </div>
 
-        <div class="main_container">
-
-            
-
-            <!-- Jumbotron -->
+        
+        <div class="container-fluid">
             <div class="row">
-                <div class="col-sm-2 sidebar" id="left_panel">
-
+                <div class="col-sm-3 col-md-2 sidebar">
+                    <ul class="nav nav-sidebar">
+                        <li class="active"><a href="#">Overview</a></li>
+                        <li><a href="#">Reports</a></li>
+                        <li><a href="#">Analytics</a></li>
+                        <li><a href="#">Export</a></li>
+                    </ul>
+                    <ul class="nav nav-sidebar">
+                        <li><a href="">Nav item</a></li>
+                        <li><a href="">Nav item again</a></li>
+                        <li><a href="">One more nav</a></li>
+                        <li><a href="">Another nav item</a></li>
+                        <li><a href="">More navigation</a></li>
+                    </ul>
+                    <ul class="nav nav-sidebar">
+                        <li><a href="">Nav item again</a></li>
+                        <li><a href="">One more nav</a></li>
+                        <li><a href="">Another nav item</a></li>
+                    </ul>
                 </div>
-                <div class ="col-sm-8 col-sm-offset-2" id="center_panel">
-                    <div class="masthead">
-                        <!--<h3 class="text-muted">Project name</h3>-->
-                        <ul class="nav nav-justified">
-                            <li class="active"><a href="#">Category 1</a></li>
-                            <li><a href="#">Category 2</a></li>
-                            <li><a href="#">Category 3</a></li>
-                            <li><a href="#">Category 4</a></li>
-                            <li class="dropdown">
-                                <a href="#" class="dropdown-toggle" data-toggle="dropdown">Chart Style<b class="caret"></b></a>
-                                <ul class="dropdown-menu">
-                                    <li class="active"><a href="#">Line</a></li>
-                                    <li><a href="#">Line-O</a></li>
-                                    <li><a href="#">Candlestick</a></li>
-                                </ul>
-                            </li>
-                        </ul>
-                    </div>
-                    <div class="inner" id="main_vis">
-                        <!--<h1>Do stuff to main visuals here</h1>-->
-                    </div>
-                    <!-- Example row of columns -->
-                    <div class="row">
-                        <div class="col-lg-4" >
-                            <h2>Detailed Vis 1</h2>
-                            <p class="text-danger">As of v7.0.1, Safari exhibits a bug in which resizing your browser horizontally causes rendering errors in the justified nav that are cleared upon refreshing.</p>
-                            <p>Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Etiam porta sem malesuada magna mollis euismod. Donec sed odio dui. </p>
-                            <p><a class="btn btn-primary" href="#" role="button">View details &raquo;</a></p>
-                        </div>
-                        <div class="col-lg-4">
-                            <h2>Detailed Vis 2</h2>
-                            <p>Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Etiam porta sem malesuada magna mollis euismod. Donec sed odio dui. </p>
-                            <p><a class="btn btn-primary" href="#" role="button">View details &raquo;</a></p>
+                <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+                    
+                    <h1 class="page-header">Bitcoin Explorer</h1>
+                    <div id="type-btn-group">
+                        <div class="btn-group">
+                            <button type="button" class="btn btn-danger">Line Graph</button>
+                            <button type="button" class="btn btn-danger dropdown-toggle" data-toggle="dropdown">
+                                <span class="caret"></span>
+                                <span class="sr-only">Toggle Dropdown</span>
+                            </button>
+                            <ul class="dropdown-menu" role="menu">
+                                <li class="graph-type" id="line-graph"><a href="#">Line Graph</a></li>
+                                <li class="graph-type" id="lineo-graph"><a href="#">Line-O Graph</a></li>
+                                <li class="graph-type" id="candlestick-graph"><a href="#">CandleStick Graph</a></li>
+                                <li class="divider"></li>
+                                <li class="graph-type" id="clear-graph"><a href="#">Clear</a></li>
+                            </ul>
                         </div>
                     </div>
-                </div>
-                <div class="col-lg-2">
-
+                    
+                    <div id="main_vis">
+                    </div>
                 </div>
             </div>
-           
-
-        </div> 
-        <!-- /container -->
+        </div>
+         
 
         <!-- Bootstrap core JavaScript -->
         <!-- Placed at the end of the document so the pages load faster -->
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+        <script type="text/javascript" src="../js/jquery-1.11.0.min.js"></script>
         <script src="../../js/bootstrap.min.js"></script>
 
         <!-- D3 and jQuery Libraries -->
         <script src="http://d3js.org/d3.v3.min.js"></script>
-        <script type="text/javascript" src="../js/jquery-1.11.0.min.js"></script>
+        
         
         <!-- Custom JS for rendering visualization-->
         <script src="crypto.js"></script>

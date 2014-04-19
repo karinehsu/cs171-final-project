@@ -28,11 +28,9 @@ var margin = {
 };
 
 var canvas_width = parseInt(d3.select("#main_vis").style("width"), 10);
-console.log(canvas_width);
 var width =  canvas_width - margin.left - margin.right;
 var height = 500 - margin.bottom - margin.top;
 
-console.log(width);
 
 // main_vis size attributes
 var main_vis = {
@@ -48,7 +46,6 @@ var main_svg = d3.select("#main_vis").append("svg").attr({
     height: height + margin.top + margin.bottom
 }).attr("preserveAspectRatio", "xMidYMid").attr("id", "svg").attr("viewBox", "0 0 " + (width + margin.left + margin.right) + " " + (height + margin.top + margin.bottom));
 
-console.log(main_svg);
 var svg = $("#svg");
 var aspect = svg.width() / svg.height();
 var container = svg.parent();
@@ -83,9 +80,18 @@ var y_axis_main = d3.svg.axis().scale(y_scale_main).orient("left");
 var main_visual_active = false;
 
 var color = d3.scale.category10();
+
+/**
+ * CACHE DATA SETS
+ **/
+
 /**
  * Object methods
  **/
+
+var BTC_ALL = 0;
+
+
 Object.size = function (obj) {
     var size = 0, key;
     for (key in obj) {
@@ -105,7 +111,7 @@ var main = function () {
     loadLeftPanel();
     loadRightPanel();
     loadBigData();
-
+    
     //runCryptocoinchartsQuery("listCoins", {}, loadTopTenCurrencies);
 
 
@@ -124,7 +130,7 @@ var loadRightPanel = function () {
 var loadBigData = function () {
 
     d3.csv("https://api.bitcoinaverage.com/history/USD/per_day_all_time_history.csv", function (data) {
-        
+
         var parseDate = d3.time.format("%Y-%m-%d %X").parse;
         data.forEach(function (d) {
             d.datetime = parseDate(d.datetime);
@@ -133,51 +139,135 @@ var loadBigData = function () {
             d.high = parseFloat(d.high);
         });
 
+        BTC_ALL = data;
+
         // create visual
         createMainVisual();
 
-        console.log(typeof (data[0].datetime));
+        loadBTCLineGraph();
 
-        x_scale_main = d3.time.scale().domain(d3.extent(data, function (d) { return d.datetime; })).range([0, main_vis.w]);
-        y_scale_main.domain(d3.extent(data, function (d) { return d.average; }));
-        x_axis_main.scale(x_scale_main);
+    });
+}
 
-        x_axis_main.ticks(5);
+var loadBTCLineGraph = function () {
 
-        var line = d3.svg.line()
-            .interpolate("basis")
-            .x(function (d) { return x_scale_main(d.datetime); })
-            .y(function (d) {
-                if (d.average) {
-                    //console.log(y_scale_main(d.average));
-                    return y_scale_main(d.average);
-                }
-                else {
-                    return 100;
-                }
-            });
+    x_scale_main = d3.time.scale().domain(d3.extent(BTC_ALL, function (d) { return d.datetime; })).range([0, main_vis.w]);
+    y_scale_main.domain(d3.extent(BTC_ALL, function (d) { return d.average; }));
+    x_axis_main.scale(x_scale_main);
 
-        // Update the X and Y axis for main vis
-        main_g.selectAll(".y")
-            .style("visibility", "visible")
-            .call(y_axis_main);
-        main_g.selectAll(".x")
-            .style("visibility", "visible")
-            .call(x_axis_main);
+    x_axis_main.ticks(5);
 
-        var dataGroup = main_g.append("g").attr({
+    var line = d3.svg.line()
+        .interpolate("basis")
+        .x(function (d) { return x_scale_main(d.datetime); })
+        .y(function (d) {
+            if (d.average) {
+                //console.log(y_scale_main(d.average));
+                return y_scale_main(d.average);
+            }
+            else {
+                return 100;
+            }
+        });
+
+    // Update the X and Y axis for main vis
+    main_g.selectAll(".y")
+        .style("visibility", "visible")
+        .call(y_axis_main);
+    main_g.selectAll(".x")
+        .style("visibility", "visible")
+        .call(x_axis_main);
+
+    var dataGroup = main_g.selectAll(".dataGroup");
+    console.log(dataGroup);
+
+    if (dataGroup[0].length < 1) {
+
+        console.log("new line");
+
+        // if we didn't already have the graph
+        dataGroup = main_g.append("g").attr({
             "class": "dataGroup"
         });
 
-        console.log(data[data.length - 1]);
-
-        dataGroup.append("path").attr({
+        dataGroup.append("svg:path").attr({
             "class": "dataLine",
-            "d": line(data),
+            "d": line(BTC_ALL),
+        }).style("stroke", "red");
+    }
+    else {
+
+        console.log("old line");
+
+        // else just update
+        dataGroup.selectAll("path").attr({
+            "class": "dataLine",
+            "d": line(BTC_ALL),
         }).style("stroke", "red");
 
+        var dots = dataGroup.selectAll(".dataPoint");
+        dots.remove();
+    }
 
-    })
+}
+
+
+var loadBTCLineoGraph = function () {
+
+    x_scale_main = d3.time.scale().domain(d3.extent(BTC_ALL, function (d) { return d.datetime; })).range([0, main_vis.w]);
+    y_scale_main.domain(d3.extent(BTC_ALL, function (d) { return d.average; }));
+    x_axis_main.scale(x_scale_main);
+
+    x_axis_main.ticks(5);
+
+    var line = d3.svg.line()
+        .interpolate("basis")
+        .x(function (d) { return x_scale_main(d.datetime); })
+        .y(function (d) {
+            if (d.average) {
+                //console.log(y_scale_main(d.average));
+                return y_scale_main(d.average);
+            }
+        });
+
+    // Update the X and Y axis for main vis
+    main_g.selectAll(".y")
+        .style("visibility", "visible")
+        .call(y_axis_main);
+    main_g.selectAll(".x")
+        .style("visibility", "visible")
+        .call(x_axis_main);
+
+    var dataGroup = main_g.selectAll(".dataGroup");
+
+    //console.log(dataGroup);
+
+    dataGroup.selectAll("path").attr({
+        "class": "dataLine",
+        "d": line(BTC_ALL),
+    }).style("stroke", "red");
+
+    var dots = dataGroup.selectAll("dataPoint");
+
+    if (dots[0].length < 1) {
+        // Add the dots if never put on before
+        dots.data(BTC_ALL).enter().append("circle").attr({
+            "cx": function (d) { return x_scale_main(d.datetime); },
+            "cy": function (d) { return y_scale_main(d.average); },
+            "r": 2,
+            "class": "dataPoint"
+        }).style("fill", "blue");
+    }
+    else {
+        dots.selectAll("circle").attr({
+            "cx": function (d) { return x_scale_main(d.datetime); },
+            "cy": function (d) { return y_scale_main(d.average); },
+            "r": 2,
+            "class": "dataPoint"
+        }).style("border", "blue");
+    }
+    
+
 }
 
 /**
@@ -428,11 +518,31 @@ var runCryptocoinchartsQuery = function (endpoint, params, callback) {
 
 }
 
+
+var updateGraphType = function (element) {
+    
+    var graph_type = element.attr("id");
+
+    // update GraphType based on ids
+    if (graph_type.localeCompare("line-graph") == 0) {
+        loadBTCLineGraph();
+    }
+    else if (graph_type.localeCompare("lineo-graph") == 0) {
+        loadBTCLineoGraph();
+    }
+    else if (graph_type.localeCompare("candlestick-graph") == 0) {
+        console.log("candlestick-graph")
+
+    } 
+}
 /** 
  * EXECUTION CODE
  **/
-main();
 
+$(document).ready(function () {
+    $('.graph-type').click(function () {
+        updateGraphType($(this));
+    })
 
-
-
+    main();
+});
