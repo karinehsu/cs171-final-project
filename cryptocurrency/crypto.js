@@ -73,6 +73,10 @@ var y_axis_main = d3.svg.axis().scale(y_scale_main).orient("left");
 var main_visual_active = false;
 
 var color = d3.scale.category10();
+var brush; 
+    brush = d3.svg.brush()
+        .x(timeScale)
+        .on("brush", brushed);
 
 /**
  * Object methods
@@ -323,7 +327,7 @@ var createMainVisual = function () {
        .attr("x", 0 - (main_vis.h / 2) - main_vis.y)
        .attr("dy", "1em")
        .style("text-anchor", "middle")
-       .text("Volume of Trade (#BTC)");
+       .text("Price ($)");
 
     main_canvas.append("text")
         .attr("class", "axis-label")
@@ -337,7 +341,7 @@ var createMainVisual = function () {
         .attr("transform", "translate(" + ((main_vis.w + main_vis.x) / 2) + " ," + 0 + ")")
         .attr("dy", "1em")
         .style("text-anchor", "middle")
-        .text("Price for Cryptocurrencies");
+        .text("Price of Bitcoin Over Time");
 }
 /**
  * loadTopTenCurrencies(data)
