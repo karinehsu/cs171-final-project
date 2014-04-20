@@ -24,7 +24,7 @@ var margin = {
     top: 25,
     right: 50,
     bottom: 25,
-    left: 75
+    left: 100
 };
 
 var canvas_width = parseInt(d3.select("#main_vis").style("width"), 10);
