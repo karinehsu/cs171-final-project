@@ -40,13 +40,40 @@ var main_vis = {
     h: height
 };
 
+var detail_vis = {
+    x: main_vis.x,
+    y: main_vis.y,
+    w: main_vis.w,
+    h: main_vis.h / 2
+
+}
+
 // main canvas for our visualization
 var main_svg = d3.select("#main_vis").append("svg").attr({
-    width: width + margin.left + margin.right,
-    height: height + margin.top + margin.bottom
-}).attr("preserveAspectRatio", "xMidYMid").attr("id", "svg").attr("viewBox", "0 0 " + (width + margin.left + margin.right) + " " + (height + margin.top + margin.bottom));
+    width: main_vis.w + margin.left + margin.right,
+    height: main_vis.h + margin.top + margin.bottom
+}).attr("preserveAspectRatio", "xMidYMid").attr("id", "main_svg").attr("viewBox", "0 0 " + (main_vis.w + margin.left + margin.right) + " " + (main_vis.h + margin.top + margin.bottom));
 
-var svg = $("#svg");
+// Set up the area for the detailed graph, also make sure its clipped
+main_svg.append("defs").append("clipPath")
+    .attr("id", "main_clip")
+    .append("rect")
+    .attr("width", width)
+    .attr("height", height);
+
+var detail_svg = d3.select("#detail_vis").append("svg").attr({
+    width: detail_vis.w + margin.left + margin.right,
+    height: detail_vis.h + margin.top + margin.bottom
+}).attr("preserveAspectRatio", "xMidYMid").attr("id", "detail_svg").attr("viewBox", "0 0 " + (detail_vis.w + margin.left + margin.right) + " " + (detail_vis.h + margin.top + margin.bottom));
+
+detail_svg.append("defs").append("clipPath")
+    .attr("id", "detail_clip")
+    .append("rect")
+    .attr("x", margin.left)
+    .attr("width", detail_vis.w)
+    .attr("height", detail_vis.h);
+
+var svg = $("#main_svg");
 var aspect = svg.width() / svg.height();
 var container = svg.parent();
 
@@ -56,7 +83,21 @@ $(window).on("resize", function () {
     svg.attr("height", Math.round(targetWidth / aspect));
 }).trigger("resize");
 
+var d_svg = $("#detail_svg");
+var d_aspect = d_svg.width() / d_svg.height();
+var d_container = d_svg.parent();
+
+$(window).on("resize", function () {
+    var targetWidth = d_container.width();
+    d_svg.attr("width", targetWidth);
+    d_svg.attr("height", Math.round(targetWidth / d_aspect));
+}).trigger("resize");
+
 var main_g = main_svg.append("g").attr({
+    transform: "translate(" + margin.left + "," + margin.top + ")"
+});
+
+var detail_g = detail_svg.append("g").attr({
     transform: "translate(" + margin.left + "," + margin.top + ")"
 });
 
@@ -73,9 +114,18 @@ var main_tooltip = d3.select("body")
 var x_scale_main = d3.scale.linear().domain([0, 1]).range([0, main_vis.w]);
 var y_scale_main = d3.scale.linear().domain([0, 1]).range([main_vis.h - margin.bottom, 0]);
 
+// Default domains for x_scale_detail and y_scale_detail.  
+// Ranges should take up the entirety of the vis
+var x_scale_detail = d3.scale.linear().domain([0, 1]).range([0, detail_vis.w]);
+var y_scale_detail = d3.scale.linear().domain([0, 1]).range([detail_vis.h - margin.bottom, 0]);
+
 // Axis should default orientation to bottom and left
 var x_axis_main = d3.svg.axis().scale(x_scale_main).orient("bottom");
 var y_axis_main = d3.svg.axis().scale(y_scale_main).orient("left");
+
+// Axis should default orientation to bottom and left
+var x_axis_detail = d3.svg.axis().scale(x_scale_detail).orient("bottom");
+var y_axis_detail = d3.svg.axis().scale(y_scale_detail).orient("left");
 
 var main_visual_active = false;
 
@@ -89,7 +139,8 @@ var color = d3.scale.category10();
  * Object methods
  **/
 
-var BTC_ALL = 0;
+var BTC_ALL = [];
+var BTC_VOLUME = [];
 
 
 Object.size = function (obj) {
@@ -110,7 +161,8 @@ var main = function () {
     
     loadLeftPanel();
     loadRightPanel();
-    loadBigData();
+    loadHistoricalBTCPrices();
+    loadHistoricalBTCVolume();
     
     //runCryptocoinchartsQuery("listCoins", {}, loadTopTenCurrencies);
 
@@ -145,7 +197,7 @@ var loadRightPanel = function () {
 
 }
 
-var loadBigData = function () {
+var loadHistoricalBTCPrices = function () {
 
     d3.csv("https://api.bitcoinaverage.com/history/USD/per_day_all_time_history.csv", function (data) {
 
@@ -163,6 +215,30 @@ var loadBigData = function () {
         createMainVisual();
 
         loadBTCLineGraph();
+
+    });
+}
+
+var loadHistoricalBTCVolume = function () {
+
+    d3.csv("../data/volume.csv", function (data) {
+
+        console.log(data);
+
+        var parseDate = d3.time.format("%m/%d/%Y").parse;
+        data.forEach(function (d) {
+            d.datetime = parseDate(d.datetime);
+            d.total_vol = parseFloat(d.total_vol);
+        });
+
+        console.log(data);
+
+        BTC_VOLUME = data;
+
+        // create visual
+        createVolumeVisual();
+
+        loadBTCVolumeGraph();
 
     });
 }
@@ -231,6 +307,50 @@ var loadBTCLineGraph = function () {
         dots.attr("r", 0);
     }
 
+}
+
+var loadBTCVolumeGraph = function () {
+
+    x_scale_detail = d3.time.scale().domain(d3.extent(BTC_ALL, function (d) { return d.datetime; })).range([0, main_vis.w]);
+    y_scale_detail.domain(d3.extent(BTC_VOLUME, function (d) { return d.total_vol; }));
+    console.log(d3.extent(BTC_VOLUME, function (d) { return d.total_vol; }));
+    console.log(d3.extent(BTC_VOLUME, function (d) { return d.datetime; }));
+
+    x_axis_detail.scale(x_scale_detail);
+
+    x_axis_detail.ticks(5);
+
+    // Update the X and Y axis for main vis
+    detail_g.selectAll(".y")
+        .style("visibility", "visible")
+        .call(y_axis_detail);
+    detail_g.selectAll(".x")
+        .style("visibility", "visible")
+        .call(x_axis_detail);
+
+    var rects = detail_svg.selectAll("rect");
+
+    detail_svg.selectAll("rect")
+    .data(BTC_VOLUME)
+    .enter().append("svg:rect")
+    .attr("x", function (d) {
+        return x_scale_detail(d.datetime) + detail_vis.x;
+    })
+    .attr("y", function (d) {
+        return y_scale_detail(d.total_vol);
+
+    })
+    .attr("height", function (d) {
+        return detail_vis.h - y_scale_detail(d.total_vol);
+    })
+    .attr("width", function (d) {
+        return 0.5 * (detail_vis.w - 2 * detail_vis.x) / BTC_VOLUME.length;
+    })
+    .attr("fill", function (d) {
+        return "green";
+    })
+    .attr("class", "detailRect");
+    
 }
 
 
@@ -492,7 +612,7 @@ var createMainVisual = function () {
     // Add the X Axis to the main vis
     main_g.append("g")
         .attr("class", "x axis")
-        .attr("transform", "translate(0," + (height - margin.bottom) + ")")
+        .attr("transform", "translate(0," + (main_vis.h - margin.bottom) + ")")
         .call(x_axis_main);
 
     // Add the Y Axis to the main vis
@@ -523,6 +643,37 @@ var createMainVisual = function () {
         .attr("dy", "1em")
         .style("text-anchor", "middle")
         .text("Price of Bitcoin Over Time");
+}
+
+var createVolumeVisual = function () {
+
+    // Add the X Axis to the detail vis
+    detail_g.append("g")
+        .attr("class", "x axis")
+        .attr("transform", "translate(0," + (detail_vis.h - margin.bottom) + ")")
+        .call(x_axis_detail);
+
+    // Add the Y Axis to the main vis
+    detail_g.append("g")
+        .attr("class", "y axis")
+        .call(y_axis_detail);
+
+    // Add the axis label for the y axis
+    detail_svg.append("text")
+       .attr("class", "axis-label")
+       .attr("transform", "rotate(-90)")
+       .attr("y", 0)
+       .attr("x", 0 - (detail_vis.h / 2) - detail_vis.y)
+       .attr("dy", "1em")
+       .style("text-anchor", "middle")
+       .text("Volume (BTC)");
+
+    detail_svg.append("text")
+        .attr("class", "axis-label")
+        .attr("transform", "translate(" + ((detail_vis.w + detail_vis.x) / 2) + " ," + (detail_vis.h + detail_vis.y * 3) + ")")
+        .attr("dy", "1em")
+        .style("text-anchor", "middle")
+        .text("Year");
 }
 
 /**

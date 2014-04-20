@@ -159,7 +159,21 @@ body {
 
 }
 
+
+#detail_vis {
+    padding-left: 25px;
+    padding-right: 25px;
+    padding-top: 25px;
+    padding-bottom: 25px;
+
+}
+
+.detailRect {
+    clip-path: url(#detail_clip);
+}
+
 #type-btn-group {
     padding-bottom: 10px;
     border-bottom: 1px solid #eee;
 }
+
