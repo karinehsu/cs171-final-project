@@ -202,12 +202,26 @@ var main = function () {
 
 // }
 
+var updateEventsOnGraph = function () {
+
+    console.log("Event selected!");
+}
+
+
 var loadLeftPanel = function () {
 
     d3.csv("../data/majorbtcevents.csv", function(data) {
         console.log(data);
 
-    //     d3.select("#events-dropdown")
+        var event_names = '';
+
+        data.forEach(function (d) {
+            event_names += '<li id=' + d.name + '><a href="#">' + d.name + '</a></li>';
+        });
+
+
+        d3.select("#events-dropdown").html(event_names)
+            .on("change", updateEventsOnGraph);
     //     .enter(data).append("li").text(function(d){return d.name;});
     // })
 })
