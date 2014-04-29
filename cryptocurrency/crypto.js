@@ -197,7 +197,7 @@ var main = function () {
 //         "cy":function(d) { return yScaleDetail(d.count); }
 //     });
 
-//     x_scale_main = d3.time.scale().domain(d3.extent(BTC_ALL, function (d) { return d.datetime; })).range([0, main_vis.w]);
+//     x_scale_main = d3.time.scale().domain(d3.extent(BTC_ALL, function (d) { return d.date; })).range([0, main_vis.w]);
 //     y_scale_main.domain(d3.extent(BTC_ALL, function (d) { return d.average; }));
 
 // }
@@ -305,7 +305,7 @@ var loadBTCVolumeGraph = function () {
     x_scale_detail = d3.time.scale().domain(d3.extent(BTC_ALL, function (d) { return d.date; })).range([0, main_vis.w]);
     y_scale_detail.domain(d3.extent(BTC_ALL, function (d) { return d.total_volume; }));
     console.log(d3.extent(BTC_ALL, function (d) { return d.total_volume; }));
-    console.log(d3.extent(BTC_ALL, function (d) { return d.datetime; }));
+    console.log(d3.extent(BTC_ALL, function (d) { return d.date; }));
 
     x_axis_detail.scale(x_scale_detail);
 
@@ -347,7 +347,7 @@ var loadBTCVolumeGraph = function () {
 
 var loadBTCLineoGraph = function () {
 
-    x_scale_main = d3.time.scale().domain(d3.extent(BTC_ALL, function (d) { return d.datetime; })).range([0, main_vis.w]);
+    x_scale_main = d3.time.scale().domain(d3.extent(BTC_ALL, function (d) { return d.date; })).range([0, main_vis.w]);
     y_scale_main.domain(d3.extent(BTC_ALL, function (d) { return d.average; }));
     x_axis_main.scale(x_scale_main);
 
@@ -355,11 +355,9 @@ var loadBTCLineoGraph = function () {
 
     var line = d3.svg.line()
         .interpolate("basis")
-        .x(function (d) { return x_scale_main(d.datetime); })
+        .x(function (d) { return x_scale_main(d.date); })
         .y(function (d) {
-            if (d.average) {
-                return y_scale_main(d.average);
-            }
+            return y_scale_main(d.average);
         });
 
     // Update the X and Y axis for main vis
@@ -400,7 +398,7 @@ var loadBTCLineoGraph = function () {
         console.log("new dots");
         // Add the dots if never put on before
         dots.data(BTC_ALL).enter().append("circle").attr({
-            "cx": function (d) { return x_scale_main(d.datetime); },
+            "cx": function (d) { return x_scale_main(d.date); },
             "cy": function (d) { return y_scale_main(d.average); },
             "r": 2,
             "class": "dataPoint",
@@ -411,7 +409,7 @@ var loadBTCLineoGraph = function () {
         console.log("old dots");
         console.log(dots.selectAll("circle"));
         dots.selectAll("circle").data(BTC_ALL).attr({
-            "cx": function (d) { return x_scale_main(d.datetime); },
+            "cx": function (d) { return x_scale_main(d.date); },
             "cy": function (d) { return y_scale_main(d.average); },
             "r": 2,
             "class": "dataPoint",
@@ -424,7 +422,7 @@ var loadBTCLineoGraph = function () {
 
 var loadBTCCandlestickGraph = function () {
 
-    x_scale_main = d3.time.scale().domain(d3.extent(BTC_ALL, function (d) { return d.datetime; })).range([0, main_vis.w]);
+    x_scale_main = d3.time.scale().domain(d3.extent(BTC_ALL, function (d) { return d.date; })).range([0, main_vis.w]);
     y_scale_main.domain([(d3.min (BTC_ALL, function (d) { return d.low; })), (d3.max(BTC_ALL, function (d) { return d.high; }))]);
     console.log([(d3.min(BTC_ALL, function (d) { return d.low; })), (d3.max(BTC_ALL, function (d) { return d.high; }))]);
     x_axis_main.scale(x_scale_main);
@@ -451,7 +449,7 @@ var loadBTCCandlestickGraph = function () {
         .data(BTC_ALL)
         .enter().append("svg:rect")
         .attr("x", function (d) {
-            return x_scale_main(d.datetime) + margin.left;
+            return x_scale_main(d.date) + margin.left;
         })
         .attr("y", function (d) {
             if (d.low) {
