@@ -208,6 +208,7 @@ var loadLeftPanel = function () {
     d3.csv("../data/majorbtcevents.csv", function(data) {
         console.log(data);
 
+        // d3.select("#events-dropdown")
     })
 }
 
