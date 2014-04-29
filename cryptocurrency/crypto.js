@@ -237,7 +237,7 @@ var loadHistoricalBTCPrices = function () {
 
 var loadHistoricalBTCVolume = function () {
 
-    d3.csv("../data/volume.csv", function (data) {
+    d3.csv("../data/volumes.csv", function (data) {
 
         console.log(data);
 
