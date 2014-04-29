@@ -210,6 +210,7 @@ var loadLeftPanel = function () {
     //     d3.select("#events-dropdown")
     //     .enter(data).append("li").text(function(d){return d.name;});
     // })
+})
 }
 
 var loadRightPanel = function () {
