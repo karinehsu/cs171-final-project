@@ -205,7 +205,10 @@ var main = function () {
 
 var loadLeftPanel = function () {
 
+    d3.csv("../data/majorbtcevents.csv", function(data) {
+        console.log(data);
 
+    })
 }
 
 var loadRightPanel = function () {
