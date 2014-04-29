@@ -178,7 +178,6 @@ var main = function () {
     loadLeftPanel();
     loadRightPanel();
     loadHistoricalBTCPrices();
-    loadHistoricalBTCVolume();
     
     //runCryptocoinchartsQuery("listCoins", {}, loadTopTenCurrencies);
 
@@ -219,14 +218,13 @@ var loadRightPanel = function () {
 
 var loadHistoricalBTCPrices = function () {
 
-    d3.csv("https://api.bitcoinaverage.com/history/USD/per_day_all_time_history.csv", function (data) {
+    d3.csv("../data/chart-data.csv", function (data) {
 
-        var parseDate = d3.time.format("%Y-%m-%d %X").parse;
+        var parseDate = d3.time.format("%m/%d/%Y").parse;
         data.forEach(function (d) {
-            d.datetime = parseDate(d.datetime);
+            d.date = parseDate(d.date);
             d.average = parseFloat(d.average);
-            d.low = parseFloat(d.low);
-            d.high = parseFloat(d.high);
+            d.total_volume = parseFloat(d.total_volume);
         });
 
         BTC_ALL = data;
@@ -236,36 +234,15 @@ var loadHistoricalBTCPrices = function () {
 
         loadBTCLineGraph();
 
-    });
-}
-
-var loadHistoricalBTCVolume = function () {
-
-    d3.csv("../data/volumes.csv", function (data) {
-
-        console.log(data);
-
-        var parseDate = d3.time.format("%m/%d/%Y").parse;
-        data.forEach(function (d) {
-            d.datetime = parseDate(d.datetime);
-            d.total_vol = parseFloat(d.total_vol);
-        });
-
-        console.log(data);
-
-        BTC_VOLUME = data;
-
-        // create visual
         createVolumeVisual();
 
         loadBTCVolumeGraph();
-
     });
 }
 
 var loadBTCLineGraph = function () {
 
-    x_scale_main = d3.time.scale().domain(d3.extent(BTC_ALL, function (d) { return d.datetime; })).range([0, main_vis.w]);
+    x_scale_main = d3.time.scale().domain(d3.extent(BTC_ALL, function (d) { return d.date; })).range([0, main_vis.w]);
     y_scale_main.domain(d3.extent(BTC_ALL, function (d) { return d.average; }));
     x_axis_main.scale(x_scale_main);
 
@@ -273,15 +250,9 @@ var loadBTCLineGraph = function () {
 
     var line = d3.svg.line()
         .interpolate("basis")
-        .x(function (d) { return x_scale_main(d.datetime); })
+        .x(function (d) { return x_scale_main(d.date); })
         .y(function (d) {
-            if (d.average) {
-                //console.log(y_scale_main(d.average));
                 return y_scale_main(d.average);
-            }
-            else {
-                return 100;
-            }
         });
 
     // Update the X and Y axis for main vis
@@ -331,10 +302,10 @@ var loadBTCLineGraph = function () {
 
 var loadBTCVolumeGraph = function () {
 
-    x_scale_detail = d3.time.scale().domain(d3.extent(BTC_ALL, function (d) { return d.datetime; })).range([0, main_vis.w]);
-    y_scale_detail.domain(d3.extent(BTC_VOLUME, function (d) { return d.total_vol; }));
-    console.log(d3.extent(BTC_VOLUME, function (d) { return d.total_vol; }));
-    console.log(d3.extent(BTC_VOLUME, function (d) { return d.datetime; }));
+    x_scale_detail = d3.time.scale().domain(d3.extent(BTC_ALL, function (d) { return d.date; })).range([0, main_vis.w]);
+    y_scale_detail.domain(d3.extent(BTC_ALL, function (d) { return d.total_volume; }));
+    console.log(d3.extent(BTC_ALL, function (d) { return d.total_volume; }));
+    console.log(d3.extent(BTC_ALL, function (d) { return d.datetime; }));
 
     x_axis_detail.scale(x_scale_detail);
 
@@ -351,20 +322,20 @@ var loadBTCVolumeGraph = function () {
     var rects = detail_svg.selectAll("rect");
 
     detail_svg.selectAll("rect")
-    .data(BTC_VOLUME)
+    .data(BTC_ALL)
     .enter().append("svg:rect")
     .attr("x", function (d) {
-        return x_scale_detail(d.datetime) + detail_vis.x;
+        return x_scale_detail(d.date) + detail_vis.x;
     })
     .attr("y", function (d) {
-        return y_scale_detail(d.total_vol);
+        return y_scale_detail(d.total_volume);
 
     })
     .attr("height", function (d) {
-        return detail_vis.h - y_scale_detail(d.total_vol);
+        return detail_vis.h - y_scale_detail(d.total_volume);
     })
     .attr("width", function (d) {
-        return 0.5 * (detail_vis.w - 2 * detail_vis.x) / BTC_VOLUME.length;
+        return 0.5 * (detail_vis.w - 2 * detail_vis.x) / BTC_ALL.length;
     })
     .attr("fill", function (d) {
         return "green";
