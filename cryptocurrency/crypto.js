@@ -66,6 +66,7 @@ var detail_svg = d3.select("#detail_vis").append("svg").attr({
     height: detail_vis.h + margin.top + margin.bottom
 }).attr("preserveAspectRatio", "xMidYMid").attr("id", "detail_svg").attr("viewBox", "0 0 " + (detail_vis.w + margin.left + margin.right) + " " + (detail_vis.h + margin.top + margin.bottom));
 
+/* Set up clip paths */
 detail_svg.append("defs").append("clipPath")
     .attr("id", "detail_clip")
     .append("rect")
@@ -73,6 +74,7 @@ detail_svg.append("defs").append("clipPath")
     .attr("width", detail_vis.w)
     .attr("height", detail_vis.h);
 
+/* Set up dynamically sized visuals */
 var svg = $("#main_svg");
 var aspect = svg.width() / svg.height();
 var container = svg.parent();
@@ -93,6 +95,7 @@ $(window).on("resize", function () {
     d_svg.attr("height", Math.round(targetWidth / d_aspect));
 }).trigger("resize");
 
+/* Set up main g's */
 var main_g = main_svg.append("g").attr({
     transform: "translate(" + margin.left + "," + margin.top + ")"
 });
@@ -126,6 +129,19 @@ var y_axis_main = d3.svg.axis().scale(y_scale_main).orient("left");
 // Axis should default orientation to bottom and left
 var x_axis_detail = d3.svg.axis().scale(x_scale_detail).orient("bottom");
 var y_axis_detail = d3.svg.axis().scale(y_scale_detail).orient("left");
+
+/* Brush feature */
+function brushed() {
+    x_scale_detail.domain(brush.empty() ? xScaleOverview.domain() : brush.extent());
+    svg.select(".timeArea").attr("d", detailArea(dataSet));
+    svg.select(".xDetail.axis").call(xAxisDetail);
+    svg.selectAll(".detailVis .dataPoint").attr({
+        "cx": function (d) { return xScaleDetail(d.month); },
+        "cy": function (d) { return yScaleDetail(d.count); }
+    });
+
+
+}
 
 var main_visual_active = false;
 
