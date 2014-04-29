@@ -207,8 +207,9 @@ var loadLeftPanel = function () {
     d3.csv("../data/majorbtcevents.csv", function(data) {
         console.log(data);
 
-        // d3.select("#events-dropdown")
-    })
+    //     d3.select("#events-dropdown")
+    //     .enter(data).append("li").text(function(d){return d.name;});
+    // })
 }
 
 var loadRightPanel = function () {
