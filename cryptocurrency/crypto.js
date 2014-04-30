@@ -509,7 +509,17 @@ var loadBTCLineoGraph = function () {
             "cy": function (d) { return y_scale_main(d.average); },
             "r": 2,
             "class": "dataPoint",
-        }).style("fill", "blue");
+        }).style("fill", "blue")
+        .on("mouseover", function (d, i) {
+
+            // if it has a data, then display the data using a tooltip
+            main_tooltip.html("Trading Price (BTC): " + d.average + "<br>Date: " + d.date);
+            return main_tooltip.style("visibility", "visible");
+
+        })
+        .on("mousemove", function (d) { return main_tooltip.style("top", (event.pageY - 10) + "px").style("left", (event.pageX + 10) + "px"); })
+        .on("mouseout", function (d) { return main_tooltip.style("visibility", "hidden"); });
+;
     }
     else {
 
@@ -520,10 +530,25 @@ var loadBTCLineoGraph = function () {
             "cy": function (d) { return y_scale_main(d.average); },
             "r": 2,
             "class": "dataPoint",
-        }).style("border", "blue");
+        }).style("border", "blue")
+        .on("mouseover", function (d, i) {
+
+            // if it has a data, then display the data using a tooltip
+            main_tooltip.html("Trading Price (BTC): " + d.average + "<br>Date: " + d.date);
+            return main_tooltip.style("visibility", "visible");
+
+        })
+        .on("mousemove", function (d) { return main_tooltip.style("top", (event.pageY - 10) + "px").style("left", (event.pageX + 10) + "px"); })
+        .on("mouseout", function (d) { return main_tooltip.style("visibility", "hidden"); });
+;
 
         dots.attr("r", 2);
     }
+
+    //add tooltip
+    dots
+
+
     
 }
 
@@ -818,11 +843,11 @@ var updateGraphType = function (element) {
     var graph_type = element.attr("id");
 
     // update GraphType based on ids
-    if (graph_type.localeCompare("line-graph") == 0) {
-        loadBTCLineGraph();
-    }
-    else if (graph_type.localeCompare("lineo-graph") == 0) {
+    if (graph_type.localeCompare("lineo-graph") == 0) {
         loadBTCLineoGraph();
+    }
+    else if (graph_type.localeCompare("line-graph") == 0) {
+        loadBTCLineGraph();
     }
 }
 /** 
