@@ -198,3 +198,41 @@ body {
   shape-rendering: crispEdges;
 }
 
+
+/* Select stuff */
+
+#graph-type {
+    margin-right: 20px;
+
+}
+
+#events-group {
+    width: 20%;
+    display: inline-block;
+    vertical-align: middle;
+    border-left: 1px dashed #333;
+    padding-left: 20px;
+    padding-right: 20px;
+}
+
+#events-list {
+    font-size: 10px;
+    
+}
+
+#events-list option {
+    padding-right: 0px;
+    margin-right: 0px;
+    max-width: 50px;
+}
+
+#events-list-select {
+    font-size: 10px;
+}
+
+#left-col {
+    background-color: #eee;
+
+}
+
+

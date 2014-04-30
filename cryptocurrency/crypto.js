@@ -228,6 +228,7 @@ var color = d3.scale.category10();
  * CACHE DATA SETS
  **/
 var BTC_ALL = [];
+var EVENTS_ALL = [];
 
 /**
  * Object methods
@@ -266,20 +267,38 @@ var updateEventsOnGraph = function () {
 
 var loadLeftPanel = function () {
 
-    d3.csv("../data/majorbtcevents.csv", function(data) {
-        console.log(data);
+    d3.json("../data/btc-events.json", function (data) {
 
-        var event_names = '';
 
-        data.forEach(function (d) {
-            event_names += '<li id=' + d.name + '><a href="#">' + d.name + '</a></li>';
+        console.log(data.events);
+        EVENTS_ALL = data.events;
+
+        var event_headers = '';
+
+        EVENTS_ALL.forEach(function (d) {
+            //event_headers += '<li id=' + d.headline + '><a href="#">' + d.headline + '</a></li>';
+            event_headers += '<option value="' + d.headline + '">' + d.headline + '</option>';
         });
 
 
-        d3.select("#events-dropdown").html(event_names)
+        d3.select("#events-list").html(event_headers)
             .on("click", updateEventsOnGraph);
+    })
+
+//    d3.csv("../data/majorbtcevents.csv", function(data) {
+//        console.log(data);
+
+//        var event_names = '';
+
+//        data.forEach(function (d) {
+//            event_names += '<li id=' + d.name + '><a href="#">' + d.name + '</a></li>';
+//        });
+
+
+//        d3.select("#events-dropdown").html(event_names)
+//            .on("click", updateEventsOnGraph);
     
-})
+//})
 }
 
 var loadRightPanel = function () {
