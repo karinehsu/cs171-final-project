@@ -222,6 +222,7 @@ var main = function () {
 var updateEventsOnGraph = function () {
 
     console.log("Event selected!");
+    
 }
 
 
@@ -238,7 +239,8 @@ var loadLeftPanel = function () {
 
 
         d3.select("#events-dropdown").html(event_names)
-            .on("change", updateEventsOnGraph);
+            .on("click", updateEventsOnGraph);
+    
 })
 }
 
@@ -318,7 +320,7 @@ var loadMiniVisual = function () {
         dataGroup = mini_g.append("g").attr({
             "class": "dataGroup"
         });
-    }
+}
 
     if (dataGroup.selectAll("path") < 1) {
 
