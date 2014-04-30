@@ -205,6 +205,7 @@ var main = function () {
 var updateEventsOnGraph = function () {
 
     console.log("Event selected!");
+    
 }
 
 
@@ -221,9 +222,8 @@ var loadLeftPanel = function () {
 
 
         d3.select("#events-dropdown").html(event_names)
-            .on("change", updateEventsOnGraph);
-    //     .enter(data).append("li").text(function(d){return d.name;});
-    // })
+            .on("click", updateEventsOnGraph);
+    
 })
 }
 
