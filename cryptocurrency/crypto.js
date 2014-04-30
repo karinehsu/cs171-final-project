@@ -44,9 +44,16 @@ var detail_vis = {
     x: main_vis.x,
     y: main_vis.y,
     w: main_vis.w,
-    h: main_vis.h / 2
+    h: main_vis.h / 3
 
-}
+};
+
+var mini_vis = {
+    x: main_vis.x,
+    y: main_vis.y,
+    w: main_vis.w,
+    h: main_vis.h / 4
+};
 
 // main canvas for our visualization
 var main_svg = d3.select("#main_vis").append("svg").attr({
@@ -54,17 +61,22 @@ var main_svg = d3.select("#main_vis").append("svg").attr({
     height: main_vis.h + margin.top + margin.bottom
 }).attr("preserveAspectRatio", "xMidYMid").attr("id", "main_svg").attr("viewBox", "0 0 " + (main_vis.w + margin.left + margin.right) + " " + (main_vis.h + margin.top + margin.bottom));
 
+var detail_svg = d3.select("#detail_vis").append("svg").attr({
+    width: detail_vis.w + margin.left + margin.right,
+    height: detail_vis.h + margin.top + margin.bottom
+}).attr("preserveAspectRatio", "xMidYMid").attr("id", "detail_svg").attr("viewBox", "0 0 " + (detail_vis.w + margin.left + margin.right) + " " + (detail_vis.h + margin.top + margin.bottom));
+
+var mini_svg = d3.select("#mini_vis").append("svg").attr({
+    width: mini_vis.w + margin.left + margin.right,
+    height: mini_vis.h + margin.top + margin.bottom
+}).attr("preserveAspectRatio", "xMidYMid").attr("id", "mini_svg").attr("viewBox", "0 0 " + (mini_vis.w + margin.left + margin.right) + " " + (mini_vis.h + margin.top + margin.bottom));
+
 // Set up the area for the detailed graph, also make sure its clipped
 main_svg.append("defs").append("clipPath")
     .attr("id", "main_clip")
     .append("rect")
     .attr("width", width)
     .attr("height", height);
-
-var detail_svg = d3.select("#detail_vis").append("svg").attr({
-    width: detail_vis.w + margin.left + margin.right,
-    height: detail_vis.h + margin.top + margin.bottom
-}).attr("preserveAspectRatio", "xMidYMid").attr("id", "detail_svg").attr("viewBox", "0 0 " + (detail_vis.w + margin.left + margin.right) + " " + (detail_vis.h + margin.top + margin.bottom));
 
 /* Set up clip paths */
 detail_svg.append("defs").append("clipPath")
@@ -74,26 +86,41 @@ detail_svg.append("defs").append("clipPath")
     .attr("width", detail_vis.w)
     .attr("height", detail_vis.h);
 
+// Set up the area for the detailed graph, also make sure its clipped
+mini_svg.append("defs").append("clipPath")
+    .attr("id", "mini_clip")
+    .append("rect")
+    .attr("x", margin.left)
+    .attr("width", mini_vis.w)
+    .attr("height", mini_vis.h);
+
 /* Set up dynamically sized visuals */
 var svg = $("#main_svg");
-var aspect = svg.width() / svg.height();
-var container = svg.parent();
-
-$(window).on("resize", function () {
-    var targetWidth = container.width();
-    svg.attr("width", targetWidth);
-    svg.attr("height", Math.round(targetWidth / aspect));
-}).trigger("resize");
-
 var d_svg = $("#detail_svg");
+var m_svg = $("#mini_svg");
+
+var main_aspect = svg.width() / svg.height();
+var main_container = svg.parent();
 var d_aspect = d_svg.width() / d_svg.height();
 var d_container = d_svg.parent();
+var mini_aspect = m_svg.width() / m_svg.height();
+var mini_container = m_svg.parent();
 
 $(window).on("resize", function () {
-    var targetWidth = d_container.width();
-    d_svg.attr("width", targetWidth);
-    d_svg.attr("height", Math.round(targetWidth / d_aspect));
+    var mainWidth = main_container.width();
+    var dWidth = d_container.width();
+    var mWidth = mini_container.width();
+
+    svg.attr("width", mainWidth);
+    svg.attr("height", Math.round(mainWidth / main_aspect));
+    d_svg.attr("width", dWidth);
+    d_svg.attr("height", Math.round(dWidth / d_aspect));
+    m_svg.attr("width", mWidth);
+    m_svg.attr("height", Math.round(mWidth / mini_aspect));
+
+
 }).trigger("resize");
+
 
 /* Set up main g's */
 var main_g = main_svg.append("g").attr({
@@ -104,6 +131,10 @@ var detail_g = detail_svg.append("g").attr({
     transform: "translate(" + margin.left + "," + margin.top + ")"
 });
 
+var mini_g = mini_svg.append("g").attr({
+    transform: "translate(" + margin.left + "," + margin.top + ")"
+});
+
 // tool tip for main
 var main_tooltip = d3.select("body")
 	.append("div")
@@ -111,6 +142,10 @@ var main_tooltip = d3.select("body")
 	.style("position", "absolute")
 	.style("z-index", "10000000000000000000")
 	.style("visibility", "hidden");
+
+// Time scale to brush
+var x_scale_mini = d3.scale.linear().domain([0, 1]).range([0, mini_vis.w]);
+var y_scale_mini = d3.scale.linear().domain([0, 1]).range([mini_vis.h - margin.bottom, 0]);
 
 // Default domains for x_scale_main and y_scale_main.  
 // Ranges should take up the entirety of the vis
@@ -130,7 +165,13 @@ var y_axis_main = d3.svg.axis().scale(y_scale_main).orient("left");
 var x_axis_detail = d3.svg.axis().scale(x_scale_detail).orient("bottom");
 var y_axis_detail = d3.svg.axis().scale(y_scale_detail).orient("left");
 
+// Axis should default orientation to bottom and left
+var x_axis_mini = d3.svg.axis().scale(x_scale_mini).orient("bottom");
+var y_axis_mini = d3.svg.axis().scale(y_scale_mini).orient("left");
+
 /* Brush feature */
+var brush = d3.svg.brush().x(x_scale_mini).on("brush", brushed);
+
 function brushed() {
     x_scale_detail.domain(brush.empty() ? xScaleOverview.domain() : brush.extent());
     svg.select(".timeArea").attr("d", detailArea(dataSet));
@@ -143,22 +184,16 @@ function brushed() {
 
 }
 
-var main_visual_active = false;
-
 var color = d3.scale.category10();
 
 /**
  * CACHE DATA SETS
  **/
+var BTC_ALL = [];
 
 /**
  * Object methods
  **/
-
-var BTC_ALL = [];
-var BTC_VOLUME = [];
-
-
 Object.size = function (obj) {
     var size = 0, key;
     for (key in obj) {
@@ -184,24 +219,6 @@ var main = function () {
 
 }
 
-/*KARINE*/
-
-// var brush = d3.svg.brush().x(x_scale_main).on("brush", brushed);
-
-// function brushed() {
-//     xScaleDetail.domain(brush.empty() ? xScaleOverview.domain() : brush.extent());
-//     svg.select(".timeArea").attr("d", detailArea(dataSet));
-//     svg.select(".xDetail.axis").call(xAxisDetail);
-//     svg.selectAll(".detailVis .dataPoint").attr({
-//         "cx":function(d) { return xScaleDetail(d.month); },
-//         "cy":function(d) { return yScaleDetail(d.count); }
-//     });
-
-//     x_scale_main = d3.time.scale().domain(d3.extent(BTC_ALL, function (d) { return d.date; })).range([0, main_vis.w]);
-//     y_scale_main.domain(d3.extent(BTC_ALL, function (d) { return d.average; }));
-
-// }
-
 var updateEventsOnGraph = function () {
 
     console.log("Event selected!");
@@ -222,8 +239,6 @@ var loadLeftPanel = function () {
 
         d3.select("#events-dropdown").html(event_names)
             .on("change", updateEventsOnGraph);
-    //     .enter(data).append("li").text(function(d){return d.name;});
-    // })
 })
 }
 
@@ -246,6 +261,10 @@ var loadHistoricalBTCPrices = function () {
         BTC_ALL = data;
 
         // create visual
+
+        createMiniVisual();
+        loadMiniVisual();
+
         createMainVisual();
 
         loadBTCLineGraph();
@@ -256,13 +275,83 @@ var loadHistoricalBTCPrices = function () {
     });
 }
 
+var createMiniVisual = function () {
+
+    // Add the X Axis to the mini vis
+    mini_g.append("g")
+        .attr("class", "x axis")
+        .attr("transform", "translate(0," + (mini_vis.h - margin.bottom) + ")")
+        .call(x_axis_mini);
+
+}
+
+var loadMiniVisual = function () {
+
+    var time_extent = d3.extent(BTC_ALL, function (d) { return d.date; });
+    var height_extent = d3.extent(BTC_ALL, function (d) { return d.average; });
+
+    x_scale_mini = d3.time.scale().domain(time_extent).range([0, mini_vis.w]);
+    y_scale_mini.domain(height_extent);
+    x_axis_mini.scale(x_scale_mini);
+
+    var line = d3.svg.line()
+        .interpolate("basis")
+        .x(function (d) { return x_scale_mini(d.date); })
+        .y(function (d) {
+            return y_scale_mini(d.average);
+        });
+
+    // Update the X and Y axis for main vis
+    mini_g.selectAll(".y")
+        .style("visibility", "visible")
+        .call(y_axis_mini);
+    mini_g.selectAll(".x")
+        .style("visibility", "visible")
+        .call(x_axis_mini);
+
+    var dataGroup = mini_g.selectAll(".dataGroup");
+    console.log(dataGroup);
+
+    if (dataGroup < 1) {
+        console.log("adding g");
+        // if we didn't already have the graph
+        dataGroup = mini_g.append("g").attr({
+            "class": "dataGroup"
+        });
+    }
+
+    if (dataGroup.selectAll("path") < 1) {
+
+        console.log("new line");
+        dataGroup.append("svg:path").attr({
+            "class": "dataLine",
+            "d": line(BTC_ALL),
+        }).style("stroke", "red");
+    }
+    else {
+
+        console.log("old line");
+
+        // else just update
+        dataGroup.selectAll("path").attr({
+            "class": "dataLine",
+            "d": line(BTC_ALL),
+        }).style("stroke", "red");
+
+        var dots = dataGroup.selectAll(".dataPoint");
+        dots.attr("r", 0);
+    }
+
+}
+
 var loadBTCLineGraph = function () {
 
-    x_scale_main = d3.time.scale().domain(d3.extent(BTC_ALL, function (d) { return d.date; })).range([0, main_vis.w]);
-    y_scale_main.domain(d3.extent(BTC_ALL, function (d) { return d.average; }));
-    x_axis_main.scale(x_scale_main);
+    var time_extent = d3.extent(BTC_ALL, function (d) { return d.date; });
+    var height_extent = d3.extent(BTC_ALL, function (d) { return d.average; });
 
-    x_axis_main.ticks(5);
+    x_scale_main = d3.time.scale().domain(time_extent).range([0, main_vis.w]);
+    y_scale_main.domain(height_extent);
+    x_axis_main.scale(x_scale_main);
 
     var line = d3.svg.line()
         .interpolate("basis")

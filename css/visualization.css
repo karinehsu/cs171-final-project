@@ -154,8 +154,6 @@ body {
 #main_vis {
     padding-left: 25px;
     padding-right: 25px;
-    padding-top: 25px;
-    padding-bottom: 25px;
 
 }
 
@@ -163,9 +161,16 @@ body {
 #detail_vis {
     padding-left: 25px;
     padding-right: 25px;
-    padding-top: 25px;
-    padding-bottom: 25px;
+}
 
+#mini_vis {
+    padding-left: 25px;
+    padding-right: 25px;
+    
+}
+
+#mini_vis svg {
+    background-color: rgba(160, 197, 232, 0.83);
 }
 
 .detailRect {
