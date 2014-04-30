@@ -218,10 +218,6 @@ function brushed() {
         return bar_width;
     })
 
-    
-
-
-
 }
 
 var color = d3.scale.category10();
@@ -538,21 +534,11 @@ var loadBTCLineoGraph = function () {
 
         console.log("old dots");
         console.log(dots.selectAll("circle"));
-        dots.selectAll("circle").data(BTC_ALL).attr({
+        dots.attr({
             "cx": function (d) { return x_scale_main(d.date); },
             "cy": function (d) { return y_scale_main(d.average); },
             "r": 2,
-            "class": "dataPoint",
-        }).style("border", "blue")
-        .on("mouseover", function (d, i) {
-
-            // if it has a data, then display the data using a tooltip
-            main_tooltip.html("Trading Price (BTC): " + d.average + "<br>Date: " + d.date);
-            return main_tooltip.style("visibility", "visible");
-
-        })
-        .on("mousemove", function (d) { return main_tooltip.style("top", (event.pageY - 10) + "px").style("left", (event.pageX + 10) + "px"); })
-        .on("mouseout", function (d) { return main_tooltip.style("visibility", "hidden"); });
+        });
     }
 
 
