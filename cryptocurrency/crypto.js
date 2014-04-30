@@ -357,11 +357,14 @@ var loadMiniVisual = function () {
     }
 
 
-    var bEl = mini_svg.append("g").attr("class", "brush").call(brush);
+    var bEl = mini_svg.append("g").attr({
+        class: "brush",
+        transform: "translate(" + mini_vis.x + ",0)"
+    }).call(brush);
     bEl.selectAll("rect")
         .attr({
             height: mini_vis.h,
-            transform: "translate(" + mini_vis.x + ", 0)"
+            transform: "translate(0,0)"
         });
 
     detailArea = d3.svg.area()

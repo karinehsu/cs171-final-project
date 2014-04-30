@@ -178,6 +178,10 @@ body {
     clip-path: url(#detail_clip);
 }
 
+#main_vis .dataLine {
+    clip-path: url(#main_clip);
+}
+
 #type-btn-group {
     padding-bottom: 10px;
     border-bottom: 1px solid #eee;
