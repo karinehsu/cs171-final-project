@@ -258,9 +258,9 @@ var main = function () {
 
 }
 
-var updateEventsOnGraph = function () {
+var updateEventsOnGraph = function (selected_event) {
 
-    console.log("Event selected!");
+    
     
 }
 
@@ -282,7 +282,14 @@ var loadLeftPanel = function () {
 
 
         d3.select("#events-list").html(event_headers)
-            .on("click", updateEventsOnGraph);
+            .on("change", function () {
+                var sel = this.value;
+                var selected_event = EVENTS_ALL.filter(function (d) { return d.headline == sel })[0];
+
+                console.log(selected_event);
+                
+                updateEventsOnGraph(selected_event);
+            });
     })
 
 //    d3.csv("../data/majorbtcevents.csv", function(data) {
