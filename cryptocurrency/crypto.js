@@ -189,12 +189,20 @@ function brushed() {
     x_scale_main.domain(brush.empty() ? x_scale_mini.domain() : brush_extent);
     x_scale_detail.domain(brush.empty() ? x_scale_mini.domain() : brush_extent);
 
+    // update the main vis line
     main_g.select(".dataLine").attr({
         "class": "dataLine",
         "d": main_line(BTC_ALL),
     }).style("stroke", "red");
     main_g.selectAll(".x").call(x_axis_main);
 
+    // update main vis dots
+    var dots = main_g.selectAll(".dataPoint").attr({
+        "cx": function (d) { return x_scale_main(d.date); },
+        "cy": function (d) { return y_scale_main(d.average); }
+    });
+
+    // update the detail vis bars
     detail_g.selectAll(".x").call(x_axis_detail);
 
     var oneDay = 24 * 60 * 60 * 1000;
@@ -203,12 +211,7 @@ function brushed() {
 
     detail_svg.selectAll(".detailRect")
     .attr("x", function (d) {
-        if (x_scale_detail(d.date) + detail_vis.x >= 0) {
             return x_scale_detail(d.date) + detail_vis.x;
-        }
-        else {
-            return -1;
-        }
         
     })
     .attr("width", function (d) {
@@ -306,7 +309,7 @@ var loadHistoricalBTCPrices = function () {
 
         createMainVisual();
 
-        loadBTCLineGraph();
+        loadBTCLineoGraph();
 
         createVolumeVisual();
 
@@ -454,6 +457,108 @@ var loadBTCLineGraph = function () {
 
 }
 
+var loadBTCLineoGraph = function () {
+
+    var time_extent = d3.extent(BTC_ALL, function (d) { return d.date; });
+    var height_extent = d3.extent(BTC_ALL, function (d) { return d.average; });
+
+    x_scale_main = d3.time.scale().domain(time_extent).range([0, main_vis.w]);
+    y_scale_main.domain(height_extent);
+    x_axis_main.scale(x_scale_main);
+
+    if (!main_line) {
+        main_line = d3.svg.line()
+        .interpolate("basis")
+        .x(function (d) { return x_scale_main(d.date); })
+        .y(function (d) {
+            return y_scale_main(d.average);
+        });
+    }
+    
+
+    // Update the X and Y axis for main vis
+    main_g.selectAll(".y")
+        .style("visibility", "visible")
+        .call(y_axis_main);
+    main_g.selectAll(".x")
+        .style("visibility", "visible")
+        .call(x_axis_main);
+
+    var dataGroup = main_g.selectAll(".dataGroup");
+
+    if (dataGroup < 1) {
+        // if we didn't already have the graph
+        dataGroup = main_g.append("g").attr({
+            "class": "dataGroup"
+        });
+    }
+
+    if (dataGroup.selectAll("path") < 1) {
+
+        dataGroup.append("svg:path").attr({
+            "class": "dataLine",
+            "d": main_line(BTC_ALL),
+        }).style("stroke", "red");
+    }
+    else {
+
+        console.log("old line");
+
+        // else just update
+        dataGroup.selectAll("path").attr({
+            "class": "dataLine",
+            "d": main_line(BTC_ALL),
+        }).style("stroke", "red");
+
+    }
+
+    var dots = dataGroup.selectAll(".dataPoint");
+
+    if (dots < 1) {
+        console.log("new dots");
+        // Add the dots if never put on before
+        dots.data(BTC_ALL).enter().append("circle").attr({
+            "cx": function (d) { return x_scale_main(d.date); },
+            "cy": function (d) { return y_scale_main(d.average); },
+            "r": 2,
+            "class": "dataPoint",
+        }).style("fill", "blue")
+        .on("mouseover", function (d, i) {
+
+            // if it has a data, then display the data using a tooltip
+            main_tooltip.html("Trading Price (BTC): " + d.average + "<br>Date: " + d.date);
+            return main_tooltip.style("visibility", "visible");
+
+        })
+        .on("mousemove", function (d) { return main_tooltip.style("top", (event.pageY - 10) + "px").style("left", (event.pageX + 10) + "px"); })
+        .on("mouseout", function (d) { return main_tooltip.style("visibility", "hidden"); });
+        ;
+    }
+    else {
+
+        console.log("old dots");
+        console.log(dots.selectAll("circle"));
+        dots.selectAll("circle").data(BTC_ALL).attr({
+            "cx": function (d) { return x_scale_main(d.date); },
+            "cy": function (d) { return y_scale_main(d.average); },
+            "r": 2,
+            "class": "dataPoint",
+        }).style("border", "blue")
+        .on("mouseover", function (d, i) {
+
+            // if it has a data, then display the data using a tooltip
+            main_tooltip.html("Trading Price (BTC): " + d.average + "<br>Date: " + d.date);
+            return main_tooltip.style("visibility", "visible");
+
+        })
+        .on("mousemove", function (d) { return main_tooltip.style("top", (event.pageY - 10) + "px").style("left", (event.pageX + 10) + "px"); })
+        .on("mouseout", function (d) { return main_tooltip.style("visibility", "hidden"); });
+    }
+
+
+
+}
+
 var loadBTCVolumeGraph = function () {
 
     x_scale_detail = d3.time.scale().domain(d3.extent(BTC_ALL, function (d) { return d.date; })).range([0, main_vis.w]);
@@ -499,105 +604,6 @@ var loadBTCVolumeGraph = function () {
     
 }
 
-
-var loadBTCLineoGraph = function () {
-
-    x_scale_main = d3.time.scale().domain(d3.extent(BTC_ALL, function (d) { return d.date; })).range([0, main_vis.w]);
-    y_scale_main.domain(d3.extent(BTC_ALL, function (d) { return d.average; }));
-    x_axis_main.scale(x_scale_main);
-
-    x_axis_main.ticks(5);
-
-    var line = d3.svg.line()
-        .interpolate("basis")
-        .x(function (d) { return x_scale_main(d.date); })
-        .y(function (d) {
-            return y_scale_main(d.average);
-        });
-
-    // Update the X and Y axis for main vis
-    main_g.selectAll(".y")
-        .style("visibility", "visible")
-        .call(y_axis_main);
-    main_g.selectAll(".x")
-        .style("visibility", "visible")
-        .call(x_axis_main);
-
-    var rects = main_svg.selectAll("rect").remove();
-
-    var dataGroup = main_g.selectAll(".dataGroup");
-
-    if (dataGroup.selectAll("path") < 1) {
-
-        dataGroup.append("svg:path").attr({
-            "class": "dataLine",
-            "d": line(BTC_ALL),
-        }).style("stroke", "red");
-    }
-    else {
-
-        console.log("old line");
-
-        // else just update
-        dataGroup.selectAll("path").attr({
-            "class": "dataLine",
-            "d": line(BTC_ALL),
-        }).style("stroke", "red");
-
-    }
-
-    var dots = dataGroup.selectAll(".dataPoint");
-
-    if (dots < 1) {
-        console.log("new dots");
-        // Add the dots if never put on before
-        dots.data(BTC_ALL).enter().append("circle").attr({
-            "cx": function (d) { return x_scale_main(d.date); },
-            "cy": function (d) { return y_scale_main(d.average); },
-            "r": 2,
-            "class": "dataPoint",
-        }).style("fill", "blue")
-        .on("mouseover", function (d, i) {
-
-            // if it has a data, then display the data using a tooltip
-            main_tooltip.html("Trading Price (BTC): " + d.average + "<br>Date: " + d.date);
-            return main_tooltip.style("visibility", "visible");
-
-        })
-        .on("mousemove", function (d) { return main_tooltip.style("top", (event.pageY - 10) + "px").style("left", (event.pageX + 10) + "px"); })
-        .on("mouseout", function (d) { return main_tooltip.style("visibility", "hidden"); });
-;
-    }
-    else {
-
-        console.log("old dots");
-        console.log(dots.selectAll("circle"));
-        dots.selectAll("circle").data(BTC_ALL).attr({
-            "cx": function (d) { return x_scale_main(d.date); },
-            "cy": function (d) { return y_scale_main(d.average); },
-            "r": 2,
-            "class": "dataPoint",
-        }).style("border", "blue")
-        .on("mouseover", function (d, i) {
-
-            // if it has a data, then display the data using a tooltip
-            main_tooltip.html("Trading Price (BTC): " + d.average + "<br>Date: " + d.date);
-            return main_tooltip.style("visibility", "visible");
-
-        })
-        .on("mousemove", function (d) { return main_tooltip.style("top", (event.pageY - 10) + "px").style("left", (event.pageX + 10) + "px"); })
-        .on("mouseout", function (d) { return main_tooltip.style("visibility", "hidden"); });
-;
-
-        dots.attr("r", 2);
-    }
-
-    //add tooltip
-    dots
-
-
-    
-}
 
 var loadbidAskSpread = function () {
 }
