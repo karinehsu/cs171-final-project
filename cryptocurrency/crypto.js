@@ -82,7 +82,7 @@ main_svg.append("defs").append("clipPath")
 detail_svg.append("defs").append("clipPath")
     .attr("id", "detail_clip")
     .append("rect")
-    .attr("x", margin.left)
+    .attr("x", detail_vis.x)
     .attr("width", detail_vis.w)
     .attr("height", detail_vis.h);
 
@@ -90,7 +90,6 @@ detail_svg.append("defs").append("clipPath")
 mini_svg.append("defs").append("clipPath")
     .attr("id", "mini_clip")
     .append("rect")
-    .attr("x", margin.left)
     .attr("width", mini_vis.w)
     .attr("height", mini_vis.h);
 
@@ -170,16 +169,29 @@ var x_axis_mini = d3.svg.axis().scale(x_scale_mini).orient("bottom");
 var y_axis_mini = d3.svg.axis().scale(y_scale_mini).orient("left");
 
 /* Brush feature */
-var brush = d3.svg.brush().x(x_scale_mini).on("brush", brushed);
+var brush;
+var detailArea;
+var line;
+var main_line;
 
 function brushed() {
-    x_scale_detail.domain(brush.empty() ? xScaleOverview.domain() : brush.extent());
-    svg.select(".timeArea").attr("d", detailArea(dataSet));
-    svg.select(".xDetail.axis").call(xAxisDetail);
-    svg.selectAll(".detailVis .dataPoint").attr({
-        "cx": function (d) { return xScaleDetail(d.month); },
-        "cy": function (d) { return yScaleDetail(d.count); }
-    });
+
+    console.log("DHSAJKDHSAJKDHSJKAHDKSAHDJKHAS");
+
+    x_scale_main.domain(brush.empty() ? x_scale_mini.domain() : brush.extent());
+
+    console.log(brush.extent());
+
+    main_g.select(".dataLine").attr({
+        "class": "dataLine",
+        "d": main_line(BTC_ALL),
+    }).style("stroke", "red");
+    main_g.selectAll(".x").call(x_axis_main);
+
+    
+
+
+    
 
 
 }
@@ -296,7 +308,9 @@ var loadMiniVisual = function () {
     y_scale_mini.domain(height_extent);
     x_axis_mini.scale(x_scale_mini);
 
-    var line = d3.svg.line()
+    brush = d3.svg.brush().x(x_scale_mini).on("brush", brushed);
+
+    line = d3.svg.line()
         .interpolate("basis")
         .x(function (d) { return x_scale_mini(d.date); })
         .y(function (d) {
@@ -315,16 +329,14 @@ var loadMiniVisual = function () {
     console.log(dataGroup);
 
     if (dataGroup < 1) {
-        console.log("adding g");
         // if we didn't already have the graph
         dataGroup = mini_g.append("g").attr({
             "class": "dataGroup"
         });
-}
+    }
 
     if (dataGroup.selectAll("path") < 1) {
 
-        console.log("new line");
         dataGroup.append("svg:path").attr({
             "class": "dataLine",
             "d": line(BTC_ALL),
@@ -344,6 +356,19 @@ var loadMiniVisual = function () {
         dots.attr("r", 0);
     }
 
+
+    var bEl = mini_svg.append("g").attr("class", "brush").call(brush);
+    bEl.selectAll("rect")
+        .attr({
+            height: mini_vis.h,
+            transform: "translate(" + mini_vis.x + ", 0)"
+        });
+
+    detailArea = d3.svg.area()
+        .x(function (d) { return x_scale_main(d.date); })
+        .y0(main_vis.h)
+        .y1(function (d) { return x_scale_main(d.average); });
+
 }
 
 var loadBTCLineGraph = function () {
@@ -355,7 +380,7 @@ var loadBTCLineGraph = function () {
     y_scale_main.domain(height_extent);
     x_axis_main.scale(x_scale_main);
 
-    var line = d3.svg.line()
+    main_line = d3.svg.line()
         .interpolate("basis")
         .x(function (d) { return x_scale_main(d.date); })
         .y(function (d) {
@@ -370,13 +395,10 @@ var loadBTCLineGraph = function () {
         .style("visibility", "visible")
         .call(x_axis_main);
 
-    var rects = main_svg.selectAll("rect").remove();
-
     var dataGroup = main_g.selectAll(".dataGroup");
     console.log(dataGroup);
 
     if (dataGroup < 1) {
-        console.log("adding g");
         // if we didn't already have the graph
         dataGroup = main_g.append("g").attr({
             "class": "dataGroup"
@@ -385,20 +407,17 @@ var loadBTCLineGraph = function () {
 
     if (dataGroup.selectAll("path") < 1) {
 
-        console.log("new line");
         dataGroup.append("svg:path").attr({
             "class": "dataLine",
-            "d": line(BTC_ALL),
+            "d": main_line(BTC_ALL),
         }).style("stroke", "red");
     }
     else {
 
-        console.log("old line");
-
         // else just update
         dataGroup.selectAll("path").attr({
             "class": "dataLine",
-            "d": line(BTC_ALL),
+            "d": main_line(BTC_ALL),
         }).style("stroke", "red");
 
         var dots = dataGroup.selectAll(".dataPoint");
@@ -481,7 +500,6 @@ var loadBTCLineoGraph = function () {
 
     if (dataGroup.selectAll("path") < 1) {
 
-        console.log("new line");
         dataGroup.append("svg:path").attr({
             "class": "dataLine",
             "d": line(BTC_ALL),
@@ -642,7 +660,7 @@ var createMainVisual = function () {
 
     // Add the axis label for the y axis
     main_svg.append("text")
-       .attr("class", "axis-label")
+       .attr("class", "main axis-label")
        .attr("transform", "rotate(-90)")
        .attr("y", 0)
        .attr("x", 0 - (main_vis.h / 2) - main_vis.y)
@@ -651,14 +669,14 @@ var createMainVisual = function () {
        .text("Price ($)");
 
     main_svg.append("text")
-        .attr("class", "axis-label")
+        .attr("class", "main axis-label")
         .attr("transform", "translate(" + ((main_vis.w + main_vis.x) / 2) + " ," + (main_vis.h + main_vis.y * 3) + ")")
         .attr("dy", "1em")
         .style("text-anchor", "middle")
         .text("Year");
 
     main_svg.append("text")
-        .attr("class", "axis-label")
+        .attr("class", "main axis-label")
         .attr("transform", "translate(" + ((main_vis.w + main_vis.x) / 2) + " ," + 0 + ")")
         .attr("dy", "1em")
         .style("text-anchor", "middle")
@@ -680,7 +698,7 @@ var createVolumeVisual = function () {
 
     // Add the axis label for the y axis
     detail_svg.append("text")
-       .attr("class", "axis-label")
+       .attr("class", "detail axis-label")
        .attr("transform", "rotate(-90)")
        .attr("y", 0)
        .attr("x", 0 - (detail_vis.h / 2) - detail_vis.y)
@@ -689,7 +707,7 @@ var createVolumeVisual = function () {
        .text("Volume (BTC)");
 
     detail_svg.append("text")
-        .attr("class", "axis-label")
+        .attr("class", "detail axis-label")
         .attr("transform", "translate(" + ((detail_vis.w + detail_vis.x) / 2) + " ," + (detail_vis.h + detail_vis.y * 3) + ")")
         .attr("dy", "1em")
         .style("text-anchor", "middle")
