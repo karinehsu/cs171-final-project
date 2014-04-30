@@ -174,7 +174,7 @@ var detailArea;
 var line;
 var main_line;
 
-function brushed() {
+var brushed = function()  {
 
     console.log("DHSAJKDHSAJKDHSJKAHDKSAHDJKHAS");
 
@@ -260,7 +260,18 @@ var main = function () {
 
 var updateEventsOnGraph = function (selected_event) {
 
-// upon click of event, brushing happens and  detail_vis of transaction volume shown
+    // upon click of event, brushing happens and  detail_vis of transaction volume shown
+    console.log(selected_event);
+
+
+    // generate upper and lowerbound
+    var lbound = d3.time.month.offset(selected_event.startDate, -2);
+    var ubound = d3.time.month.offset(selected_event.startDate, 2);
+
+    // create brushing range
+    brush.extent([lbound, ubound]);
+    mini_svg.selectAll(".brush").call(brush);
+    brushed();
     
     
 }
@@ -270,14 +281,17 @@ var loadLeftPanel = function () {
 
     d3.json("../data/btc-events.json", function (data) {
 
+        
 
-        console.log(data.events);
+        // cache the events
         EVENTS_ALL = data.events;
 
+        var parseDate = d3.time.format("%Y,%m,%d").parse;
         var event_headers = '';
 
         EVENTS_ALL.forEach(function (d) {
-            //event_headers += '<li id=' + d.headline + '><a href="#">' + d.headline + '</a></li>';
+
+            d.startDate = parseDate(d.startDate);
             event_headers += '<option value="' + d.headline + '">' + d.headline + '</option>';
         });
 
@@ -287,8 +301,6 @@ var loadLeftPanel = function () {
                 var sel = this.value;
                 var selected_event = EVENTS_ALL.filter(function (d) { return d.headline == sel })[0];
 
-                console.log(selected_event);
-                
                 updateEventsOnGraph(selected_event);
             });
     })
@@ -408,7 +420,6 @@ var loadMiniVisual = function () {
         var dots = dataGroup.selectAll(".dataPoint");
         dots.attr("r", 0);
     }
-
 
     var bEl = mini_svg.append("g").attr({
         class: "brush",
