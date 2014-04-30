@@ -193,13 +193,8 @@ body {
 
 /* Brush stuff */
 .brush .extent {
-    stroke: black;
-    fill-opacity: 0.125;
-    shape-rendering: crispEdges; 
-
+  stroke: #fff;
+  fill-opacity: .125;
+  shape-rendering: crispEdges;
 }
 
-.brush .handle {
-    stroke: black;
-    fill-opacity: 0.125;
-}

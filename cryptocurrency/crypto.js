@@ -191,16 +191,18 @@ function brushed() {
 
     // update the main vis line
     main_g.select(".dataLine").attr({
-        "class": "dataLine",
         "d": main_line(BTC_ALL),
-    }).style("stroke", "red");
+    });
     main_g.selectAll(".x").call(x_axis_main);
 
     // update main vis dots
+    var a = 0;
     var dots = main_g.selectAll(".dataPoint").attr({
-        "cx": function (d) { return x_scale_main(d.date); },
+        "cx": function (d) { a += 1; return x_scale_main(d.date); },
         "cy": function (d) { return y_scale_main(d.average); }
     });
+
+    console.log(a);
 
     // update the detail vis bars
     detail_g.selectAll(".x").call(x_axis_detail);
@@ -211,12 +213,12 @@ function brushed() {
 
     detail_svg.selectAll(".detailRect")
     .attr("x", function (d) {
-            return x_scale_detail(d.date) + detail_vis.x;
-        
+        return x_scale_detail(d.date) + detail_vis.x;
+
     })
     .attr("width", function (d) {
         return bar_width;
-    })
+    });
 
 }
 
@@ -522,7 +524,7 @@ var loadBTCLineoGraph = function () {
         .on("mouseover", function (d, i) {
 
             // if it has a data, then display the data using a tooltip
-            main_tooltip.html("Trading Price (BTC): " + d.average + "<br>Date: " + d.date);
+            main_tooltip.html("Price ($): " + d.average + "<br>Date: " + d.date + "<br>Volume: " + d.total_volume);
             return main_tooltip.style("visibility", "visible");
 
         })
