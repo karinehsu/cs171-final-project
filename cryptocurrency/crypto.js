@@ -366,7 +366,7 @@ var loadMiniVisual = function () {
         dataGroup.append("svg:path").attr({
             "class": "dataLine",
             "d": line(BTC_ALL),
-        }).style("stroke", "red");
+        }).style("stroke", "lightsteelblue");
     }
     else {
 
@@ -439,7 +439,7 @@ var loadBTCLineGraph = function () {
         dataGroup.append("svg:path").attr({
             "class": "dataLine",
             "d": main_line(BTC_ALL),
-        }).style("stroke", "red");
+        }).style("stroke", "lightsteelblue");
     }
     else {
 
@@ -447,7 +447,7 @@ var loadBTCLineGraph = function () {
         dataGroup.selectAll("path").attr({
             "class": "dataLine",
             "d": main_line(BTC_ALL),
-        }).style("stroke", "red");
+        }).style("stroke", "lightsteelblue");
 
         var dots = dataGroup.selectAll(".dataPoint");
         dots.attr("r", 0);
@@ -496,7 +496,7 @@ var loadBTCLineoGraph = function () {
         dataGroup.append("svg:path").attr({
             "class": "dataLine",
             "d": main_line(BTC_ALL),
-        }).style("stroke", "red");
+        }).style("stroke", "lightsteelblue");
     }
     else {
 
@@ -506,7 +506,7 @@ var loadBTCLineoGraph = function () {
         dataGroup.selectAll("path").attr({
             "class": "dataLine",
             "d": main_line(BTC_ALL),
-        }).style("stroke", "red");
+        }).style("stroke", "lightsteelblue");
 
     }
 
@@ -520,7 +520,14 @@ var loadBTCLineoGraph = function () {
             "cy": function (d) { return y_scale_main(d.average); },
             "r": 2,
             "class": "dataPoint",
-        }).style("fill", "blue")
+        }).style("fill", function (d) {
+            if (BTC_ALL.indexOf(d) == BTC_ALL.length - 1 || d.average < BTC_ALL[BTC_ALL.indexOf(d) + 1].average) {
+                return "green";
+            }
+            else {
+                return "red";
+            }
+        })
         .on("mouseover", function (d, i) {
 
             // if it has a data, then display the data using a tooltip
@@ -586,7 +593,13 @@ var loadBTCVolumeGraph = function () {
         return bar_width;
     })
     .attr("fill", function (d) {
-        return "green";
+        if (BTC_ALL.indexOf(d) == BTC_ALL.length - 1 || d.average < BTC_ALL[BTC_ALL.indexOf(d) + 1].average) {
+            return "green";
+        }
+        else {
+            return "red";
+        }
+        
     })
     .attr("class", "detailRect");
     
