@@ -178,9 +178,16 @@ function brushed() {
 
     console.log("DHSAJKDHSAJKDHSJKAHDKSAHDJKHAS");
 
-    x_scale_main.domain(brush.empty() ? x_scale_mini.domain() : brush.extent());
 
-    console.log(brush.extent());
+    var brush_extent = brush.extent();
+    var time_diff = Math.abs(brush_extent[0].getTime() - brush_extent[1].getTime());
+    if (time_diff <= 127998613) {
+        return;
+    }
+
+    // update main vis and detail vis
+    x_scale_main.domain(brush.empty() ? x_scale_mini.domain() : brush_extent);
+    x_scale_detail.domain(brush.empty() ? x_scale_mini.domain() : brush_extent);
 
     main_g.select(".dataLine").attr({
         "class": "dataLine",
@@ -188,10 +195,28 @@ function brushed() {
     }).style("stroke", "red");
     main_g.selectAll(".x").call(x_axis_main);
 
+    detail_g.selectAll(".x").call(x_axis_detail);
+
+    var oneDay = 24 * 60 * 60 * 1000;
+    var bar_width = (detail_vis.w - 2 * detail_vis.x) / (Math.round(time_diff) / (oneDay));
+    console.log("BAR WIDTH: " + bar_width);
+
+    detail_svg.selectAll(".detailRect")
+    .attr("x", function (d) {
+        if (x_scale_detail(d.date) + detail_vis.x >= 0) {
+            return x_scale_detail(d.date) + detail_vis.x;
+        }
+        else {
+            return -1;
+        }
+        
+    })
+    .attr("width", function (d) {
+        return bar_width;
+    })
+
     
 
-
-    
 
 
 }
@@ -439,6 +464,7 @@ var loadBTCVolumeGraph = function () {
     x_axis_detail.scale(x_scale_detail);
 
     x_axis_detail.ticks(5);
+    var bar_width = 0.5 * (detail_vis.w - 2 * detail_vis.x) / BTC_ALL.length;
 
     // Update the X and Y axis for main vis
     detail_g.selectAll(".y")
@@ -464,7 +490,7 @@ var loadBTCVolumeGraph = function () {
         return detail_vis.h - y_scale_detail(d.total_volume);
     })
     .attr("width", function (d) {
-        return 0.5 * (detail_vis.w - 2 * detail_vis.x) / BTC_ALL.length;
+        return bar_width;
     })
     .attr("fill", function (d) {
         return "green";
