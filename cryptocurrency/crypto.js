@@ -260,6 +260,7 @@ var main = function () {
 
 var updateEventsOnGraph = function (selected_event) {
 
+// upon click of event, brushing happens and  detail_vis of transaction volume shown
     
     
 }
