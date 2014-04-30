@@ -436,82 +436,6 @@ var loadBTCLineoGraph = function () {
     
 }
 
-var loadBTCCandlestickGraph = function () {
-
-    x_scale_main = d3.time.scale().domain(d3.extent(BTC_ALL, function (d) { return d.date; })).range([0, main_vis.w]);
-    y_scale_main.domain([(d3.min (BTC_ALL, function (d) { return d.low; })), (d3.max(BTC_ALL, function (d) { return d.high; }))]);
-    console.log([(d3.min(BTC_ALL, function (d) { return d.low; })), (d3.max(BTC_ALL, function (d) { return d.high; }))]);
-    x_axis_main.scale(x_scale_main);
-
-    x_axis_main.ticks(5);
-
-    // Update the X and Y axis for main vis
-    main_g.selectAll(".y")
-        .style("visibility", "visible")
-        .call(y_axis_main);
-    main_g.selectAll(".x")
-        .style("visibility", "visible")
-        .call(x_axis_main);
-
-    var dataGroup = main_g.selectAll(".dataGroup");
-    var dots = dataGroup.selectAll(".dataPoint");
-    dots.remove();
-    dataGroup.selectAll("path").remove();
-
-    var rects = main_svg.selectAll("rect");
-
-    if (rects < 1) {
-        main_svg.selectAll("rect")
-        .data(BTC_ALL)
-        .enter().append("svg:rect")
-        .attr("x", function (d) {
-            return x_scale_main(d.date) + margin.left;
-        })
-        .attr("y", function (d) {
-            if (d.low) {
-                return y_scale_main(d.low) - margin.top;
-            }
-            else {
-                return y_scale_main(d.average) - margin.top;
-            }
-
-        })
-        .attr("height", function (d) {
-            if (d.high) {
-                return y_scale_main(d.low) - y_scale_main(d.high);
-            }
-            else {
-                return 3;
-            }
-        })
-        .attr("width", function (d) {
-            return 0.5 * (main_vis.w - 2 * main_vis.x) / BTC_ALL.length;
-        })
-        .attr("fill", function (d) {
-            if (d.low && d.high) {
-                return "green";
-            }
-            else {
-                return "red";
-            }
-        });
-    }
-    else {
-        main_svg.selectAll("rect")
-        .data(BTC_ALL)
-        .attr("height", function (d) {
-            if (d.high) {
-                return y_scale_main(d.low) - y_scale_main(d.high);
-            }
-            else {
-                return 3;
-            }
-        });
-    }
-    
-
-}
-
 var loadbidAskSpread = function () {
 }
 
@@ -809,10 +733,6 @@ var updateGraphType = function (element) {
     else if (graph_type.localeCompare("lineo-graph") == 0) {
         loadBTCLineoGraph();
     }
-    else if (graph_type.localeCompare("candlestick-graph") == 0) {
-        loadBTCCandlestickGraph();
-
-    } 
 }
 /** 
  * EXECUTION CODE
