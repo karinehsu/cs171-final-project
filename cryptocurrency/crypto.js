@@ -492,21 +492,46 @@ var loadMiniVisual = function () {
         }).style("stroke", "lightsteelblue");
     }
 
-    // Add the brush
-    var bEl = mini_svg.append("g").attr({
-        class: "brush",
-        transform: "translate(" + mini_vis.x + ",0)"
-    }).call(brush);
-    bEl.selectAll("rect")
-        .attr({
-            height: mini_vis.h,
-            transform: "translate(0,0)"
-        });
+    if (mini_svg.selectAll(".brush") < 1) {
+        // Add the brush
+            var bEl = mini_svg.append("g").attr({
+                class: "brush",
+                transform: "translate(" + mini_vis.x + ",0)"
+            }).call(brush);
+            bEl.selectAll("rect")
+                .attr({
+                    height: mini_vis.h,
+                    transform: "translate(0,0)"
+                });
 
-    detailArea = d3.svg.area()
-        .x(function (d) { return x_scale_main(d.date); })
-        .y0(main_vis.h)
-        .y1(function (d) { return x_scale_main(CURRENT_ATTRIBUTE(d)); });
+            detailArea = d3.svg.area()
+                .x(function (d) { return x_scale_main(d.date); })
+                .y0(main_vis.h)
+                .y1(function (d) { return x_scale_main(CURRENT_ATTRIBUTE(d)); });
+    }
+
+    // Add events!
+    var dots = dataGroup.selectAll(".dataPoint");
+
+    if (dots < 1) {
+        // Add the dots if never put on before
+        dots.data(EVENTS_CURRENT).enter().append("circle").attr({
+            "cx": function (d) { return x_scale_mini(d.startDate); },
+            "cy": function (d) { return y_scale_mini(CURRENT_ATTRIBUTE(BTC_ALL[DATE_HASH[d.startDate.toLocaleDateString("en-US")]])); },
+            "r": 2,
+            "class": "dataPoint",
+        }).style("fill", function (d) {
+                return "crimson";
+        });
+    }
+    else {
+
+        dots.attr({
+            "cx": function (d) { return x_scale_mini(d.startDate); },
+            "cy": function (d) { return y_scale_mini(CURRENT_ATTRIBUTE(BTC_ALL[DATE_HASH[d.startDate.toLocaleDateString("en-US")]])); },
+        });
+    }
+    
 
 }
 
@@ -1412,7 +1437,6 @@ var updateGraphType = function (element) {
     
     var graph_type = element.attr("id");
     var graph_type_text = element.attr("id");
-    console.log(graph_type_text);
 
     brush.extent([0,0]);
     mini_svg.selectAll(".brush").call(brush);
