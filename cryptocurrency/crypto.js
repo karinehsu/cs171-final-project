@@ -209,6 +209,7 @@ var transactions_line;
 
 var brushed = function()  {
 
+    // Grab the extent of the brush, and if it's too small, then ignore it for now
     var brush_extent = brush.extent();
     var time_diff = Math.abs(brush_extent[0].getTime() - brush_extent[1].getTime());
     if (d3.time.day.offset(brush_extent[0].getTime(), 10) > brush_extent[1].getTime()) {
@@ -216,27 +217,11 @@ var brushed = function()  {
         return;
     }
 
-    // update main vis and detail vis
+    // if the brush is large enough, we should update main vis and detail vis
     x_scale_main.domain(brush.empty() ? x_scale_mini.domain() : brush_extent);
     x_scale_detail.domain(brush.empty() ? x_scale_mini.domain() : brush_extent);
 
-    var center_piece = mini_g.selectAll(".event-ptr");
-    if (center_piece < 1) {
-        center_piece = mini_g.append("rect")
-            .attr("class", "event-ptr")
-            .attr({
-                height: mini_vis.h,
-                y: -margin.top,
-                transform: "translate(" + (x_scale_mini(brush_extent[0].getTime() + time_diff / 2)) + ",0)"
-            })
-            .attr("width", 1)
-            .attr("fill", "black");
-    }
-
-    center_piece.attr({
-        transform: "translate(" + (x_scale_mini(brush_extent[0].getTime() + time_diff / 2)) + ",0)"
-    }).attr("width", 1);
-
+    // update the sidebar with the events if you brush it!
     updateEventsBarBrushing(new Date((brush_extent[0].getTime() + time_diff / 2)));
 
     // update the main vis line
@@ -264,7 +249,25 @@ var brushed = function()  {
         return bar_width;
     });
 
-    
+    // update the center_piece to center the events (low priority)
+    var center_piece = mini_g.selectAll(".event-ptr");
+    if (center_piece < 1) {
+
+        center_piece = mini_g.append("rect")
+            .attr("class", "event-ptr")
+            .attr({
+                height: mini_vis.h,
+                y: -margin.top,
+                transform: "translate(" + (x_scale_mini(brush_extent[0].getTime() + time_diff / 2)) + ",0)"
+            })
+            .attr("width", 1)
+            .attr("fill", "black");
+    }
+
+    center_piece.attr({
+        transform: "translate(" + (x_scale_mini(brush_extent[0].getTime() + time_diff / 2)) + ",0)"
+    }).attr("width", 1);
+
 
 }
 
@@ -289,10 +292,10 @@ Object.size = function (obj) {
  **/
 var main = function () {
     
+    loadHistoricalBTCPrices();
     loadLeftPanel();
     loadRightPanel();
-    loadHistoricalBTCPrices();
-
+    
 }
 
 var updateEventsBarBrushing = function (date) {
@@ -345,7 +348,6 @@ var loadLeftPanel = function () {
 
         // cache the events
         EVENTS_ALL = data.events;
-        console.log(EVENTS_ALL);
 
         var parseDate = d3.time.format("%Y,%m,%d").parse;
         var event_headers = '';
@@ -374,15 +376,12 @@ var loadLeftPanel = function () {
 
         $('.event').click(function () {
             updateEventsOnGraph(this);
-            
-    
         });
     })
 
 }
 
     
-
 var loadRightPanel = function () {
     $("#right-bar-title").html("<h3>Welcome to Bitcoin Explorer!</h3>");
     $("#right-bar-subtitle").html("<h4>By Alex Liu and Karine Hsu</h4><br>");
@@ -393,7 +392,6 @@ var loadRightPanel = function () {
 var loadHistoricalBTCPrices = function () {
 
     d3.csv("../data/chart-data.csv", function (data) {
-
         
         var parseDate = d3.time.format("%m/%d/%Y").parse;
 
@@ -499,17 +497,21 @@ var loadMiniVisual = function () {
                 class: "brush",
                 transform: "translate(" + mini_vis.x + ",0)"
             }).call(brush);
-            bEl.selectAll("rect")
-                .attr({
-                    height: mini_vis.h,
-                    transform: "translate(0,0)"
-                });
+    }
 
-            detailArea = d3.svg.area()
+    mini_svg.selectAll(".brush").attr({
+        class: "brush",
+        transform: "translate(" + mini_vis.x + ",0)"
+    }).call(brush).selectAll("rect")
+        .attr({
+            height: mini_vis.h,
+            transform: "translate(0,0)"
+        });
+
+    detailArea = d3.svg.area()
                 .x(function (d) { return x_scale_main(d.date); })
                 .y0(main_vis.h)
                 .y1(function (d) { return x_scale_main(CURRENT_ATTRIBUTE(d)); });
-    }
 
     // Add events!
     var dots = dataGroup.selectAll(".dataPoint");
@@ -533,69 +535,6 @@ var loadMiniVisual = function () {
         });
     }
     
-
-}
-
-var loadBTCLineGraph = function () {
-
-    // update functor to grab the average
-    CURRENT_ATTRIBUTE = function (d) {
-        return d.average;
-    }
-
-    var time_extent = d3.extent(BTC_CURRENT, function (d) { return d.date; });
-    var height_extent = d3.extent(BTC_CURRENT, function (d) { return d.average; });
-
-    x_scale_main = d3.time.scale().domain(time_extent).range([0, main_vis.w]);
-    y_scale_main.domain(height_extent);
-    x_axis_main.scale(x_scale_main);
-
-    if (!average_line) {
-        average_line = d3.svg.line()
-            .interpolate("monotone")
-            .x(function (d) { return x_scale_main(d.date); })
-            .y(function (d) {
-                return y_scale_main(d.average);
-            });
-    }
-
-    CURRENT_LINE = average_line;
-
-    // Update the X and Y axis for main vis
-    main_g.selectAll(".y")
-        .style("visibility", "visible")
-        .call(y_axis_main)
-        .call(y_axis_main_2);
-    main_g.selectAll(".x")
-        .style("visibility", "visible")
-        .call(x_axis_main);
-
-    var dataGroup = main_g.selectAll(".dataGroup");
-
-    if (dataGroup < 1) {
-        // if we didn't already have the graph
-        dataGroup = main_g.append("g").attr({
-            "class": "dataGroup"
-        });
-    }
-
-    if (dataGroup.selectAll("path") < 1) {
-        dataGroup.append("svg:path").attr({
-            "class": "dataLine",
-            "d": average_line(BTC_CURRENT),
-        }).style("stroke", "lightsteelblue");
-    }
-    else {
-
-        // else just update
-        dataGroup.selectAll("path").attr({
-            "class": "dataLine",
-            "d": average_line(BTC_CURRENT),
-        }).style("stroke", "lightsteelblue");
-
-        var dots = dataGroup.selectAll(".dataPoint");
-        dots.attr("r", 0);
-    }
 
 }
 
@@ -1445,33 +1384,22 @@ var updateGraphType = function (element) {
     mini_svg.selectAll(".brush").call(brush);
 
     // update GraphType based on ids
-    if (graph_type.localeCompare("lineo-graph") == 0) {
-        d3.select("#graph-type-btn").text(graph_type_text);
+    if (graph_type.localeCompare("average-graph1") == 0) {
         loadBTCLineoGraph();
     }
-    else if (graph_type.localeCompare("line-graph") == 0) {
-        d3.select("#graph-type-btn").text(graph_type_text);
-        loadBTCLineGraph();
-    }
-
-    else if (graph_type.localeCompare("transaction-graph") == 0) {
-        d3.select("#graph-type-btn").text(graph_type_text);
+    else if (graph_type.localeCompare("transaction-graph1") == 0) {
         loadTransactionGraph();
     }
-    else if (graph_type.localeCompare("unique-addresses-graph") == 0) {
-        d3.select("#graph-type-btn").text(graph_type_text);
+    else if (graph_type.localeCompare("unique-addresses-graph1") == 0) {
         loadUniqueAddressesGraph();
     }
-    else if (graph_type.localeCompare("total-volume-graph") == 0) {
-        d3.select("#graph-type-btn").text(graph_type_text);
+    else if (graph_type.localeCompare("total-volume-graph1") == 0) {
         loadTotalVolumeGraph();
     }
-    else if (graph_type.localeCompare("usd-volume-graph") == 0) {
-        d3.select("#graph-type-btn").text(graph_type_text);
+    else if (graph_type.localeCompare("usd-volume-graph1") == 0) {
         loadUSDVolumeGraph();
     }
-    else if (graph_type.localeCompare("transactions-graph") == 0) {
-        d3.select("#graph-type-btn").text(graph_type_text);
+    else if (graph_type.localeCompare("transactions-graph1") == 0) {
         loadTransactionsGraph();
     }
     else {
@@ -1483,8 +1411,8 @@ var updateGraphType = function (element) {
 /** 
  * EXECUTION CODE
  **/
-
 $(document).ready(function () {
+
     $('.graph-type').click(function () {
         updateGraphType($(this));
     })
