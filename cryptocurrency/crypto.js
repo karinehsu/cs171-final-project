@@ -340,7 +340,7 @@ var loadLeftPanel = function () {
 
 }
 
-
+    
 
 var loadRightPanel = function () {
     $("#right-bar-title").html("<h3>Welcome to Bitcoin Explorer!</h3>");
