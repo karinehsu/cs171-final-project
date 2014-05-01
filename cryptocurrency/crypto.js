@@ -1688,7 +1688,7 @@ var loadTotalVolumeGraph2 = function () {
         // Add the dots if never put on before
         dots.data(BTC_CURRENT).enter().append("circle").attr({
             "cx": function (d) { return x_scale_main(d.date); },
-            "cy": function (d) { return y_scale_main(d.total_volume); },
+            "cy": function (d) { return y_scale_main2(d.total_volume); },
             "r": 2,
             "class": "dataPoint2",
         }).style("fill", function (d) {
