@@ -357,7 +357,7 @@ var loadLeftPanel = function () {
 var loadRightPanel = function () {
     $("#right-bar-title").html("<h1>Welcome to Bitcoin Explorer!</h1>");
     $("#right-bar-subtitle").html("<h3>By Alex Liu and Karine Hsu</h3>");
-    $("#right-bar-description").html("<b>Instructions:</b><br><li>Draw a rectangle over top visualization to specify time range to zoom in (see brushing and linking in action!)</li><br><li>View different graph types by choosing graph type under Line Graph Dropdown</li><br> <li>Select an event under Event Dropdown and see automatic zoom on graph</li> <br><li>Hover over or select specific data points for more details</li>");
+    $("#right-bar-description").html("<b>Instructions:</b><br><li>Draw a rectangle over top visualization to specify time range to zoom in (see brushing and linking in action!)</li><br><li>View different graph types by choosing graph type under Line Graph Dropdown</li><br> <li>Select an event under Events Dropdown and see automatic zoom on graph and details on right-hand side</li> <br><li>Hover over specific data points for more details</li><br><li>Toggle buttons on and off to see relationships between different components of Bitcoin</li>");
 
 }
 
