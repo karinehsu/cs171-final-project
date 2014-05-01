@@ -403,10 +403,18 @@ var loadLeftPanel = function () {
 
             if (d.startDate > dec2012) {
                 EVENTS_HASH[d.startDate.toLocaleDateString("en-US")] = i;
+
                 EVENTS_2013.push(d);
-                EVENTS_2013_JUNE.push(d);
-                EVENTS_2014.push(d);
+
+                if (d.startDate > may2013) {
+                    EVENTS_2013_JUNE.push(d);
+                }
+                else if (d.startDate > dec2013) {
+                    EVENTS_2014.push(d);
+                }
+                
                 EVENTS_NAMES.push(d.headline);
+
                 event_headers += '<li><a href="#" class="event">' + d.headline + '</a></li>';
             }
             
@@ -2106,6 +2114,7 @@ var updateTimeFrame = function (html_element) {
         BTC_CURRENT = BTC_2013_JUNE;
         EVENTS_CURRENT = EVENTS_2013_JUNE;
 
+        
         loadBTCLineoGraph();
         $("#first-btn-span").html("Left: Average Value");
         $("#second-btn-span").html("Right: None")
@@ -2124,6 +2133,15 @@ var updateTimeFrame = function (html_element) {
     else {
         return;
     }
+
+    var event_headers = '';
+    EVENTS_CURRENT.forEach(function (d, i) {
+        event_headers += '<li><a href="#" class="event">' + d.headline + '</a></li>';
+    });
+
+    console.log(event_headers);
+    d3.select("#events-list").html(event_headers);
+
 
     loadMiniVisual();
 }
