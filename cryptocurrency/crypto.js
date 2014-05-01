@@ -185,6 +185,7 @@ var EVENTS_NAMES = [];
 var CURRENT_LINE;
 
 var DATE_HASH = {};
+var EVENTS_HASH = {};
 
 
 // default to average
@@ -209,7 +210,7 @@ var brushed = function()  {
 
     var brush_extent = brush.extent();
     var time_diff = Math.abs(brush_extent[0].getTime() - brush_extent[1].getTime());
-    if (time_diff <= 799861311) {
+    if (d3.time.day.offset(brush_extent[0].getTime(), 10) > brush_extent[1].getTime()) {
         var center_piece = mini_g.selectAll(".event-ptr").attr("width", 0);
         return;
     }
@@ -218,7 +219,6 @@ var brushed = function()  {
     x_scale_main.domain(brush.empty() ? x_scale_mini.domain() : brush_extent);
     x_scale_detail.domain(brush.empty() ? x_scale_mini.domain() : brush_extent);
 
-    console.log("GOT HERE");
     var center_piece = mini_g.selectAll(".event-ptr");
     if (center_piece < 1) {
         center_piece = mini_g.append("rect")
@@ -235,6 +235,8 @@ var brushed = function()  {
     center_piece.attr({
         transform: "translate(" + (x_scale_mini(brush_extent[0].getTime() + time_diff / 2)) + ",0)"
     }).attr("width", 1);
+
+    updateEventsBarBrushing(new Date((brush_extent[0].getTime() + time_diff / 2)));
 
     // update the main vis line
     main_g.select(".dataLine").attr({
@@ -260,6 +262,8 @@ var brushed = function()  {
     .attr("width", function (d) {
         return bar_width;
     });
+
+    
 
 }
 
@@ -290,6 +294,22 @@ var main = function () {
 
 }
 
+var updateEventsBarBrushing = function (date) {
+
+    var correspondingIndex = DATE_HASH[date.toLocaleDateString("en-US")];
+    var eventIndex = EVENTS_HASH[date.toLocaleDateString("en-US")];
+
+    if (eventIndex) {
+        var eventObject = EVENTS_ALL[eventIndex];
+        var d = BTC_ALL[correspondingIndex];
+
+        $("#right-bar-title").html("<h3>" + eventObject.headline + "</h3>");
+        $("#right-bar-subtitle").html("<h4>(" + eventObject.startDate.toLocaleDateString("en-US") + ")</h4><br>");
+        $("#right-bar-description").html("<b>Description: </b><br>" + eventObject.text + "<br><br>" + "<b> Statistics: </b><br> All Transactions: " + d.transactions_all + " BTC<br>Date: " + d.date.toLocaleDateString("en-US") + "<br>Average: " + d.average + " USD/BTC<br>Volume: " + d.total_volume + " BTC<br>Unique Addresses: " + d.unique_addresses + "<br>Volume in USD: $" + d.usd_volume + "<br>Transactions (w/o top 100): " + d.transactions);
+
+    }
+}
+
 var updateEventsOnGraph = function (selected_event) {
 
     // upon click of event, brushing happens and  detail_vis of transaction volume shown
@@ -298,24 +318,23 @@ var updateEventsOnGraph = function (selected_event) {
     var index = EVENTS_NAMES.indexOf(selected_event.innerHTML);
     var eventObject = EVENTS_CURRENT[index];
 
-    var correspondingIndex = DATE_HASH[eventObject.startDate];
-    console.log(correspondingIndex);
-    var d = BTC_CURRENT[correspondingIndex];
-    console.log(d);
+    var correspondingIndex = DATE_HASH[eventObject.startDate.toLocaleDateString("en-US")];
+    if (correspondingIndex) {
+        var d = BTC_ALL[correspondingIndex];
 
-    $("#right-bar-title").html("<h3>" + eventObject.headline + "</h3>");
-    $("#right-bar-subtitle").html("<h4>(" + eventObject.startDate.toLocaleDateString("en-US") + ")</h4><br>");
-    $("#right-bar-description").html("<b>Description: </b><br>" + eventObject.text + "<br><br>" + "<b> Statistics: </b><br> All Transactions: " + d.transactions_all + " BTC<br>Date: " + d.date.toLocaleDateString("en-US") + "<br>Average: " + d.average + " USD/BTC<br>Volume: " + d.total_volume + " BTC<br>Unique Addresses: " + d.unique_addresses + "<br>Volume in USD: $" + d.usd_volume + "<br>Transactions (w/o top 100): " + d.transactions);
+        $("#right-bar-title").html("<h3>" + eventObject.headline + "</h3>");
+        $("#right-bar-subtitle").html("<h4>(" + eventObject.startDate.toLocaleDateString("en-US") + ")</h4><br>");
+        $("#right-bar-description").html("<b>Description: </b><br>" + eventObject.text + "<br><br>" + "<b> Statistics: </b><br> All Transactions: " + d.transactions_all + " BTC<br>Date: " + d.date.toLocaleDateString("en-US") + "<br>Average: " + d.average + " USD/BTC<br>Volume: " + d.total_volume + " BTC<br>Unique Addresses: " + d.unique_addresses + "<br>Volume in USD: $" + d.usd_volume + "<br>Transactions (w/o top 100): " + d.transactions);
 
-    // generate upper and lowerbound
-    var lbound = d3.time.month.offset(eventObject.startDate, -1);
-    var ubound = d3.time.month.offset(eventObject.startDate, 1);
+        //// generate upper and lowerbound
+        var lbound = d3.time.month.offset(eventObject.startDate, -1);
+        var ubound = d3.time.month.offset(eventObject.startDate, 1);
 
-    // create brushing range
-    brush.extent([lbound, ubound]);
-    mini_svg.selectAll(".brush").call(brush);
-    brushed();
-    
+        // create brushing range
+        brush.extent([lbound, ubound]);
+        mini_svg.selectAll(".brush").call(brush);
+        brushed();
+    }
     
 }
 
@@ -325,6 +344,7 @@ var loadLeftPanel = function () {
 
         // cache the events
         EVENTS_ALL = data.events;
+        console.log(EVENTS_ALL);
 
         var parseDate = d3.time.format("%Y,%m,%d").parse;
         var event_headers = '';
@@ -334,11 +354,12 @@ var loadLeftPanel = function () {
 
         EVENTS_NAMES = [];
 
-        EVENTS_ALL.forEach(function (d) {
+        EVENTS_ALL.forEach(function (d, i) {
 
             d.startDate = parseDate(d.startDate);
 
             if (d.startDate > jan2013 && d.startDate < now2014) {
+                EVENTS_HASH[d.startDate.toLocaleDateString("en-US")] = i;
                 EVENTS_CROPPED.push(d);
                 EVENTS_NAMES.push(d.headline);
                 event_headers += '<li><a href="#" class="event">' + d.headline + '</a></li>';
@@ -378,7 +399,7 @@ var loadHistoricalBTCPrices = function () {
         var jan2013 = parseDate("01/01/2013");
         var now2014 = parseDate("04/29/2014");
 
-        data.forEach(function (d) {
+        data.forEach(function (d, i) {
             d.date = parseDate(d.date);
             d.average = parseFloat(d.average);
             d.total_volume = parseFloat(d.total_volume);
@@ -387,10 +408,9 @@ var loadHistoricalBTCPrices = function () {
             d.usd_volume = parseFloat(d.usd_volume);
             d.transactions = parseFloat(d.transactions);
 
-            if (d.date > jan2013 && d.date < now2014) {
-                
-                DATE_HASH[d.date] = BTC_CROPPED.length;
+            if (d.date > jan2013 && d.date < now2014) {                
                 BTC_CROPPED.push(d);
+                DATE_HASH[d.date.toLocaleDateString("en-US")] = i;
                 
             }
         });
@@ -613,7 +633,6 @@ var loadBTCLineoGraph = function () {
     var dots = dataGroup.selectAll(".dataPoint");
 
     if (dots < 1) {
-        console.log("new dots");
         // Add the dots if never put on before
         dots.data(BTC_CURRENT).enter().append("circle").attr({
             "cx": function (d) { return x_scale_main(d.date); },
@@ -641,8 +660,6 @@ var loadBTCLineoGraph = function () {
     }
     else {
 
-        console.log("old dots");
-        console.log(dots.selectAll("circle"));
         dots.attr({
             "cx": function (d) { return x_scale_main(d.date); },
             "cy": function (d) { return y_scale_main(d.average); },
@@ -690,7 +707,6 @@ var loadTransactionGraph = function () {
 
     var dots = dataGroup.selectAll(".dataPoint");
     if (dots < 1) {
-        console.log("new dots");
         // Add the dots if never put on before
         dots.data(BTC_CURRENT).enter().append("circle").attr({
             "cx": function (d) { return x_scale_main(d.date); },
@@ -813,8 +829,6 @@ var loadUSDVolumeGraph = function () {
     var height_extent = d3.extent(BTC_CURRENT, function (d) { return d.usd_volume; });
     y_scale_main.domain(height_extent);
 
-    console.log(height_extent);
-
     if (!usd_volume_line){
         usd_volume_line = d3.svg.line()
             .interpolate("monotone")
@@ -863,7 +877,6 @@ var loadUSDVolumeGraph = function () {
     var dots = dataGroup.selectAll(".dataPoint");
 
     if (dots < 1) {
-        console.log("new dots");
         // Add the dots if never put on before
         dots.data(BTC_CURRENT).enter().append("circle").attr({
             "cx": function (d) { return x_scale_main(d.date); },
@@ -900,8 +913,6 @@ var loadTransactionsGraph = function () {
 
     var height_extent = d3.extent(BTC_CURRENT, function (d) { return d.transactions; });
     y_scale_main.domain(height_extent);
-
-    console.log(height_extent);
 
     if (!transactions_line){
         transactions_line = d3.svg.line()
@@ -941,8 +952,6 @@ var loadTransactionsGraph = function () {
     }
     else {
 
-        console.log("old line");
-
         // else just update
         dataGroup.selectAll("path").attr({
             "class": "dataLine",
@@ -954,7 +963,6 @@ var loadTransactionsGraph = function () {
     var dots = dataGroup.selectAll(".dataPoint");
 
     if (dots < 1) {
-        console.log("new dots");
         // Add the dots if never put on before
         dots.data(BTC_CURRENT).enter().append("circle").attr({
             "cx": function (d) { return x_scale_main(d.date); },
@@ -971,9 +979,6 @@ var loadTransactionsGraph = function () {
         });
     }
     else {
-
-        console.log("old dots");
-        console.log(dots.selectAll("circle"));
 
         dots.attr({
             "cx": function (d) { return x_scale_main(d.date); },
@@ -994,8 +999,6 @@ var loadTotalVolumeGraph = function () {
 
     var height_extent = d3.extent(BTC_CURRENT, function (d) { return d.total_volume; });
     y_scale_main.domain(height_extent);
-
-    console.log(height_extent);
 
     if (!total_volume_line){
         total_volume_line = d3.svg.line()
@@ -1328,8 +1331,6 @@ var loadTopTenCurrencies = function (data) {
     for (var i = start_index; i <= end_index; ++i) {
         data_ten[i - start_index] = data[i];
     }
-
-    console.log(data_ten);
 
     // update the x_main_scale and y_main_scale
     x_scale_main.domain([data_ten[0].id, data_ten[9].id]);
