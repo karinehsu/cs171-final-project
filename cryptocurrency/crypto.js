@@ -424,11 +424,11 @@ var loadRightPanel = function () {
 
 var loadHistoricalBTCPrices = function () {
 
-    d3.csv("../data/chart-data.csv", function (data) {
+    d3.csv("../data/chart-data-short.csv", function (data) {
         
         var parseDate = d3.time.format("%m/%d/%Y").parse;
 
-        var jan2013 = parseDate("01/01/2013");
+        var dec2012 = parseDate("12/01/2012");
 
         data.forEach(function (d, i) {
             d.date = parseDate(d.date);
@@ -439,7 +439,7 @@ var loadHistoricalBTCPrices = function () {
             d.usd_volume = parseFloat(d.usd_volume);
             d.transactions = parseFloat(d.transactions);
 
-            if (d.date > jan2013) {                
+            if (d.date > dec2012) {
                 BTC_CROPPED.push(d);
                 DATE_HASH[d.date.toLocaleDateString("en-US")] = i;
                 
@@ -1854,7 +1854,12 @@ var runCryptocoinchartsQuery = function (endpoint, params, callback) {
 }
 
 
-var updateGraphType = function (element) {
+var updateGraphType = function (html_element) {
+
+    console.log(html_element.innerHTML);
+    $("#first-btn-span").html("Left: " + html_element.innerHTML);
+
+    var element = $(html_element)
     
     var graph_type = element.attr("id");
     var graph_type_text = element.attr("id");
@@ -1863,35 +1868,53 @@ var updateGraphType = function (element) {
     if (graph_type.localeCompare("average-graph1") == 0) {
         loadBTCLineoGraph();
     }
-    else if (graph_type.localeCompare("average-graph2") == 0) {
-        loadBTCLineoGraph2();
-    }
     else if (graph_type.localeCompare("transaction-graph1") == 0) {
         loadTransactionGraph();
-    }
-    else if (graph_type.localeCompare("transaction-graph2") == 0) {
-        loadTransactionGraph2();
     }
     else if (graph_type.localeCompare("unique-addresses-graph1") == 0) {
         loadUniqueAddressesGraph();
     }
-    else if (graph_type.localeCompare("unique-addresses-graph2") == 0) {
-        loadUniqueAddressesGraph2();
-    }
     else if (graph_type.localeCompare("total-volume-graph1") == 0) {
         loadTotalVolumeGraph();
-    }
-    else if (graph_type.localeCompare("total-volume-graph2") == 0) {
-        loadTotalVolumeGraph2();
     }
     else if (graph_type.localeCompare("usd-volume-graph1") == 0) {
         loadUSDVolumeGraph();
     }
-    else if (graph_type.localeCompare("usd-volume-graph2") == 0) {
-        loadUSDVolumeGraph2();
-    }
     else if (graph_type.localeCompare("transactions-graph1") == 0) {
         loadTransactionsGraph();
+    }
+    else {
+        return;
+    }
+
+    loadMiniVisual();
+}
+
+var updateRightGraphType = function (html_element) {
+
+    console.log(html_element.innerHTML);
+    $("#second-btn-span").html("Right: " + html_element.innerHTML);
+
+    var element = $(html_element)
+
+    var graph_type = element.attr("id");
+    var graph_type_text = element.attr("id");
+
+    // update GraphType based on ids
+    if (graph_type.localeCompare("average-graph2") == 0) {
+        loadBTCLineoGraph2();
+    }
+    else if (graph_type.localeCompare("transaction-graph2") == 0) {
+        loadTransactionGraph2();
+    }
+    else if (graph_type.localeCompare("unique-addresses-graph2") == 0) {
+        loadUniqueAddressesGraph2();
+    }
+    else if (graph_type.localeCompare("total-volume-graph2") == 0) {
+        loadTotalVolumeGraph2();
+    }
+    else if (graph_type.localeCompare("usd-volume-graph2") == 0) {
+        loadUSDVolumeGraph2();
     }
     else if (graph_type.localeCompare("transactions-graph2") == 0) {
         loadTransactionsGraph2();
@@ -1909,7 +1932,11 @@ var updateGraphType = function (element) {
 $(document).ready(function () {
 
     $('.graph-type').click(function () {
-        updateGraphType($(this));
+        updateGraphType(this);
+    })
+
+    $('.graph-type2').click(function () {
+        updateRightGraphType(this);
     })
 
     $('#topTen').click(function () {

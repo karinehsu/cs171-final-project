@@ -237,6 +237,10 @@ body {
     border-bottom: 1px solid #eee;
 }
 
+.dropdown-menu {
+    left: auto;
+}
+
 /* Brush stuff */
 .brush .extent {
   stroke: #fff;
