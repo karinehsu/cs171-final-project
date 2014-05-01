@@ -169,7 +169,7 @@ var x_axis_detail = d3.svg.axis().scale(x_scale_detail).orient("bottom");
 var y_axis_detail = d3.svg.axis().scale(y_scale_detail).orient("left");
 
 // Axis should default orientation to bottom and left
-var x_axis_mini = d3.svg.axis().scale(x_scale_mini).orient("bottom");
+var x_axis_mini = d3.svg.axis().scale(x_scale_mini).orient("bottom").ticks(8);
 var y_axis_mini = d3.svg.axis().scale(y_scale_mini).orient("left");
 
 var detail_time_scale = d3.time.scale().domain([0, 1]).range([0, 1]);
