@@ -39,6 +39,9 @@
           border-radius: 8px;           
           pointer-events: none;         
         }
+        .verticalLine {
+            border-left: dotted #000000;
+        }
         </style>
     </head>
     <body>
@@ -127,8 +130,8 @@
                                     <li class="graph-type" id="usd-volume-graph"><a href="#">Volume in USD Graph</a></li>
                                     <li class="graph-type" id="transactions-graph"><a href="#">Transactions (minus top 100 traders) Graph</a></li>
 
-                                    <li class="divider"></li>
-                                    <li class="graph-type" id="clear-graph"><a href="#">Clear</a></li>
+                                    <!-- <li class="divider"></li>
+                                    <li class="graph-type" id="clear-graph"><a href="#">Clear</a></li> -->
                                 </ul>
                         </div>
 
@@ -138,7 +141,35 @@
                             </button>
                             <ul class="dropdown-menu" role="menu" id="events-list">
                             </ul>
-                            </div>
+                           
+
+                            
+                        </div>
+
+                        <!-- <div id="other_options"
+                                <label for="year" class="control-label input-group">Year</label>
+                                     <div class="verticalLine">
+                         <div class="btn-group" data-toggle="buttons">
+                            <label class="btn btn-default">
+                                <input type="radio" name="year" value="transaction">All Transactions
+                            </label>
+                            <label class="btn btn-default">
+                                <input type="radio" name="year" value="unique-addresses">Unique Addresses
+                            </label>
+                            <label class="btn btn-default active">
+                                <input type="radio" name="year" value="total-volume" checked="">Total Volume
+                            </label>
+                            <label class="btn btn-default">
+                                <input type="radio" name="year" value="volume-in-usd" checked="">Volume in USD
+                            </label>
+                             <label class="btn btn-default">
+                                <input type="radio" name="year" value="transactions" checked="">Transactions (minus top 100 traders)
+                            </label>
+                        </div> -->
+                      
+                    
+                    
+         
 
                         <!--<div id="events-group">
                             <label>Events: </label>
