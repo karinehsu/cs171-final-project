@@ -219,32 +219,7 @@
             playSliderreverse();
         });
             
-        jQuery( "#play" ).button({text: false, icons: {primary: "ui-icon-play"}}).click(function() {
-            var options;
-            if (isPlay==false) { //not currently playing
-                isPlay=true;
-                console.log("play mode");
-                options = {
-                    label: "pause",
-                    icons: {
-                        primary: "ui-icon-pause"
-                    }
-                }; // its currently playing
-            }
-            else {
-                isPlay=false;       
-                timeslider.slider("value", timeslider.slider("value")-1);
-                //  console.log("pause mode");
-                options = {
-                    label: "play",
-                    icons: {
-                        primary: "ui-icon-play"
-                    }
-                };  
-            }
-            jQuery( this ).button( "option", options );
-            playSlider();
-        });
+        
         jQuery( "#stop" ).button({
             text: false,
             icons: {
