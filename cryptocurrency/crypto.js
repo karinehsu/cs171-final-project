@@ -225,6 +225,7 @@ var usd_volume_line2;
 var transactions_line2;
 
 
+
 var brushed = function()  {
 
     // Grab the extent of the brush, and if it's too small, then ignore it for now
@@ -2094,16 +2095,31 @@ var updateTimeFrame = function (html_element) {
         console.log("2013~");
         BTC_CURRENT = BTC_2013;
         EVENTS_CURRENT = EVENTS_2013;
+
+        loadBTCLineoGraph();
+        $("#first-btn-span").html("Left: Average Value");
+        $("#second-btn-span").html("Right: None");
+        clearGraph2();
     }
     else if (timeline.localeCompare("t-2013-6") == 0) {
         console.log("2013");
         BTC_CURRENT = BTC_2013_JUNE;
         EVENTS_CURRENT = EVENTS_2013_JUNE;
+
+        loadBTCLineoGraph();
+        $("#first-btn-span").html("Left: Average Value");
+        $("#second-btn-span").html("Right: None")
+        clearGraph2();
     }
     else if (timeline.localeCompare("t-2014") == 0) {
         console.log("2014~");
         BTC_CURRENT = BTC_2014;
         EVENTS_CURRENT = EVENTS_2014;
+
+        loadBTCLineoGraph();
+        $("#first-btn-span").html("Left: Average Value");
+        $("#second-btn-span").html("Right: None")
+        clearGraph2();
     }
     else {
         return;

@@ -232,6 +232,10 @@ body {
     clip-path: url(#main_clip);
 }
 
+#mini_vis .dataPoint {
+    clip-path: url(#mini_clip);
+}
+
 #type-btn-group {
     padding-bottom: 10px;
     border-bottom: 1px solid #eee;
