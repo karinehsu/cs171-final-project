@@ -217,6 +217,10 @@ body {
 
 #events-list {
     font-size: 10px;
+    height: auto;
+    max-height: 200px;
+    overflow-x: hidden;
+    left: auto;
     
 }
 

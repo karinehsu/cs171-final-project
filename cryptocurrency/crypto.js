@@ -302,7 +302,8 @@ var loadLeftPanel = function () {
 
             if (d.startDate > jan2013 && d.startDate < now2014) {
                 EVENTS_CROPPED.push(d);
-                event_headers += '<option value="' + d.headline + '">' + d.headline + '</option>';
+
+                event_headers += '<li id="' + d.headline + '"><a href="#">' + d.headline + '</a></li>';
             }
             
         });
