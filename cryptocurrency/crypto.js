@@ -228,7 +228,14 @@ var color = d3.scale.category10();
  * CACHE DATA SETS
  **/
 var BTC_ALL = [];
+var BTC_CROPPED = [];
 var EVENTS_ALL = [];
+var EVENTS_CROPPED = [];
+
+// CURRENTLY selected mode
+var BTC_CURRENT = [];
+var EVENTS_CURRENT = [];
+
 
 /**
  * Object methods
@@ -265,8 +272,8 @@ var updateEventsOnGraph = function (selected_event) {
 
 
     // generate upper and lowerbound
-    var lbound = d3.time.month.offset(selected_event.startDate, -2);
-    var ubound = d3.time.month.offset(selected_event.startDate, 2);
+    var lbound = d3.time.month.offset(selected_event.startDate, -1);
+    var ubound = d3.time.month.offset(selected_event.startDate, 1);
 
     // create brushing range
     brush.extent([lbound, ubound]);
@@ -276,12 +283,9 @@ var updateEventsOnGraph = function (selected_event) {
     
 }
 
-
 var loadLeftPanel = function () {
 
     d3.json("../data/btc-events.json", function (data) {
-
-        
 
         // cache the events
         EVENTS_ALL = data.events;
@@ -289,36 +293,31 @@ var loadLeftPanel = function () {
         var parseDate = d3.time.format("%Y,%m,%d").parse;
         var event_headers = '';
 
+        var jan2013 = parseDate("2013,01,01");
+        var now2014 = parseDate("2014,04,29");
+
         EVENTS_ALL.forEach(function (d) {
 
             d.startDate = parseDate(d.startDate);
-            event_headers += '<option value="' + d.headline + '">' + d.headline + '</option>';
+
+            if (d.startDate > jan2013 && d.startDate < now2014) {
+                EVENTS_CROPPED.push(d);
+                event_headers += '<option value="' + d.headline + '">' + d.headline + '</option>';
+            }
+            
         });
 
+        EVENTS_CURRENT = EVENTS_CROPPED;
 
         d3.select("#events-list").html(event_headers)
             .on("change", function () {
                 var sel = this.value;
-                var selected_event = EVENTS_ALL.filter(function (d) { return d.headline == sel })[0];
+                var selected_event = EVENTS_CURRENT.filter(function (d) { return d.headline == sel })[0];
 
                 updateEventsOnGraph(selected_event);
             });
     })
 
-//    d3.csv("../data/majorbtcevents.csv", function(data) {
-//        console.log(data);
-
-//        var event_names = '';
-
-//        data.forEach(function (d) {
-//            event_names += '<li id=' + d.name + '><a href="#">' + d.name + '</a></li>';
-//        });
-
-
-//        d3.select("#events-dropdown").html(event_names)
-//            .on("click", updateEventsOnGraph);
-    
-//})
 }
 
 var loadRightPanel = function () {
@@ -330,14 +329,24 @@ var loadHistoricalBTCPrices = function () {
 
     d3.csv("../data/chart-data.csv", function (data) {
 
+        
         var parseDate = d3.time.format("%m/%d/%Y").parse;
+
+        var jan2013 = parseDate("01/01/2013");
+        var now2014 = parseDate("04/29/2014");
+
         data.forEach(function (d) {
             d.date = parseDate(d.date);
             d.average = parseFloat(d.average);
             d.total_volume = parseFloat(d.total_volume);
+
+            if (d.date > jan2013 && d.date < now2014) {
+                BTC_CROPPED.push(d);
+            }
         });
 
         BTC_ALL = data;
+        BTC_CURRENT = BTC_CROPPED;
 
         // create visual
 
@@ -366,8 +375,8 @@ var createMiniVisual = function () {
 
 var loadMiniVisual = function () {
 
-    var time_extent = d3.extent(BTC_ALL, function (d) { return d.date; });
-    var height_extent = d3.extent(BTC_ALL, function (d) { return d.average; });
+    var time_extent = d3.extent(BTC_CURRENT, function (d) { return d.date; });
+    var height_extent = d3.extent(BTC_CURRENT, function (d) { return d.average; });
 
     x_scale_mini = d3.time.scale().domain(time_extent).range([0, mini_vis.w]);
     y_scale_mini.domain(height_extent);
@@ -404,7 +413,7 @@ var loadMiniVisual = function () {
 
         dataGroup.append("svg:path").attr({
             "class": "dataLine",
-            "d": line(BTC_ALL),
+            "d": line(BTC_CURRENT),
         }).style("stroke", "lightsteelblue");
     }
     else {
@@ -414,7 +423,7 @@ var loadMiniVisual = function () {
         // else just update
         dataGroup.selectAll("path").attr({
             "class": "dataLine",
-            "d": line(BTC_ALL),
+            "d": line(BTC_CURRENT),
         }).style("stroke", "red");
 
         var dots = dataGroup.selectAll(".dataPoint");
@@ -440,8 +449,8 @@ var loadMiniVisual = function () {
 
 var loadBTCLineGraph = function () {
 
-    var time_extent = d3.extent(BTC_ALL, function (d) { return d.date; });
-    var height_extent = d3.extent(BTC_ALL, function (d) { return d.average; });
+    var time_extent = d3.extent(BTC_CURRENT, function (d) { return d.date; });
+    var height_extent = d3.extent(BTC_CURRENT, function (d) { return d.average; });
 
     x_scale_main = d3.time.scale().domain(time_extent).range([0, main_vis.w]);
     y_scale_main.domain(height_extent);
@@ -476,7 +485,7 @@ var loadBTCLineGraph = function () {
 
         dataGroup.append("svg:path").attr({
             "class": "dataLine",
-            "d": main_line(BTC_ALL),
+            "d": main_line(BTC_CURRENT),
         }).style("stroke", "lightsteelblue");
     }
     else {
@@ -484,7 +493,7 @@ var loadBTCLineGraph = function () {
         // else just update
         dataGroup.selectAll("path").attr({
             "class": "dataLine",
-            "d": main_line(BTC_ALL),
+            "d": main_line(BTC_CURRENT),
         }).style("stroke", "lightsteelblue");
 
         var dots = dataGroup.selectAll(".dataPoint");
@@ -495,8 +504,8 @@ var loadBTCLineGraph = function () {
 
 var loadBTCLineoGraph = function () {
 
-    var time_extent = d3.extent(BTC_ALL, function (d) { return d.date; });
-    var height_extent = d3.extent(BTC_ALL, function (d) { return d.average; });
+    var time_extent = d3.extent(BTC_CURRENT, function (d) { return d.date; });
+    var height_extent = d3.extent(BTC_CURRENT, function (d) { return d.average; });
 
     x_scale_main = d3.time.scale().domain(time_extent).range([0, main_vis.w]);
     y_scale_main.domain(height_extent);
@@ -533,7 +542,7 @@ var loadBTCLineoGraph = function () {
 
         dataGroup.append("svg:path").attr({
             "class": "dataLine",
-            "d": main_line(BTC_ALL),
+            "d": main_line(BTC_CURRENT),
         }).style("stroke", "lightsteelblue");
     }
     else {
@@ -543,7 +552,7 @@ var loadBTCLineoGraph = function () {
         // else just update
         dataGroup.selectAll("path").attr({
             "class": "dataLine",
-            "d": main_line(BTC_ALL),
+            "d": main_line(BTC_CURRENT),
         }).style("stroke", "lightsteelblue");
 
     }
@@ -553,13 +562,13 @@ var loadBTCLineoGraph = function () {
     if (dots < 1) {
         console.log("new dots");
         // Add the dots if never put on before
-        dots.data(BTC_ALL).enter().append("circle").attr({
+        dots.data(BTC_CURRENT).enter().append("circle").attr({
             "cx": function (d) { return x_scale_main(d.date); },
             "cy": function (d) { return y_scale_main(d.average); },
             "r": 2,
             "class": "dataPoint",
         }).style("fill", function (d) {
-            if (BTC_ALL.indexOf(d) == BTC_ALL.length - 1 || d.average < BTC_ALL[BTC_ALL.indexOf(d) + 1].average) {
+            if (BTC_CURRENT.indexOf(d) == BTC_CURRENT.length - 1 || d.average < BTC_CURRENT[BTC_CURRENT.indexOf(d) + 1].average) {
                 return "green";
             }
             else {
@@ -594,15 +603,15 @@ var loadBTCLineoGraph = function () {
 
 var loadBTCVolumeGraph = function () {
 
-    x_scale_detail = d3.time.scale().domain(d3.extent(BTC_ALL, function (d) { return d.date; })).range([0, main_vis.w]);
-    y_scale_detail.domain(d3.extent(BTC_ALL, function (d) { return d.total_volume; }));
-    console.log(d3.extent(BTC_ALL, function (d) { return d.total_volume; }));
-    console.log(d3.extent(BTC_ALL, function (d) { return d.date; }));
+    x_scale_detail = d3.time.scale().domain(d3.extent(BTC_CURRENT, function (d) { return d.date; })).range([0, main_vis.w]);
+    y_scale_detail.domain(d3.extent(BTC_CURRENT, function (d) { return d.total_volume; }));
+    console.log(d3.extent(BTC_CURRENT, function (d) { return d.total_volume; }));
+    console.log(d3.extent(BTC_CURRENT, function (d) { return d.date; }));
 
     x_axis_detail.scale(x_scale_detail);
 
     x_axis_detail.ticks(5);
-    var bar_width = 0.5 * (detail_vis.w - 2 * detail_vis.x) / BTC_ALL.length;
+    var bar_width = 0.5 * (detail_vis.w - 2 * detail_vis.x) / BTC_CURRENT.length;
 
     // Update the X and Y axis for main vis
     detail_g.selectAll(".y")
@@ -615,7 +624,7 @@ var loadBTCVolumeGraph = function () {
     var rects = detail_svg.selectAll("rect");
 
     detail_svg.selectAll("rect")
-    .data(BTC_ALL)
+    .data(BTC_CURRENT)
     .enter().append("svg:rect")
     .attr("x", function (d) {
         return x_scale_detail(d.date) + detail_vis.x;
@@ -631,7 +640,7 @@ var loadBTCVolumeGraph = function () {
         return bar_width;
     })
     .attr("fill", function (d) {
-        if (BTC_ALL.indexOf(d) == BTC_ALL.length - 1 || d.average < BTC_ALL[BTC_ALL.indexOf(d) + 1].average) {
+        if (BTC_CURRENT.indexOf(d) == BTC_CURRENT.length - 1 || d.average < BTC_CURRENT[BTC_CURRENT.indexOf(d) + 1].average) {
             return "green";
         }
         else {
