@@ -729,6 +729,8 @@ var loadBTCLineoGraph = function () {
     main_g.selectAll(".y")
         .style("visibility", "visible")
         .call(y_axis_main)
+    d3.select(".main.y.axis-label")
+        .text("Average Value ($/BTC)");
     
 
     var dataGroup = main_g.selectAll(".dataGroup");
@@ -945,7 +947,6 @@ var loadTransactionGraph = function () {
 
     }
 
-
     var dots = dataGroup.selectAll(".dataPoint");
     if (dots < 1) {
         // Add the dots if never put on before
@@ -1005,10 +1006,28 @@ var loadTransactionGraph2 = function () {
         .call(x_axis_main);
 
     var dataGroup = main_g.selectAll(".dataGroup2");
-    dataGroup.selectAll(".dataLine2").attr({
-        "class": "dataLine2",
-        "d": transaction_line2(BTC_CURRENT),
-    });
+    if (dataGroup < 1) {
+        // if we didn't already have the graph
+        dataGroup = main_g.append("g").attr({
+            "class": "dataGroup2"
+        });
+    }
+
+    if (dataGroup.selectAll(".dataLine2") < 1) {
+        dataGroup.append("svg:path").attr({
+            "class": "dataLine2",
+            "d": transaction_line2(BTC_CURRENT),
+        });
+    }
+    else {
+
+        // else just update
+        dataGroup.selectAll(".dataLine2").attr({
+            "class": "dataLine2",
+            "d": transaction_line2(BTC_CURRENT),
+        });
+
+    }
 
     var dots = dataGroup.selectAll(".dataPoint2");
     if (dots < 1) {
@@ -1366,10 +1385,10 @@ var loadUSDVolumeGraph2 = function () {
             "class": "dataPoint2",
         }).style("fill", function (d) {
             if (BTC_CURRENT.indexOf(d) == BTC_CURRENT.length - 1 || d.usd_volume < BTC_CURRENT[BTC_CURRENT.indexOf(d) + 1].usd_volume) {
-                return "green";
+                return "rgb(102, 255, 102)";
             }
             else {
-                return "red";
+                return "rgb(240, 128, 128)";
             }
         })
     }
@@ -1493,8 +1512,7 @@ var loadTransactionsGraph2 = function () {
             });
     }
 
-    CURRENT_LINE = transactions_line2;
-
+    CURRENT_LINE2 = transactions_line2;
 
     // Update the X and Y axis for main vis
     main_g.selectAll(".y2")
@@ -1553,7 +1571,6 @@ var loadTransactionsGraph2 = function () {
         dots.attr({
             "cx": function (d) { return x_scale_main(d.date); },
             "cy": function (d) { return y_scale_main2(d.transactions); },
-            "r": 2,
         });
     }
 
@@ -1820,7 +1837,7 @@ var createMainVisual = function () {
         .attr("transform", "translate(" + ((main_vis.w + main_vis.x) / 2) + " ," + (main_vis.h + main_vis.y * 3) + ")")
         .attr("dy", "1em")
         .style("text-anchor", "middle")
-        .text("Year");
+        .text("Time");
 
     main_svg.append("text")
         .attr("class", "main axis-label")
