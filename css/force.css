@@ -1,3 +1,21 @@
 ﻿.node {
   stroke-width: 1.5px;
 }
+
+/* Timeline stuff */
+.ui-state-default {
+    background: #eee;
+}
+
+#timeline-btns {
+    margin: auto;
+    text-align: center;
+    padding-bottom: 20px;
+    padding-top: 20px;
+}
+
+#time-slider {
+    margin-left: 25px;
+    margin-right: 25px;
+}
+

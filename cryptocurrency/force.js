@@ -22,9 +22,9 @@
 // define margins for the visuals
 var margin = {
     top: 25,
-    right: 50,
+    right: 25,
     bottom: 25,
-    left: 100
+    left: 25
 };
 
 var canvas_width = parseInt(d3.select("#main_vis").style("width"), 10);
@@ -134,16 +134,27 @@ var radius_scale = d3.scale.linear().domain([0, 1]).range([10, 150]);
  * CACHE DATA SETS
  **/
 var BTC_ALL = [];
-var BTC_CROPPED = [];
+var BTC_2013 = [];
+var BTC_2013_JUNE = [];
+var BTC_2014 = [];
+
 var EVENTS_ALL = [];
-var EVENTS_CROPPED = [];
+var EVENTS_NAMES = [];
+var EVENTS_2013 = [];
+var EVENTS_2013_JUNE = [];
+var EVENTS_2014 = [];
 
 // CURRENTLY selected mode
 var BTC_CURRENT = [];
 var EVENTS_CURRENT = [];
-var EVENTS_NAMES = [];
-var CURRENT_LINE;
 
+var CURRENT_LINE;
+var CURRENT_LINE2;
+
+var DATE_HASH = {};
+var EVENTS_HASH = {};
+
+var isPlay = false;
 var timelapse_speed = 1;
 
 // default to average
@@ -209,24 +220,36 @@ var loadLeftPanel = function () {
         var parseDate = d3.time.format("%Y,%m,%d").parse;
         var event_headers = '';
 
-        var jan2013 = parseDate("2013,01,01");
-        var now2014 = parseDate("2014,04,29");
+        var dec2012 = parseDate("2012,12,01");
+        var may2013 = parseDate("2012,05,01");
+        var dec2013 = parseDate("2013,12,01");
 
         EVENTS_NAMES = [];
 
-        EVENTS_ALL.forEach(function (d) {
+        EVENTS_ALL.forEach(function (d, i) {
 
             d.startDate = parseDate(d.startDate);
 
-            if (d.startDate > jan2013 && d.startDate < now2014) {
-                EVENTS_CROPPED.push(d);
+            if (d.startDate > dec2012) {
+                EVENTS_HASH[d.startDate.toLocaleDateString("en-US")] = i;
+
+                EVENTS_2013.push(d);
+
+                if (d.startDate > may2013) {
+                    EVENTS_2013_JUNE.push(d);
+                }
+                else if (d.startDate > dec2013) {
+                    EVENTS_2014.push(d);
+                }
+
                 EVENTS_NAMES.push(d.headline);
+
                 event_headers += '<li><a href="#" class="event">' + d.headline + '</a></li>';
             }
 
         });
 
-        EVENTS_CURRENT = EVENTS_CROPPED;
+        EVENTS_CURRENT = EVENTS_2013;
 
         d3.select("#events-list").html(event_headers);
 
@@ -250,10 +273,10 @@ var loadHistoricalBTCPrices = function () {
 
         var parseDate = d3.time.format("%m/%d/%Y").parse;
 
-        var jan2013 = parseDate("01/01/2013");
+        var dec2012 = parseDate("12/01/2012");
         var now2014 = parseDate("04/29/2014");
 
-        data.forEach(function (d) {
+        data.forEach(function (d, i) {
             d.date = parseDate(d.date);
             d.average = parseFloat(d.average);
             d.total_volume = parseFloat(d.total_volume);
@@ -261,14 +284,17 @@ var loadHistoricalBTCPrices = function () {
             d.unique_addresses = parseFloat(d.unique_addresses);
             d.usd_volume = parseFloat(d.usd_volume);
             d.transactions = parseFloat(d.transactions);
-
-            if (d.date > jan2013 && d.date < now2014) {
-                BTC_CROPPED.push(d);
-            }
+            DATE_HASH[d.date.toLocaleDateString("en-US")] = i;
         });
 
+
+        var dec2012 = parseDate("12/01/2012");
+
         BTC_ALL = data;
-        BTC_CURRENT = BTC_CROPPED;
+        BTC_2013 = BTC_ALL.filter(function (d) { return d.date > dec2012; });
+        BTC_CURRENT = BTC_2013; 
+
+        createMiniVisual();
         createMainVisual();
         loadMainForceVisual();
 
@@ -277,6 +303,22 @@ var loadHistoricalBTCPrices = function () {
 
 var createMainVisual = function () {
     
+}
+
+var createMiniVisual = function () {
+
+    var time_extent = d3.extent(BTC_CURRENT, function (d) { return d.date; });
+    x_scale_mini= d3.time.scale().domain(time_extent).range([0, main_vis.w]);
+    x_axis_mini.scale(x_scale_mini);
+
+    // Add the X Axis to the mini vis
+    mini_g.append("g")
+        .attr("class", "x axis")
+        .attr("transform", "translate(0,0)")
+        .call(x_axis_mini);
+
+
+
 }
 
 var loadMainForceVisual = function () {
@@ -328,6 +370,43 @@ var loadMainForceVisual = function () {
 
 }
 
+var playTimeLapse = function () {
+
+    console.log("Time Lapse");
+
+    var options;
+
+    if (isPlay == false) { //not currently playing
+        isPlay = true;
+        console.log("play mode");
+        options = {
+            label: "pause",
+            icons: {
+                primary: "ui-icon-pause"
+            }
+        }; // its currently playing
+    }
+    else {
+        isPlay = false;
+        timeslider.slider("value", timeslider.slider("value") - 1);
+        //  console.log("pause mode");
+        options = {
+            label: "play",
+            icons: {
+                primary: "ui-icon-play"
+            }
+        };
+    }
+    jQuery(this).button("option", options);
+    //playSlider();
+
+}
+
 $(document).ready(function () {
+
+    jQuery("#play").button({ text: false, icons: { primary: "ui-icon-play" } }).click(function () {
+        playTimeLapse();
+    });
+
     main();
 });
