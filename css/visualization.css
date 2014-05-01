@@ -176,6 +176,10 @@ body {
     font-size: 12px;
 }
 
+.y2.axis text {
+    font-size: 12px;
+}
+
  path {
     stroke-width: 1;
     fill: none;
@@ -217,6 +221,14 @@ body {
 }
 
 #main_vis .dataPoint {
+    clip-path: url(#main_clip);
+}
+
+#main_vis .dataLine2 {
+    clip-path: url(#main_clip);
+}
+
+#main_vis .dataPoint2 {
     clip-path: url(#main_clip);
 }
 

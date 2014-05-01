@@ -240,24 +240,35 @@ var brushed = function()  {
     updateEventsBarBrushing(new Date((brush_extent[0].getTime() + time_diff / 2)));
 
     // update the main vis line for left and right graph
-    main_g.select(".dataLine").attr({
-        "d": CURRENT_LINE(BTC_ALL),
-    });
-    main_g.select(".dataLine2").attr({
-        "d": CURRENT_LINE2(BTC_ALL),
-    });
+    if (CURRENT_LINE) {
+        main_g.select(".dataLine").attr({
+            "d": CURRENT_LINE(BTC_ALL),
+        });
+    }
+    
+    if (CURRENT_LINE2) {
+        main_g.select(".dataLine2").attr({
+            "d": CURRENT_LINE2(BTC_ALL),
+        });
+    }
+    
     main_g.selectAll(".x").call(x_axis_main);
 
     // update main vis dots for left graph and right graph
-    main_g.selectAll(".dataPoint").attr({
-        "cx": function (d) { return x_scale_main(d.date); },
-        "cy": function (d) { return y_scale_main(CURRENT_ATTRIBUTE(d)); }
-    });
+    if (CURRENT_ATTRIBUTE) {
+        main_g.selectAll(".dataPoint").attr({
+            "cx": function (d) { return x_scale_main(d.date); },
+            "cy": function (d) { return y_scale_main(CURRENT_ATTRIBUTE(d)); }
+        });
+    }
+    if (CURRENT_ATTRIBUTE2) {
+        main_g.selectAll(".dataPoint2").attr({
+            "cx": function (d) { return x_scale_main(d.date); },
+            "cy": function (d) { return y_scale_main2(CURRENT_ATTRIBUTE2(d)); }
+        });
+    }
+    
 
-    main_g.selectAll(".dataPoint2").attr({
-        "cx": function (d) { return x_scale_main(d.date); },
-        "cy": function (d) { return y_scale_main2(CURRENT_ATTRIBUTE2(d)); }
-    });
 
     // update the detail vis bars
     detail_g.selectAll(".x").call(x_axis_detail);
@@ -315,8 +326,8 @@ Object.size = function (obj) {
  **/
 var main = function () {
     
-    loadHistoricalBTCPrices();
     loadLeftPanel();
+    loadHistoricalBTCPrices();
     loadRightPanel();
     
 }
@@ -376,7 +387,6 @@ var loadLeftPanel = function () {
         var event_headers = '';
 
         var jan2013 = parseDate("2013,01,01");
-        var now2014 = parseDate("2014,04,29");
 
         EVENTS_NAMES = [];
 
@@ -384,7 +394,7 @@ var loadLeftPanel = function () {
 
             d.startDate = parseDate(d.startDate);
 
-            if (d.startDate > jan2013 && d.startDate < now2014) {
+            if (d.startDate > jan2013) {
                 EVENTS_HASH[d.startDate.toLocaleDateString("en-US")] = i;
                 EVENTS_CROPPED.push(d);
                 EVENTS_NAMES.push(d.headline);
@@ -419,7 +429,6 @@ var loadHistoricalBTCPrices = function () {
         var parseDate = d3.time.format("%m/%d/%Y").parse;
 
         var jan2013 = parseDate("01/01/2013");
-        var now2014 = parseDate("04/29/2014");
 
         data.forEach(function (d, i) {
             d.date = parseDate(d.date);
@@ -430,7 +439,7 @@ var loadHistoricalBTCPrices = function () {
             d.usd_volume = parseFloat(d.usd_volume);
             d.transactions = parseFloat(d.transactions);
 
-            if (d.date > jan2013 && d.date < now2014) {                
+            if (d.date > jan2013) {                
                 BTC_CROPPED.push(d);
                 DATE_HASH[d.date.toLocaleDateString("en-US")] = i;
                 
@@ -474,7 +483,10 @@ var loadMiniVisual = function () {
     y_scale_mini.domain(height_extent);
     x_axis_mini.scale(x_scale_mini);
 
-    brush = d3.svg.brush().x(x_scale_mini).on("brush", brushed);
+    if (!brush) {
+        brush = d3.svg.brush().x(x_scale_mini).on("brush", brushed);
+    }
+    
 
     line = d3.svg.line()
         .interpolate("monotone")
@@ -515,6 +527,28 @@ var loadMiniVisual = function () {
         }).style("stroke", "lightsteelblue");
     }
 
+    // Add events!
+    var dots = dataGroup.selectAll(".dataPoint");
+
+    if (dots < 1) {
+
+        // Add the dots if never put on before
+        dots.data(EVENTS_CURRENT).enter().append("circle").attr({
+            "cx": function (d) { return x_scale_mini(d.startDate); },
+            "cy": function (d) { return y_scale_mini(CURRENT_ATTRIBUTE(BTC_ALL[DATE_HASH[d.startDate.toLocaleDateString("en-US")]])); },
+            "r": 2,
+            "class": "dataPoint",
+        }).style("fill", function (d) {
+            return "crimson";
+        });
+    }
+    else {
+        dots.attr({
+            "cx": function (d) { return x_scale_mini(d.startDate); },
+            "cy": function (d) { return y_scale_mini(CURRENT_ATTRIBUTE(BTC_ALL[DATE_HASH[d.startDate.toLocaleDateString("en-US")]])); },
+        });
+    }
+
     if (mini_svg.selectAll(".brush") < 1) {
         // Add the brush
             var bEl = mini_svg.append("g").attr({
@@ -537,27 +571,6 @@ var loadMiniVisual = function () {
                 .y0(main_vis.h)
                 .y1(function (d) { return x_scale_main(CURRENT_ATTRIBUTE(d)); });
 
-    // Add events!
-    var dots = dataGroup.selectAll(".dataPoint");
-
-    if (dots < 1) {
-        // Add the dots if never put on before
-        dots.data(EVENTS_CURRENT).enter().append("circle").attr({
-            "cx": function (d) { return x_scale_mini(d.startDate); },
-            "cy": function (d) { return y_scale_mini(CURRENT_ATTRIBUTE(BTC_ALL[DATE_HASH[d.startDate.toLocaleDateString("en-US")]])); },
-            "r": 2,
-            "class": "dataPoint",
-        }).style("fill", function (d) {
-                return "crimson";
-        });
-    }
-    else {
-
-        dots.attr({
-            "cx": function (d) { return x_scale_mini(d.startDate); },
-            "cy": function (d) { return y_scale_mini(CURRENT_ATTRIBUTE(BTC_ALL[DATE_HASH[d.startDate.toLocaleDateString("en-US")]])); },
-        });
-    }
     
 
 }
@@ -606,6 +619,7 @@ var loadBTCLineoGraph = function () {
     }
 
     if (dataGroup.selectAll(".dataLine") < 1) {
+        console.log
         dataGroup.append("svg:path").attr({
             "class": "dataLine",
             "d": average_line(BTC_CURRENT),
@@ -668,10 +682,6 @@ var loadBTCLineoGraph2 = function () {
     }
 
     var height_extent = d3.extent(BTC_CURRENT, function (d) { return d.average; });
-    var time_extent = d3.extent(BTC_CURRENT, function (d) { return d.date; });
-
-    x_scale_main = d3.time.scale().domain(time_extent).range([0, main_vis.w]);
-    x_axis_main.scale(x_scale_main);
 
     y_scale_main2.domain(height_extent);
 
@@ -785,6 +795,9 @@ var loadTransactionGraph = function () {
         .call(y_axis_main);
     d3.select(".main.y.axis-label")
         .text("Transactions");
+    main_g.selectAll(".x")
+        .style("visibility", "visible")
+        .call(x_axis_main);
 
     var dataGroup = main_g.selectAll(".dataGroup");
     if (dataGroup < 1) {
@@ -865,6 +878,9 @@ var loadTransactionGraph2 = function () {
     main_g.selectAll(".y2")
         .style("visibility", "visible")
         .call(y_axis_main2);
+    main_g.selectAll(".x")
+        .style("visibility", "visible")
+        .call(x_axis_main);
 
     var dataGroup = main_g.selectAll(".dataGroup2");
     dataGroup.selectAll(".dataLine2").attr({
@@ -926,6 +942,9 @@ var loadUniqueAddressesGraph = function () {
     main_g.selectAll(".y")
         .style("visibility", "visible")
         .call(y_axis_main);
+    main_g.selectAll(".x")
+        .style("visibility", "visible")
+        .call(x_axis_main);
 
     d3.select(".main.y.axis-label")
         .text("Unique Addresses");
@@ -1011,6 +1030,9 @@ var loadUniqueAddressesGraph2 = function () {
     main_g.selectAll(".y2")
         .style("visibility", "visible")
         .call(y_axis_main2);
+    main_g.selectAll(".x")
+        .style("visibility", "visible")
+        .call(x_axis_main);
 
     var dataGroup = main_g.selectAll(".dataGroup2");
 
@@ -1093,6 +1115,9 @@ var loadUSDVolumeGraph = function () {
     main_g.selectAll(".y")
         .style("visibility", "visible")
         .call(y_axis_main);
+    main_g.selectAll(".x")
+        .style("visibility", "visible")
+        .call(x_axis_main);
 
     d3.select(".main.y.axis-label")
         .text("Total Volume in USD");
@@ -1178,6 +1203,9 @@ var loadUSDVolumeGraph2 = function () {
     main_g.selectAll(".y2")
         .style("visibility", "visible")
         .call(y_axis_main2);
+    main_g.selectAll(".x")
+        .style("visibility", "visible")
+        .call(x_axis_main);
 
     var dataGroup = main_g.selectAll(".dataGroup2");
 
@@ -1261,6 +1289,9 @@ var loadTransactionsGraph = function () {
     main_g.selectAll(".y")
         .style("visibility", "visible")
         .call(y_axis_main);
+    main_g.selectAll(".x")
+        .style("visibility", "visible")
+        .call(x_axis_main);
 
     d3.select(".main.y.axis-label")
         .text("Total Volume");
@@ -1347,6 +1378,9 @@ var loadTransactionsGraph2 = function () {
     main_g.selectAll(".y2")
         .style("visibility", "visible")
         .call(y_axis_main2);
+    main_g.selectAll(".x")
+        .style("visibility", "visible")
+        .call(x_axis_main);
 
     var dataGroup = main_g.selectAll(".dataGroup2");
 
@@ -1429,6 +1463,9 @@ var loadTotalVolumeGraph = function () {
     main_g.selectAll(".y")
         .style("visibility", "visible")
         .call(y_axis_main);
+    main_g.selectAll(".x")
+        .style("visibility", "visible")
+        .call(x_axis_main);
 
     d3.select(".main.y.axis-label")
         .text("Total Volume");
@@ -1514,6 +1551,9 @@ var loadTotalVolumeGraph2 = function () {
     main_g.selectAll(".y2")
         .style("visibility", "visible")
         .call(y_axis_main2);
+    main_g.selectAll(".x")
+        .style("visibility", "visible")
+        .call(x_axis_main);
 
     var dataGroup = main_g.selectAll(".dataGroup2");
 
@@ -1534,7 +1574,7 @@ var loadTotalVolumeGraph2 = function () {
     else {
 
         // else just update
-        dataGroup.selectAll(".dataLine").attr({
+        dataGroup.selectAll(".dataLine2").attr({
             "class": "dataLine2",
             "d": total_volume_line2(BTC_CURRENT),
         }).style("stroke", "lightsteelblue");
@@ -1639,6 +1679,7 @@ var createMainVisual = function () {
 
     main_g.append("g")
        .attr("class", "y2 axis")
+       .attr("visibility", "hidden")
        .attr("transform", "translate(" + (main_vis.w) + ", 0)")
        .call(y_axis_main2);
 
@@ -1817,9 +1858,6 @@ var updateGraphType = function (element) {
     
     var graph_type = element.attr("id");
     var graph_type_text = element.attr("id");
-
-    brush.extent([0,0]);
-    mini_svg.selectAll(".brush").call(brush);
 
     // update GraphType based on ids
     if (graph_type.localeCompare("average-graph1") == 0) {
