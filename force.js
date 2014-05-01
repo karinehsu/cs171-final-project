@@ -158,12 +158,6 @@ var CURRENT_ATTRIBUTE = function (d) {
 }
 
 var line;
-var average_line;
-var transaction_line;
-var unique_addresses_line;
-var total_volume_line;
-var usd_volume_line;
-var transactions_line;
 
 /**
  * Object methods
@@ -520,13 +514,106 @@ var loadBTCLineoGraph = function () {
     CURRENT_ATTRIBUTE = function (d) {
         return d.average;
     }
-    
-    CURRENT_LINE = average_line;
 
 }
 
+var loadBTCLineoGraph = function () {
+
+    // update functor to grab the average
+    CURRENT_ATTRIBUTE = function (d) {
+        return d.average;
+    }
+
+}
+
+var loadTransactionGraph = function () {
+
+    // update functor to grab the average
+    CURRENT_ATTRIBUTE = function (d) {
+        return d.transactions_all;
+    }
+
+}
+
+var loadTransactionsGraph = function () {
+
+    // update functor to grab the average
+    CURRENT_ATTRIBUTE = function (d) {
+        return d.transactions;
+    }
+
+}
+
+var loadUniqueAddressesGraph = function () {
+
+    // update functor to grab the average
+    CURRENT_ATTRIBUTE = function (d) {
+        return d.unique_addresses;
+    }
+
+}
+
+var loadUSDVolumeGraph = function () {
+
+    // update functor to grab the average
+    CURRENT_ATTRIBUTE = function (d) {
+        return d.usd_volume;
+    }
+
+}
+
+var loadTotalVolumeGraph = function () {
+
+    // update functor to grab the average
+    CURRENT_ATTRIBUTE = function (d) {
+        return d.total_volume;
+    }
+
+}
+
+var updateGraphType = function (html_element) {
+
+    console.log(html_element.innerHTML);
+    $("#first-btn-span").html("Left: " + html_element.innerHTML);
+
+    var element = $(html_element)
+    var graph_type = element.attr("id");
+
+    // update GraphType based on ids
+    if (graph_type.localeCompare("average-graph1") == 0) {
+        loadBTCLineoGraph();
+    }
+    else if (graph_type.localeCompare("transaction-graph1") == 0) {
+        loadTransactionGraph();
+    }
+    else if (graph_type.localeCompare("unique-addresses-graph1") == 0) {
+        loadUniqueAddressesGraph();
+    }
+    else if (graph_type.localeCompare("total-volume-graph1") == 0) {
+        loadTotalVolumeGraph();
+    }
+    else if (graph_type.localeCompare("usd-volume-graph1") == 0) {
+        loadUSDVolumeGraph();
+    }
+    else if (graph_type.localeCompare("transactions-graph1") == 0) {
+        loadTransactionsGraph();
+    }
+    else if (graph_type.localeCompare("clear1") == 0) {
+        clearGraph();
+    }
+    else {
+        return;
+    }
+
+    loadMiniVisual();
+}
 
 $(document).ready(function () {
 
     main();
+
+    $('.graph-type').click(function () {
+        updateGraphType(this);
+    })
+
 });

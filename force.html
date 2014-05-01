@@ -62,18 +62,6 @@
                         
                         <li><a href="about.html">About</a></li>
                         <li><a href="process.html">Process Book</a></li>
-                        <li class="dropdown">
-                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">Dropdown <b class="caret"></b></a>
-                            <ul class="dropdown-menu">
-                                <li><a href="#">Action</a></li>
-                                <li><a href="#">Another action</a></li>
-                                <li><a href="#">Something else here</a></li>
-                                <li class="divider"></li>
-                                <li class="dropdown-header">Nav header</li>
-                                <li><a href="#">Separated link</a></li>
-                                <li><a href="#">One more separated link</a></li>
-                            </ul>
-                        </li>
                     </ul>
                 </div><!--/.nav-collapse -->
             </div>
@@ -89,18 +77,6 @@
                         <li class="active"><a href="force.html">Force Diagram</a></li>
                         <li><a href="#">Export</a></li>
                     </ul>
-                    <!--<ul class="nav nav-sidebar">
-
-                    <label for="events-list">Events:</label>
-                    <br>
-
-
-                        <select id="events-list-select">
-                            <optgroup id="events-list"></optgroup>
-
-                        </select>
-
-                </ul>-->
                 </div>
                 <div class="col-sm-8 col-sm-offset-2 col-md-9 col-md-offset-1 main">
 
@@ -108,21 +84,20 @@
                     <div id="type-btn-group">
 
                         <!-- Single button -->
-                        <div class="btn-group" id="graph-type">
-                            <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
-                                Line Graph <span class="caret"></span>
+                        <div class="btn-group graph-types-group" id="graph-type">
+                            <button type="button" class="btn btn-primary dropdown-toggle graph-type-btn" id="first-btn" data-toggle="dropdown">
+                                <span id="first-btn-span">Left: Average Value</span> <span class="caret"></span>
                             </button>
                             <ul class="dropdown-menu" role="menu">
-                                <li class="graph-type" id="line-graph"><a href="#">Line Graph</a></li>
-                                <li class="graph-type" id="lineo-graph"><a href="#">Line-O Graph</a></li>
-                                <li class="graph-type" id="transaction-graph"><a href="#">All Transactions Graph</a></li>
-                                <li class="graph-type" id="unique-addresses-graph"><a href="#">Unique Addresses Graph</a></li>
-                                <li class="graph-type" id="total-volume-graph"><a href="#">Total Volume Graph</a></li>
-                                <li class="graph-type" id="usd-volume-graph"><a href="#">Volume in USD Graph</a></li>
-                                <li class="graph-type" id="transactions-graph"><a href="#">Transactions (minus top 100 traders) Graph</a></li>
-
+                                <li><a href="#" class="graph-type" id="average-graph1">Average Value</a></li>
+                                <li><a href="#" class="graph-type" id="transaction-graph1">All Transactions</a></li>
+                                <li><a href="#" class="graph-type" id="unique-addresses-graph1">Unique Addresses</a></li>
+                                <li><a href="#" class="graph-type" id="total-volume-graph1">Total Volume</a></li>
+                                <li><a href="#" class="graph-type" id="usd-volume-graph1">Volume in USD</a></li>
+                                <li><a href="#" class="graph-type" id="transactions-graph1">Transactions (minus top 100 traders)</a></li>
                                 <li class="divider"></li>
-                                <li class="graph-type" id="clear-graph"><a href="#">Clear</a></li>
+                                <li><a href="#" class="graph-type" id="clear1">None</a></li>
+
                             </ul>
                         </div>
 
