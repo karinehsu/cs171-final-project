@@ -475,6 +475,14 @@ var loadHistoricalBTCPrices = function () {
 
         // create main visual on the page
         createMainVisual();
+
+        var time_extent = d3.extent(BTC_CURRENT, function (d) { return d.date; });
+        x_scale_main = d3.time.scale().domain(time_extent).range([0, main_vis.w]);
+        x_axis_main.scale(x_scale_main);
+        main_g.selectAll(".x")
+            .style("visibility", "visible")
+            .call(x_axis_main);
+
         loadBTCLineoGraph();
         //loadBTCLineoGraph2();
 
@@ -534,18 +542,18 @@ var loadMiniVisual = function () {
         }
 
         // Add the line if it's not already added to the visual
-        if (dataGroup.selectAll("path") < 1) {
+        if (dataGroup.selectAll(".dataLine") < 1) {
             dataGroup.append("svg:path").attr({
                 "class": "dataLine",
                 "d": line(BTC_CURRENT),
-            }).style("stroke", "lightsteelblue");
+            });
         }
         else {
             // else just update the graph
-            dataGroup.selectAll("path").attr({
+            dataGroup.selectAll(".dataLine").attr({
                 "class": "dataLine",
                 "d": line(BTC_CURRENT),
-            }).style("stroke", "lightsteelblue");
+            });
         }
 
         // Add events!
@@ -633,14 +641,14 @@ var loadMiniVisual = function () {
             dataGroup.append("svg:path").attr({
                 "class": "dataLine",
                 "d": line(BTC_CURRENT),
-            }).style("stroke", "lightsteelblue");
+            });
         }
         else {
             // else just update the graph
             dataGroup.selectAll("path").attr({
                 "class": "dataLine",
                 "d": line(BTC_CURRENT),
-            }).style("stroke", "lightsteelblue");
+            });
         }
 
         // Add events!
@@ -688,9 +696,6 @@ var loadMiniVisual = function () {
                     .y1(function (d) { return x_scale_main(CURRENT_ATTRIBUTE2(d)); });
     }
     else {
-        // clear the mini visual too
-        mini_svg.selectAll(".dataLine").remove();
-        mini_svg.selectAll(".dataPoint").remove();
 
     }
 
@@ -705,12 +710,9 @@ var loadBTCLineoGraph = function () {
         return d.average;
     }
 
-    var time_extent = d3.extent(BTC_CURRENT, function (d) { return d.date; });
     var height_extent = d3.extent(BTC_CURRENT, function (d) { return d.average; });
-
-    x_scale_main = d3.time.scale().domain(time_extent).range([0, main_vis.w]);
     y_scale_main.domain(height_extent);
-    x_axis_main.scale(x_scale_main);
+    
 
     if (!average_line) {
         average_line = d3.svg.line()
@@ -727,9 +729,7 @@ var loadBTCLineoGraph = function () {
     main_g.selectAll(".y")
         .style("visibility", "visible")
         .call(y_axis_main)
-    main_g.selectAll(".x")
-        .style("visibility", "visible")
-        .call(x_axis_main);
+    
 
     var dataGroup = main_g.selectAll(".dataGroup");
 
@@ -745,7 +745,7 @@ var loadBTCLineoGraph = function () {
         dataGroup.append("svg:path").attr({
             "class": "dataLine",
             "d": average_line(BTC_CURRENT),
-        }).style("stroke", "lightsteelblue");
+        });
     }
     else {
 
@@ -753,7 +753,7 @@ var loadBTCLineoGraph = function () {
         dataGroup.selectAll(".dataLine").attr({
             "class": "dataLine",
             "d": average_line(BTC_CURRENT),
-        }).style("stroke", "lightsteelblue");
+        });
 
     }
 
@@ -839,7 +839,7 @@ var loadBTCLineoGraph2 = function () {
         dataGroup.append("svg:path").attr({
             "class": "dataLine2",
             "d": average_line2(BTC_CURRENT),
-        }).style("stroke", "lightsteelblue");
+        });
     }
     else {
 
@@ -847,7 +847,7 @@ var loadBTCLineoGraph2 = function () {
         dataGroup.selectAll(".dataLine2").attr({
             "class": "dataLine2",
             "d": average_line2(BTC_CURRENT),
-        }).style("stroke", "lightsteelblue");
+        });
 
     }
 
@@ -862,10 +862,10 @@ var loadBTCLineoGraph2 = function () {
             "class": "dataPoint2",
         }).style("fill", function (d) {
             if (BTC_CURRENT.indexOf(d) == BTC_CURRENT.length - 1 || d.average < BTC_CURRENT[BTC_CURRENT.indexOf(d) + 1].average) {
-                return "green";
+                return "rgb(102, 255, 102)";
             }
             else {
-                return "red";
+                return "rgb(240, 128, 128)";
             }
         })
         .on("mouseover", function (d, i) {
@@ -933,7 +933,7 @@ var loadTransactionGraph = function () {
         dataGroup.append("svg:path").attr({
             "class": "dataLine",
             "d": transaction_line(BTC_CURRENT),
-        }).style("stroke", "lightsteelblue");
+        });
     }
     else {
 
@@ -941,7 +941,7 @@ var loadTransactionGraph = function () {
         dataGroup.selectAll(".dataLine").attr({
             "class": "dataLine",
             "d": transaction_line(BTC_CURRENT),
-        }).style("stroke", "lightsteelblue");
+        });
 
     }
 
@@ -1008,7 +1008,7 @@ var loadTransactionGraph2 = function () {
     dataGroup.selectAll(".dataLine2").attr({
         "class": "dataLine2",
         "d": transaction_line2(BTC_CURRENT),
-    }).style("stroke", "lightsteelblue");
+    });
 
     var dots = dataGroup.selectAll(".dataPoint2");
     if (dots < 1) {
@@ -1020,10 +1020,10 @@ var loadTransactionGraph2 = function () {
             "class": "dataPoint2",
         }).style("fill", function (d) {
             if (BTC_CURRENT.indexOf(d) == BTC_CURRENT.length - 1 || d.transactions_all < BTC_CURRENT[BTC_CURRENT.indexOf(d) + 1].transactions_all) {
-                return "green";
+                return "rgb(102, 255, 102)";
             }
             else {
-                return "red";
+                return "rgb(240, 128, 128)";
             }
         });
 
@@ -1085,7 +1085,7 @@ var loadUniqueAddressesGraph = function () {
         dataGroup.append("svg:path").attr({
             "class": "dataLine",
             "d": unique_addresses_line(BTC_CURRENT),
-        }).style("stroke", "lightsteelblue");
+        });
     }
     else {
 
@@ -1093,7 +1093,7 @@ var loadUniqueAddressesGraph = function () {
         dataGroup.selectAll("path").attr({
             "class": "dataLine",
             "d": unique_addresses_line(BTC_CURRENT),
-        }).style("stroke", "lightsteelblue");
+        });
 
     }
 
@@ -1170,7 +1170,7 @@ var loadUniqueAddressesGraph2 = function () {
         dataGroup.append("svg:path").attr({
             "class": "dataLine2",
             "d": unique_addresses_line2(BTC_CURRENT),
-        }).style("stroke", "lightsteelblue");
+        });
     }
     else {
 
@@ -1178,7 +1178,7 @@ var loadUniqueAddressesGraph2 = function () {
         dataGroup.selectAll(".dataLine2").attr({
             "class": "dataLine2",
             "d": unique_addresses_line2(BTC_CURRENT),
-        }).style("stroke", "lightsteelblue");
+        });
 
     }
 
@@ -1190,13 +1190,13 @@ var loadUniqueAddressesGraph2 = function () {
             "cx": function (d) { return x_scale_main(d.date); },
             "cy": function (d) { return y_scale_main2(d.unique_addresses); },
             "r": 2,
-            "class": "dataPoint",
+            "class": "dataPoint2",
         }).style("fill", function (d) {
             if (BTC_CURRENT.indexOf(d) == BTC_CURRENT.length - 1 || d.unique_addresses < BTC_CURRENT[BTC_CURRENT.indexOf(d) + 1].unique_addresses) {
-                return "green";
+                return "rgb(102, 255, 102)";
             }
             else {
-                return "red";
+                return "rgb(240, 128, 128)";
             }
         })
     }
@@ -1258,7 +1258,7 @@ var loadUSDVolumeGraph = function () {
         dataGroup.append("svg:path").attr({
             "class": "dataLine",
             "d": usd_volume_line(BTC_CURRENT),
-        }).style("stroke", "lightsteelblue");
+        });
     }
     else {
 
@@ -1266,7 +1266,7 @@ var loadUSDVolumeGraph = function () {
         dataGroup.selectAll(".dataLine").attr({
             "class": "dataLine",
             "d": usd_volume_line(BTC_CURRENT),
-        }).style("stroke", "lightsteelblue");
+        });
 
     }
 
@@ -1343,7 +1343,7 @@ var loadUSDVolumeGraph2 = function () {
         dataGroup.append("svg:path").attr({
             "class": "dataLine2",
             "d": usd_volume_line2(BTC_CURRENT),
-        }).style("stroke", "lightsteelblue");
+        });
     }
     else {
 
@@ -1351,7 +1351,7 @@ var loadUSDVolumeGraph2 = function () {
         dataGroup.selectAll(".dataLine2").attr({
             "class": "dataLine2",
             "d": usd_volume_line2(BTC_CURRENT),
-        }).style("stroke", "lightsteelblue");
+        });
 
     }
 
@@ -1432,7 +1432,7 @@ var loadTransactionsGraph = function () {
         dataGroup.append("svg:path").attr({
             "class": "dataLine",
             "d": transactions_line(BTC_CURRENT),
-        }).style("stroke", "lightsteelblue");
+        });
     }
     else {
 
@@ -1440,7 +1440,7 @@ var loadTransactionsGraph = function () {
         dataGroup.selectAll(".dataLine").attr({
             "class": "dataLine",
             "d": transactions_line(BTC_CURRENT),
-        }).style("stroke", "lightsteelblue");
+        });
 
     }
 
@@ -1518,7 +1518,7 @@ var loadTransactionsGraph2 = function () {
         dataGroup.append("svg:path").attr({
             "class": "dataLine2",
             "d": transactions_line2(BTC_CURRENT),
-        }).style("stroke", "lightsteelblue");
+        });
     }
     else {
 
@@ -1526,7 +1526,7 @@ var loadTransactionsGraph2 = function () {
         dataGroup.selectAll(".dataLine2").attr({
             "class": "dataLine2",
             "d": transactions_line2(BTC_CURRENT),
-        }).style("stroke", "lightsteelblue");
+        });
 
     }
 
@@ -1541,10 +1541,10 @@ var loadTransactionsGraph2 = function () {
             "class": "dataPoint2",
         }).style("fill", function (d) {
             if (BTC_CURRENT.indexOf(d) == BTC_CURRENT.length - 1 || d.transactions < BTC_CURRENT[BTC_CURRENT.indexOf(d) + 1].transactions) {
-                return "green";
+                return "rgb(102, 255, 102)";
             }
             else {
-                return "red";
+                return "rgb(240, 128, 128)";
             }
         });
     }
@@ -1606,7 +1606,7 @@ var loadTotalVolumeGraph = function () {
         dataGroup.append("svg:path").attr({
             "class": "dataLine",
             "d": total_volume_line(BTC_CURRENT),
-        }).style("stroke", "lightsteelblue");
+        });
     }
     else {
 
@@ -1614,7 +1614,7 @@ var loadTotalVolumeGraph = function () {
         dataGroup.selectAll(".dataLine").attr({
             "class": "dataLine",
             "d": total_volume_line(BTC_CURRENT),
-        }).style("stroke", "lightsteelblue");
+        });
 
     }
 
@@ -1691,7 +1691,7 @@ var loadTotalVolumeGraph2 = function () {
         dataGroup.append("svg:path").attr({
             "class": "dataLine2",
             "d": total_volume_line2(BTC_CURRENT),
-        }).style("stroke", "lightsteelblue");
+        });
     }
     else {
 
@@ -1699,7 +1699,7 @@ var loadTotalVolumeGraph2 = function () {
         dataGroup.selectAll(".dataLine2").attr({
             "class": "dataLine2",
             "d": total_volume_line2(BTC_CURRENT),
-        }).style("stroke", "lightsteelblue");
+        });
 
     }
 
@@ -1714,10 +1714,10 @@ var loadTotalVolumeGraph2 = function () {
             "class": "dataPoint2",
         }).style("fill", function (d) {
             if (BTC_CURRENT.indexOf(d) == BTC_CURRENT.length - 1 || d.total_volume < BTC_CURRENT[BTC_CURRENT.indexOf(d) + 1].total_volume) {
-                return "green";
+                return "rgb(102, 255, 102)";
             }
             else {
-                return "red";
+                return "rgb(240, 128, 128)";
             }
         });
     }
