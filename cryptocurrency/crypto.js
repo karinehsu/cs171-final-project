@@ -168,6 +168,7 @@ var y_axis_detail = d3.svg.axis().scale(y_scale_detail).orient("left");
 var x_axis_mini = d3.svg.axis().scale(x_scale_mini).orient("bottom");
 var y_axis_mini = d3.svg.axis().scale(y_scale_mini).orient("left");
 
+var detail_time_scale = d3.time.scale().domain([0, 1]).range([0, 1]);
 
 /**
  * CACHE DATA SETS
@@ -182,6 +183,8 @@ var BTC_CURRENT = [];
 var EVENTS_CURRENT = [];
 var EVENTS_NAMES = [];
 var CURRENT_LINE;
+
+var DATE_HASH = {};
 
 
 // default to average
@@ -275,9 +278,17 @@ var updateEventsOnGraph = function (selected_event) {
 
     var index = EVENTS_NAMES.indexOf(selected_event.innerHTML);
     var eventObject = EVENTS_CURRENT[index];
+
+    var correspondingIndex = DATE_HASH[eventObject.startDate];
+    console.log(correspondingIndex);
+    var d = BTC_CURRENT[correspondingIndex];
+    console.log(d);
+
     $("#right-bar-title").html(eventObject.headline);
     $("#right-bar-subtitle").html(eventObject.startDate);
-    $("#right-bar-description").html(eventObject.text);
+    $("#right-bar-description").html(eventObject.text + "<br><br>" + "All Transactions: " + d.transactions_all + "<br>Date: " + d.date + "<br>Average: " + d.average + "<br>Volume: " + d.total_volume + "<br>Unique Addresses: " + d.unique_addresses + "<br>Volume in USD: " + d.usd_volume + "<br>Transactions (mins top 100 traders): " + d.transactions);
+
+    
 
 
     // generate upper and lowerbound
@@ -370,7 +381,10 @@ var loadHistoricalBTCPrices = function () {
             d.transactions = parseFloat(d.transactions);
 
             if (d.date > jan2013 && d.date < now2014) {
+                
+                DATE_HASH[d.date] = BTC_CROPPED.length;
                 BTC_CROPPED.push(d);
+                
             }
         });
 
