@@ -180,7 +180,9 @@ var EVENTS_CROPPED = [];
 // CURRENTLY selected mode
 var BTC_CURRENT = [];
 var EVENTS_CURRENT = [];
+var EVENTS_NAMES = [];
 var CURRENT_LINE;
+
 
 // default to average
 var CURRENT_ATTRIBUTE = function (d) {
@@ -271,9 +273,12 @@ var updateEventsOnGraph = function (selected_event) {
     // upon click of event, brushing happens and  detail_vis of transaction volume shown
     console.log(selected_event);
 
+    var index = EVENTS_NAMES.indexOf(selected_event.innerHTML);
+    console.log(index);
+
     // generate upper and lowerbound
-    var lbound = d3.time.month.offset(selected_event.startDate, -1);
-    var ubound = d3.time.month.offset(selected_event.startDate, 1);
+    var lbound = d3.time.month.offset(EVENTS_CURRENT[index].startDate, -1);
+    var ubound = d3.time.month.offset(EVENTS_CURRENT[index].startDate, 1);
 
     // create brushing range
     brush.extent([lbound, ubound]);
@@ -296,27 +301,27 @@ var loadLeftPanel = function () {
         var jan2013 = parseDate("2013,01,01");
         var now2014 = parseDate("2014,04,29");
 
+        EVENTS_NAMES = [];
+
         EVENTS_ALL.forEach(function (d) {
 
             d.startDate = parseDate(d.startDate);
 
             if (d.startDate > jan2013 && d.startDate < now2014) {
                 EVENTS_CROPPED.push(d);
-
-                event_headers += '<li id="' + d.headline + '"><a href="#">' + d.headline + '</a></li>';
+                EVENTS_NAMES.push(d.headline);
+                event_headers += '<li><a href="#" class="event">' + d.headline + '</a></li>';
             }
             
         });
 
         EVENTS_CURRENT = EVENTS_CROPPED;
 
-        d3.select("#events-list").html(event_headers)
-            .on("change", function () {
-                var sel = this.value;
-                var selected_event = EVENTS_CURRENT.filter(function (d) { return d.headline == sel })[0];
+        d3.select("#events-list").html(event_headers);
 
-                updateEventsOnGraph(selected_event);
-            });
+        $('.event').click(function () {
+            updateEventsOnGraph(this);
+        });
     })
 
 }
