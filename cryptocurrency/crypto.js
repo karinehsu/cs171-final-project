@@ -199,9 +199,7 @@ var CURRENT_ATTRIBUTE = function (d) {
     return d.average;
 }
 
-var CURRENT_ATTRIBUTE2 = function (d) {
-    return d.average;
-}
+var CURRENT_ATTRIBUTE2;
 
 /* Brush feature */
 var brush;
@@ -476,100 +474,203 @@ var createMiniVisual = function () {
 
 var loadMiniVisual = function () {
 
-    var time_extent = d3.extent(BTC_CURRENT, function (d) { return d.date; });
-    var height_extent = d3.extent(BTC_CURRENT, function (d) { return CURRENT_ATTRIBUTE(d); });
+    if (CURRENT_ATTRIBUTE) {
+        var time_extent = d3.extent(BTC_CURRENT, function (d) { return d.date; });
+        var height_extent = d3.extent(BTC_CURRENT, function (d) { return CURRENT_ATTRIBUTE(d); });
 
-    x_scale_mini = d3.time.scale().domain(time_extent).range([0, mini_vis.w]);
-    y_scale_mini.domain(height_extent);
-    x_axis_mini.scale(x_scale_mini);
+        x_scale_mini = d3.time.scale().domain(time_extent).range([0, mini_vis.w]);
+        y_scale_mini.domain(height_extent);
+        x_axis_mini.scale(x_scale_mini);
 
-    if (!brush) {
-        brush = d3.svg.brush().x(x_scale_mini).on("brush", brushed);
-    }
-    
+        if (!brush) {
+            brush = d3.svg.brush().x(x_scale_mini).on("brush", brushed);
+        }
 
-    line = d3.svg.line()
-        .interpolate("monotone")
-        .x(function (d) { return x_scale_mini(d.date); })
-        .y(function (d) {
-            return y_scale_mini(CURRENT_ATTRIBUTE(d));
-        });
+        line = d3.svg.line()
+            .interpolate("monotone")
+            .x(function (d) { return x_scale_mini(d.date); })
+            .y(function (d) {
+                return y_scale_mini(CURRENT_ATTRIBUTE(d));
+            });
 
-    // Update the X and Y axis for main vis
-    mini_g.selectAll(".y")
-        .style("visibility", "visible")
-        .call(y_axis_mini);
-    mini_g.selectAll(".x")
-        .style("visibility", "visible")
-        .call(x_axis_mini);
+        // Update the X and Y axis for main vis
+        mini_g.selectAll(".y")
+            .style("visibility", "visible")
+            .call(y_axis_mini);
+        mini_g.selectAll(".x")
+            .style("visibility", "visible")
+            .call(x_axis_mini);
 
-    var dataGroup = mini_g.selectAll(".dataGroup");
+        var dataGroup = mini_g.selectAll(".dataGroup");
 
-    // Add the graph if it's not already added to the visual
-    if (dataGroup < 1) {
-        dataGroup = mini_g.append("g").attr({
-            "class": "dataGroup"
-        });
-    }
-    
-    // Add the line if it's not already added to the visual
-    if (dataGroup.selectAll("path") < 1) {
-        dataGroup.append("svg:path").attr({
-            "class": "dataLine",
-            "d": line(BTC_CURRENT),
-        }).style("stroke", "lightsteelblue");
-    }
-    else {
-        // else just update the graph
-        dataGroup.selectAll("path").attr({
-            "class": "dataLine",
-            "d": line(BTC_CURRENT),
-        }).style("stroke", "lightsteelblue");
-    }
+        // Add the graph if it's not already added to the visual
+        if (dataGroup < 1) {
+            dataGroup = mini_g.append("g").attr({
+                "class": "dataGroup"
+            });
+        }
 
-    // Add events!
-    var dots = dataGroup.selectAll(".dataPoint");
+        // Add the line if it's not already added to the visual
+        if (dataGroup.selectAll("path") < 1) {
+            dataGroup.append("svg:path").attr({
+                "class": "dataLine",
+                "d": line(BTC_CURRENT),
+            }).style("stroke", "lightsteelblue");
+        }
+        else {
+            // else just update the graph
+            dataGroup.selectAll("path").attr({
+                "class": "dataLine",
+                "d": line(BTC_CURRENT),
+            }).style("stroke", "lightsteelblue");
+        }
 
-    if (dots < 1) {
+        // Add events!
+        var dots = dataGroup.selectAll(".dataPoint");
 
-        // Add the dots if never put on before
-        dots.data(EVENTS_CURRENT).enter().append("circle").attr({
-            "cx": function (d) { return x_scale_mini(d.startDate); },
-            "cy": function (d) { return y_scale_mini(CURRENT_ATTRIBUTE(BTC_ALL[DATE_HASH[d.startDate.toLocaleDateString("en-US")]])); },
-            "r": 2,
-            "class": "dataPoint",
-        }).style("fill", function (d) {
-            return "crimson";
-        });
-    }
-    else {
-        dots.attr({
-            "cx": function (d) { return x_scale_mini(d.startDate); },
-            "cy": function (d) { return y_scale_mini(CURRENT_ATTRIBUTE(BTC_ALL[DATE_HASH[d.startDate.toLocaleDateString("en-US")]])); },
-        });
-    }
+        if (dots < 1) {
 
-    if (mini_svg.selectAll(".brush") < 1) {
-        // Add the brush
+            // Add the dots if never put on before
+            dots.data(EVENTS_CURRENT).enter().append("circle").attr({
+                "cx": function (d) { return x_scale_mini(d.startDate); },
+                "cy": function (d) { return y_scale_mini(CURRENT_ATTRIBUTE(BTC_ALL[DATE_HASH[d.startDate.toLocaleDateString("en-US")]])); },
+                "r": 2,
+                "class": "dataPoint",
+            }).style("fill", function (d) {
+                return "crimson";
+            });
+        }
+        else {
+            dots.attr({
+                "cx": function (d) { return x_scale_mini(d.startDate); },
+                "cy": function (d) { return y_scale_mini(CURRENT_ATTRIBUTE(BTC_ALL[DATE_HASH[d.startDate.toLocaleDateString("en-US")]])); },
+            });
+        }
+
+        if (mini_svg.selectAll(".brush") < 1) {
+            // Add the brush
             var bEl = mini_svg.append("g").attr({
                 class: "brush",
                 transform: "translate(" + mini_vis.x + ",0)"
             }).call(brush);
+        }
+
+        mini_svg.selectAll(".brush").attr({
+            class: "brush",
+            transform: "translate(" + mini_vis.x + ",0)"
+        }).call(brush).selectAll("rect")
+            .attr({
+                height: mini_vis.h,
+                transform: "translate(0,0)"
+            });
+
+        detailArea = d3.svg.area()
+                    .x(function (d) { return x_scale_main(d.date); })
+                    .y0(main_vis.h)
+                    .y1(function (d) { return x_scale_main(CURRENT_ATTRIBUTE(d)); });
     }
+    else if (CURRENT_ATTRIBUTE2) {
+        var time_extent = d3.extent(BTC_CURRENT, function (d) { return d.date; });
+        var height_extent = d3.extent(BTC_CURRENT, function (d) { return CURRENT_ATTRIBUTE2(d); });
 
-    mini_svg.selectAll(".brush").attr({
-        class: "brush",
-        transform: "translate(" + mini_vis.x + ",0)"
-    }).call(brush).selectAll("rect")
-        .attr({
-            height: mini_vis.h,
-            transform: "translate(0,0)"
-        });
+        x_scale_mini = d3.time.scale().domain(time_extent).range([0, mini_vis.w]);
+        y_scale_mini.domain(height_extent);
+        x_axis_mini.scale(x_scale_mini);
 
-    detailArea = d3.svg.area()
-                .x(function (d) { return x_scale_main(d.date); })
-                .y0(main_vis.h)
-                .y1(function (d) { return x_scale_main(CURRENT_ATTRIBUTE(d)); });
+        if (!brush) {
+            brush = d3.svg.brush().x(x_scale_mini).on("brush", brushed);
+        }
+
+        line = d3.svg.line()
+            .interpolate("monotone")
+            .x(function (d) { return x_scale_mini(d.date); })
+            .y(function (d) {
+                return y_scale_mini(CURRENT_ATTRIBUTE2(d));
+            });
+
+        // Update the X and Y axis for main vis
+        mini_g.selectAll(".y")
+            .style("visibility", "visible")
+            .call(y_axis_mini);
+        mini_g.selectAll(".x")
+            .style("visibility", "visible")
+            .call(x_axis_mini);
+
+        var dataGroup = mini_g.selectAll(".dataGroup");
+
+        // Add the graph if it's not already added to the visual
+        if (dataGroup < 1) {
+            dataGroup = mini_g.append("g").attr({
+                "class": "dataGroup"
+            });
+        }
+
+        // Add the line if it's not already added to the visual
+        if (dataGroup.selectAll("path") < 1) {
+            dataGroup.append("svg:path").attr({
+                "class": "dataLine",
+                "d": line(BTC_CURRENT),
+            }).style("stroke", "lightsteelblue");
+        }
+        else {
+            // else just update the graph
+            dataGroup.selectAll("path").attr({
+                "class": "dataLine",
+                "d": line(BTC_CURRENT),
+            }).style("stroke", "lightsteelblue");
+        }
+
+        // Add events!
+        var dots = dataGroup.selectAll(".dataPoint");
+
+        if (dots < 1) {
+
+            // Add the dots if never put on before
+            dots.data(EVENTS_CURRENT).enter().append("circle").attr({
+                "cx": function (d) { return x_scale_mini(d.startDate); },
+                "cy": function (d) { return y_scale_mini(CURRENT_ATTRIBUTE2(BTC_ALL[DATE_HASH[d.startDate.toLocaleDateString("en-US")]])); },
+                "r": 2,
+                "class": "dataPoint",
+            }).style("fill", function (d) {
+                return "crimson";
+            });
+        }
+        else {
+            dots.attr({
+                "cx": function (d) { return x_scale_mini(d.startDate); },
+                "cy": function (d) { return y_scale_mini(CURRENT_ATTRIBUTE2(BTC_ALL[DATE_HASH[d.startDate.toLocaleDateString("en-US")]])); },
+            });
+        }
+
+        if (mini_svg.selectAll(".brush") < 1) {
+            // Add the brush
+            var bEl = mini_svg.append("g").attr({
+                class: "brush",
+                transform: "translate(" + mini_vis.x + ",0)"
+            }).call(brush);
+        }
+
+        mini_svg.selectAll(".brush").attr({
+            class: "brush",
+            transform: "translate(" + mini_vis.x + ",0)"
+        }).call(brush).selectAll("rect")
+            .attr({
+                height: mini_vis.h,
+                transform: "translate(0,0)"
+            });
+
+        detailArea = d3.svg.area()
+                    .x(function (d) { return x_scale_main(d.date); })
+                    .y0(main_vis.h)
+                    .y1(function (d) { return x_scale_main(CURRENT_ATTRIBUTE2(d)); });
+    }
+    else {
+        // clear the mini visual too
+        mini_svg.selectAll(".dataLine").remove();
+        mini_svg.selectAll(".dataPoint").remove();
+
+    }
+   
 
     
 
@@ -1739,6 +1840,45 @@ var createVolumeVisual = function () {
         .text("Year");
 }
 
+var clearGraph = function () {
+
+    // update functor to grab the average
+    CURRENT_ATTRIBUTE = null;
+    CURRENT_LINE = null;
+
+    // Update the X and Y axis for main vis
+    main_g.selectAll(".y")
+        .style("visibility", "hidden")
+        .call(y_axis_main);
+
+    d3.select(".main.y.axis-label").style("visibility", "hidden")
+
+    var dataGroup = main_g.selectAll(".dataGroup");
+    main_svg.selectAll(".dataLine").remove();
+    main_svg.selectAll(".dataPoint").remove();
+
+
+}
+
+
+var clearGraph2 = function () {
+
+    console.log("CLEARING RIGHT GRAPH");
+    // update functor to grab the average
+    CURRENT_ATTRIBUTE2 = null;
+    CURRENT_LINE2 = null;
+
+    // Update the X and Y axis for main vis
+    main_g.selectAll(".y2")
+        .style("visibility", "hidden")
+        .call(y_axis_main2);
+
+    var dataGroup = main_g.selectAll(".dataGroup2");
+    main_svg.selectAll(".dataLine2").remove();
+    main_svg.selectAll(".dataPoint2").remove();
+
+
+}
 /**
  * loadTopTenCurrencies(data)
  *
@@ -1883,6 +2023,9 @@ var updateGraphType = function (html_element) {
     else if (graph_type.localeCompare("transactions-graph1") == 0) {
         loadTransactionsGraph();
     }
+    else if (graph_type.localeCompare("clear1") == 0) {
+        clearGraph();
+    }
     else {
         return;
     }
@@ -1918,6 +2061,9 @@ var updateRightGraphType = function (html_element) {
     }
     else if (graph_type.localeCompare("transactions-graph2") == 0) {
         loadTransactionsGraph2();
+    }
+    else if (graph_type.localeCompare("clear2") == 0) {
+        clearGraph2();
     }
     else {
         return;
