@@ -1,5 +1,17 @@
 ﻿<!DOCTYPE html>
 <html lang="en">
+    <style>
+
+    .node {
+      stroke: #fff;
+      stroke-width: 1.5px;
+    }
+
+    .link {
+      stroke: #999;
+      stroke-opacity: .6;
+    }
+    </style>
     <head>
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -7,7 +19,7 @@
         <meta name="description" content="">
         <meta name="author" content="">
 
-        <title>Alternative Currency Visualization</title>
+        <title>Alternative Currency Global Visualization</title>
 
         <!-- Bootstrap core CSS -->
         <link href="../../css/bootstrap.min.css" rel="stylesheet">
@@ -23,29 +35,17 @@
 
         <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
         <!--[if lt IE 9]>
-            <script srcyl="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+            <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
             <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
         <![endif]-->
-        <style> 
-        .tooltip {   
-          position: absolute;           
-          text-align: center;           
-          width: 60px;                  
-          height: 28px;                 
-          padding: 2px;             
-          font: 12px sans-serif;        
-          background: lightsteelblue;   
-          border: 0px;      
-          border-radius: 8px;           
-          pointer-events: none;         
-        }
-        </style>
+
+
     </head>
     <body>
 
         <!-- Fixed navbar -->
-        <div class="navbar navbar-default navbar-custom navbar-fixed-top"  role="navigation">
-            <div class="header_container">
+        <div class="navbar navbar-default navbar-fixed-top" role="navigation">
+            <div class="container">
                 <div class="navbar-header">
                     <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
                         <span class="sr-only">Toggle navigation</span>
@@ -57,11 +57,12 @@
                 </div>
                 <div class="navbar-collapse collapse">
                     <ul class="nav navbar-nav navbar-right">
-                        <li class="active"><a href="./">Home</a></li>
+                         <li class="active"><a href="./">Home</a></li>
                         
                         <li><a href="about.html">About</a></li>
                         <li><a href="process.html">Process Book</a></li>
                         <li class="dropdown">
+                      
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown">Dropdown <b class="caret"></b></a>
                             <ul class="dropdown-menu">
                                 <li><a href="#">Action</a></li>
@@ -78,8 +79,7 @@
             </div>
         </div>
 
-        
-        <div class="container-fluid">
+            <div class="container-fluid">
             <div class="row">
                 <div class="col-sm-2 col-md-1 sidebar" id="left-col">
                     <ul class="nav nav-sidebar">
@@ -108,75 +108,80 @@
                         
                     </ul>-->
                 </div>
-                <div class="col-sm-8 col-sm-offset-2 col-md-9 col-md-offset-1 main">
-                    
-                    <h1 class="page-header">Bitcoin Explorer</h1>
-                    <div id="type-btn-group">
 
-                        <!-- Single button -->
-                            <div class="btn-group" id="graph-type">
-                            <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
-                                Line Graph <span class="caret"></span>
-                                </button>
-                                <ul class="dropdown-menu" role="menu">
-                                    <li class="graph-type" id="line-graph"><a href="#">Line Graph</a></li>
-                                    <li class="graph-type" id="lineo-graph"><a href="#">Line-O Graph</a></li>
-                                    <li class="graph-type" id="transaction-graph"><a href="#">All Transactions Graph</a></li>
-                                    <li class="graph-type" id="unique-addresses-graph"><a href="#">Unique Addresses Graph</a></li>
-                                    <li class="graph-type" id="total-volume-graph"><a href="#">Total Volume Graph</a></li>
-                                    <li class="graph-type" id="usd-volume-graph"><a href="#">Volume in USD Graph</a></li>
-                                    <li class="graph-type" id="transactions-graph"><a href="#">Transactions (minus top 100 traders) Graph</a></li>
+        <div class="container">
 
-                                    <li class="divider"></li>
-                                    <li class="graph-type" id="clear-graph"><a href="#">Clear</a></li>
-                                </ul>
-                        </div>
-
-                        <div class="btn-group" id="events-group">
-                            <button type="button" class="btn btn-info dropdown-toggle" data-toggle="dropdown">
-                                Events <span class="caret"></span>
-                            </button>
-                            <ul class="dropdown-menu" role="menu" id="events-list">
-                            </ul>
-                            </div>
-
-                        <!--<div id="events-group">
-                            <label>Events: </label>
-                            <select class="form-control" id="events-list"></select>
-                        </div>-->
-                        
-
-                        
-                    </div>
-
-
-                    <div id="mini_vis">
-                    </div>
-                    <div id="main_vis">
-                    </div>
-                    <div id="detail_vis">
-                    </div>
-                </div>
-
-                <div class="col-sm-3 col-sm-offset-10 col-md-2 col-md-offset-10 sidebar">
-                </div>
+            <!-- Jumbotron -->
+            <div class="jumbotron" id="main_vis">
+                <!--<h1>Do stuff to main visuals here</h1>-->
             </div>
 
-        </div>
-         
+        </div> 
+        <!-- /container -->
 
         <!-- Bootstrap core JavaScript -->
         <!-- Placed at the end of the document so the pages load faster -->
-        <script type="text/javascript" src="../js/jquery-1.11.0.min.js"></script>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
         <script src="../../js/bootstrap.min.js"></script>
 
         <!-- D3 and jQuery Libraries -->
         <script src="http://d3js.org/d3.v3.min.js"></script>
-        
-        
-        <!-- Custom JS for rendering visualization-->
-        <script src="crypto.js"></script>
+        <script type="text/javascript" src="../js/jquery-1.11.0.min.js"></script>
 
+        <script>
+
+
+
+
+        var force = d3.layout.force()
+            .charge(-120)
+            .linkDistance(30)
+            .size([width, height]);
+
+        var width = 960,
+        height = 500;
+
+        var color = d3.scale.category20();
+
+
+        var svg = d3.select("body").append("svg")
+        .attr("width", width)
+        .attr("height", height);
+
+        d3.json("data/DOGE.json", function(error, graph) {
+          force
+              .nodes(graph.nodes)
+              .links(graph.links)
+              .start();
+
+          var link = svg.selectAll(".link")
+              .data(graph.links)
+            .enter().append("line")
+              .attr("class", "link")
+              .style("stroke-width", function(d) { return Math.sqrt(d.value); });
+
+          var node = svg.selectAll(".node")
+              .data(graph.nodes)
+            .enter().append("circle")
+              .attr("class", "node")
+              .attr("r", 5)
+              .style("fill", function(d) { return color(d.group); })
+              .call(force.drag);
+
+          node.append("title")
+              .text(function(d) { return d.name; });
+
+          force.on("tick", function() {
+            link.attr("x1", function(d) { return d.source.x; })
+                .attr("y1", function(d) { return d.source.y; })
+                .attr("x2", function(d) { return d.target.x; })
+                .attr("y2", function(d) { return d.target.y; });
+
+            node.attr("cx", function(d) { return d.x; })
+                .attr("cy", function(d) { return d.y; });
+          });
+        });
+        </script>
 
     </body>
 </html>
