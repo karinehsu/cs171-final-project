@@ -284,12 +284,9 @@ var updateEventsOnGraph = function (selected_event) {
     var d = BTC_CURRENT[correspondingIndex];
     console.log(d);
 
-    $("#right-bar-title").html(eventObject.headline);
-    $("#right-bar-subtitle").html(eventObject.startDate);
-    $("#right-bar-description").html(eventObject.text + "<br><br>" + "All Transactions: " + d.transactions_all + "<br>Date: " + d.date + "<br>Average: " + d.average + "<br>Volume: " + d.total_volume + "<br>Unique Addresses: " + d.unique_addresses + "<br>Volume in USD: " + d.usd_volume + "<br>Transactions (mins top 100 traders): " + d.transactions);
-
-    
-
+    $("#right-bar-title").html("<h3>" + eventObject.headline + "</h3>");
+    $("#right-bar-subtitle").html("<h4>(" + eventObject.startDate.toLocaleDateString("en-US") + ")</h4><br>");
+    $("#right-bar-description").html("<b>Description: </b><br>" + eventObject.text + "<br><br>" + "<b> Statistics: </b><br> All Transactions: " + d.transactions_all + " BTC<br>Date: " + d.date.toLocaleDateString("en-US") + "<br>Average: " + d.average + " USD/BTC<br>Volume: " + d.total_volume + " BTC<br>Unique Addresses: " + d.unique_addresses + "<br>Volume in USD: $" + d.usd_volume + "<br>Transactions (w/o top 100): " + d.transactions);
 
     // generate upper and lowerbound
     var lbound = d3.time.month.offset(eventObject.startDate, -1);
@@ -337,26 +334,17 @@ var loadLeftPanel = function () {
         $('.event').click(function () {
             updateEventsOnGraph(this);
             
-            //$("#right-bar-subtitle").html("<h3>By Alex Liu and Karine Hsu</h3>");
     
         });
     })
 
 }
 
-// var updateEventsOnRight = function (selected_event) {
-
-//    //console.log(eventObject, eventObject.headline, eventObject.startDate, eventObject.text);
-//    $("#right-bar-title").html(eventObject);
-//    $("#right-bar-subtitle").html("<h3>By Alex Liu and Karine Hsu</h3>");
-    
-    
-// }
 
 
 var loadRightPanel = function () {
-    $("#right-bar-title").html("<h1>Welcome to Bitcoin Explorer!</h1>");
-    $("#right-bar-subtitle").html("<h3>By Alex Liu and Karine Hsu</h3>");
+    $("#right-bar-title").html("<h3>Welcome to Bitcoin Explorer!</h3>");
+    $("#right-bar-subtitle").html("<h4>By Alex Liu and Karine Hsu</h4><br>");
     $("#right-bar-description").html("<b>Instructions:</b><br><li>Draw a rectangle over top visualization to specify time range to zoom in (see brushing and linking in action!)</li><br><li>View different graph types by choosing graph type under Line Graph Dropdown</li><br> <li>Select an event under Event Dropdown and see automatic zoom on graph</li> <br><li>Hover over or select specific data points for more details</li>");
 
 }

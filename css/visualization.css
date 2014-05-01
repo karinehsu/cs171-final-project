@@ -76,24 +76,34 @@ body {
 #right-bar-title {
   width: 100%;
   height: 15%;
-  font-size: 26px;
   text-align: center;
   vertical-align: middle;
+  display: inline;
+}
+
+#right-bar-title h3 {
+  font-size: 1.5vw;
+  font-weight: 500;
 }
 
 #right-bar-subtitle {
   margin-top: 25px;
   width: 100%;
   height: 10%;
-  font-size: 18px;
   text-align:center;
+  display: inline;
+}
+
+#right-bar-subtitle h4 {
+  font-size: 1.1vw;
 }
 
 #right-bar-description {
   margin-top: 25px;
   width: 100%;
   height: 65%;
-  font-size: 15px;
+  font-size: 0.8vw;
+  display: inline;
 }
 
 /*
