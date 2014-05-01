@@ -159,6 +159,7 @@ var y_scale_detail = d3.scale.linear().domain([0, 1]).range([detail_vis.h - marg
 // Axis should default orientation to bottom and left
 var x_axis_main = d3.svg.axis().scale(x_scale_main).orient("bottom");
 var y_axis_main = d3.svg.axis().scale(y_scale_main).orient("left");
+var y_axis_main_2 = d3.svg.axis().scale(y_scale_main).orient("right");
 
 // Axis should default orientation to bottom and left
 var x_axis_detail = d3.svg.axis().scale(x_scale_detail).orient("bottom");
@@ -518,7 +519,8 @@ var loadBTCLineGraph = function () {
     // Update the X and Y axis for main vis
     main_g.selectAll(".y")
         .style("visibility", "visible")
-        .call(y_axis_main);
+        .call(y_axis_main)
+        .call(y_axis_main_2);
     main_g.selectAll(".x")
         .style("visibility", "visible")
         .call(x_axis_main);
@@ -580,7 +582,8 @@ var loadBTCLineoGraph = function () {
     // Update the X and Y axis for main vis
     main_g.selectAll(".y")
         .style("visibility", "visible")
-        .call(y_axis_main);
+        .call(y_axis_main)
+        .call(y_axis_main_2);
     main_g.selectAll(".x")
         .style("visibility", "visible")
         .call(x_axis_main);
