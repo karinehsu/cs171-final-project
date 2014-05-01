@@ -274,11 +274,13 @@ var updateEventsOnGraph = function (selected_event) {
     console.log(selected_event);
 
     var index = EVENTS_NAMES.indexOf(selected_event.innerHTML);
-    console.log(index);
+    var eventObject = EVENTS_CURRENT[index];
+
+    console.log(eventObject);
 
     // generate upper and lowerbound
-    var lbound = d3.time.month.offset(EVENTS_CURRENT[index].startDate, -1);
-    var ubound = d3.time.month.offset(EVENTS_CURRENT[index].startDate, 1);
+    var lbound = d3.time.month.offset(eventObject.startDate, -1);
+    var ubound = d3.time.month.offset(eventObject.startDate, 1);
 
     // create brushing range
     brush.extent([lbound, ubound]);
@@ -321,13 +323,35 @@ var loadLeftPanel = function () {
 
         $('.event').click(function () {
             updateEventsOnGraph(this);
+            updateEventsOnRight(this);
         });
     })
 
 }
 
-var loadRightPanel = function () {
+var updateEventsOnRight = function (selected_event) {
 
+    // upon click of event, brushing happens and  detail_vis of transaction volume shown
+    console.log(selected_event);
+
+    var index = EVENTS_NAMES.indexOf(selected_event.innerHTML);
+    console.log(index);
+
+    // generate upper and lowerbound
+    var lbound = d3.time.month.offset(EVENTS_CURRENT[index].startDate, -1);
+    var ubound = d3.time.month.offset(EVENTS_CURRENT[index].startDate, 1);
+
+    // create brushing range
+    brush.extent([lbound, ubound]);
+    mini_svg.selectAll(".brush").call(brush);
+    brushed();
+    
+    
+}
+
+
+var loadRightPanel = function () {
+    $("#right-bar-title").html("<h1>WELCOME</h1>");
 
 }
 
