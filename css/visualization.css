@@ -172,6 +172,10 @@ body {
     shape-rendering: crispEdges;
 }
 
+.y.axis text {
+    font-size: 12px;
+}
+
  path {
     stroke-width: 1;
     fill: none;
@@ -188,20 +192,14 @@ body {
 }
 
 #main_vis {
-    padding-left: 25px;
-    padding-right: 25px;
 
 }
 
 
 #detail_vis {
-    padding-left: 25px;
-    padding-right: 25px;
 }
 
 #mini_vis {
-    padding-left: 25px;
-    padding-right: 25px;
     
 }
 
