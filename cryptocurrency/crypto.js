@@ -178,14 +178,19 @@ var detail_time_scale = d3.time.scale().domain([0, 1]).range([0, 1]);
  * CACHE DATA SETS
  **/
 var BTC_ALL = [];
-var BTC_CROPPED = [];
+var BTC_2013 = [];
+var BTC_2013_JUNE = [];
+var BTC_2014 = [];
+
 var EVENTS_ALL = [];
-var EVENTS_CROPPED = [];
+var EVENTS_NAMES = [];
+var EVENTS_2013 = [];
+var EVENTS_2013_JUNE = [];
+var EVENTS_2014 = [];
 
 // CURRENTLY selected mode
 var BTC_CURRENT = [];
 var EVENTS_CURRENT = [];
-var EVENTS_NAMES = [];
 
 var CURRENT_LINE;
 var CURRENT_LINE2;
@@ -240,13 +245,13 @@ var brushed = function()  {
     // update the main vis line for left and right graph
     if (CURRENT_LINE) {
         main_g.select(".dataLine").attr({
-            "d": CURRENT_LINE(BTC_ALL),
+            "d": CURRENT_LINE(BTC_CURRENT),
         });
     }
     
     if (CURRENT_LINE2) {
         main_g.select(".dataLine2").attr({
-            "d": CURRENT_LINE2(BTC_ALL),
+            "d": CURRENT_LINE2(BTC_CURRENT),
         });
     }
     
@@ -332,6 +337,7 @@ var main = function () {
 
 var updateEventsBarBrushing = function (date) {
 
+    console.log(date.toLocaleDateString("en-US"));
     var correspondingIndex = DATE_HASH[date.toLocaleDateString("en-US")];
     var eventIndex = EVENTS_HASH[date.toLocaleDateString("en-US")];
 
@@ -385,6 +391,8 @@ var loadLeftPanel = function () {
         var event_headers = '';
 
         var dec2012 = parseDate("2012,12,01");
+        var may2013 = parseDate("2012,05,01");
+        var dec2013 = parseDate("2013,12,01");
 
         EVENTS_NAMES = [];
 
@@ -394,14 +402,16 @@ var loadLeftPanel = function () {
 
             if (d.startDate > dec2012) {
                 EVENTS_HASH[d.startDate.toLocaleDateString("en-US")] = i;
-                EVENTS_CROPPED.push(d);
+                EVENTS_2013.push(d);
+                EVENTS_2013_JUNE.push(d);
+                EVENTS_2014.push(d);
                 EVENTS_NAMES.push(d.headline);
                 event_headers += '<li><a href="#" class="event">' + d.headline + '</a></li>';
             }
             
         });
 
-        EVENTS_CURRENT = EVENTS_CROPPED;
+        EVENTS_CURRENT = EVENTS_2013;
 
         d3.select("#events-list").html(event_headers);
 
@@ -439,9 +449,16 @@ var loadHistoricalBTCPrices = function () {
 
 
         var dec2012 = parseDate("12/01/2012");
+        var jun2013 = parseDate("05/01/2013");
+        var dec2013 = parseDate("12/01/2013");
 
         BTC_ALL = data;
-        BTC_CURRENT = BTC_ALL.filter(function (d) { return d.date > dec2012; });
+        BTC_2013 = BTC_ALL.filter(function (d) { return d.date > dec2012; });
+        BTC_2013_JUNE = BTC_ALL.filter(function (d) { return d.date > jun2013; });
+        BTC_2014 = BTC_ALL.filter(function (d) { return d.date > dec2013; });
+
+        // Assign Current
+        BTC_CURRENT = BTC_2013;
 
         // create mini-visual for brushing
         createMiniVisual();
@@ -481,6 +498,7 @@ var loadMiniVisual = function () {
         if (!brush) {
             brush = d3.svg.brush().x(x_scale_mini).on("brush", brushed);
         }
+        brush.x(x_scale_mini);
 
         line = d3.svg.line()
             .interpolate("monotone")
@@ -2074,13 +2092,24 @@ var updateTimeFrame = function (html_element) {
     // update GraphType based on ids
     if (timeline.localeCompare("t-2013") == 0) {
         console.log("2013~");
+        BTC_CURRENT = BTC_2013;
+        EVENTS_CURRENT = EVENTS_2013;
     }
     else if (timeline.localeCompare("t-2013-6") == 0) {
         console.log("2013");
+        BTC_CURRENT = BTC_2013_JUNE;
+        EVENTS_CURRENT = EVENTS_2013_JUNE;
     }
     else if (timeline.localeCompare("t-2014") == 0) {
         console.log("2014~");
+        BTC_CURRENT = BTC_2014;
+        EVENTS_CURRENT = EVENTS_2014;
     }
+    else {
+        return;
+    }
+
+    loadMiniVisual();
 }
 
 /** 
