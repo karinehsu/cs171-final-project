@@ -69,6 +69,27 @@ body {
   background-color: #428bca;
 }
 
+#right-bar-title {
+  width: 100%;
+  height: 15%;
+  font-size: 26px;
+  text-align: center;
+  vertical-align: middle;
+}
+
+#right-bar-subtitle {
+  margin-top: 25px;
+  width: 100%;
+  height: 10%;
+  font-size: 18px;
+}
+
+#right-bar-description {
+  margin-top: 25px;
+  width: 100%;
+  height: 65%;
+  font-size: 15px;
+}
 
 /*
  * Main content
