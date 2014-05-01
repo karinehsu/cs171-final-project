@@ -101,7 +101,7 @@
                         <div class="btn-group graph-types-group" id="graph-type">
                             <button type="button" class="btn btn-primary dropdown-toggle graph-type-btn" id="first-btn" data-toggle="dropdown">
                                 <span id="first-btn-span">Left: Average Value</span> <span class="caret"></span>
-</button>
+                            </button>
                                 <ul class="dropdown-menu" role="menu">
                                     <li><a href="#" class="graph-type" id="average-graph1">Average Value</a></li>
                                     <li><a href="#" class="graph-type" id="transaction-graph1">All Transactions</a></li>
@@ -117,6 +117,7 @@
                                 </ul>
                         </div>
 
+                        <!-- Second Button -->
                         <div class="btn-group graph-types-group" id="graph-type-2">
                             <button type="button" class="btn btn-primary dropdown-toggle graph-type-btn" id="second-btn" data-toggle="dropdown">
                                 <span id="second-btn-span">Right: None</span> <span class="caret"></span>
@@ -131,13 +132,23 @@
                                 <li class="divider"></li>
                                 <li><a href="#" class="graph-type2" id="clear2">None</a></li>
 
-                                <!-- <li class="divider"></li>
-            <li class="graph-type" id="clear-graph"><a href="#">Clear</a></li> -->
+                            </ul>
+                        </div>
+
+                        <!-- Time Button -->
+                        <div class="btn-group graph-types-group" id="time-choices">
+                            <button type="button" class="btn btn-info dropdown-toggle graph-type-btn" id="time-btn" data-toggle="dropdown">
+                                <span id="time-btn-span">Since: Jan, 2013</span> <span class="caret"></span>
+                            </button>
+                            <ul class="dropdown-menu" role="menu">
+                                <li><a href="#" class="timeframe" id="t-2013">Jan, 2013</a></li>
+                                <li><a href="#" class="timeframe" id="t-2013-6">Jun, 2013</a></li>
+                                <li><a href="#" class="timeframe" id="t-2014">Jan, 2014</a></li>
                             </ul>
                         </div>
 
                         <div class="btn-group" id="events-group">
-                            <button type="button" class="btn btn-info dropdown-toggle" data-toggle="dropdown">
+                            <button type="button" class="btn btn-success dropdown-toggle"  data-toggle="dropdown">
                                 Events <span class="caret"></span>
                             </button>
                             <ul class="dropdown-menu" role="menu" id="events-list">

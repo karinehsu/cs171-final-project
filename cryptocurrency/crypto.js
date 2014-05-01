@@ -384,7 +384,7 @@ var loadLeftPanel = function () {
         var parseDate = d3.time.format("%Y,%m,%d").parse;
         var event_headers = '';
 
-        var jan2013 = parseDate("2013,01,01");
+        var dec2012 = parseDate("2012,12,01");
 
         EVENTS_NAMES = [];
 
@@ -392,7 +392,7 @@ var loadLeftPanel = function () {
 
             d.startDate = parseDate(d.startDate);
 
-            if (d.startDate > jan2013) {
+            if (d.startDate > dec2012) {
                 EVENTS_HASH[d.startDate.toLocaleDateString("en-US")] = i;
                 EVENTS_CROPPED.push(d);
                 EVENTS_NAMES.push(d.headline);
@@ -426,8 +426,6 @@ var loadHistoricalBTCPrices = function () {
         
         var parseDate = d3.time.format("%m/%d/%Y").parse;
 
-        var dec2012 = parseDate("12/01/2012");
-
         data.forEach(function (d, i) {
             d.date = parseDate(d.date);
             d.average = parseFloat(d.average);
@@ -436,16 +434,14 @@ var loadHistoricalBTCPrices = function () {
             d.unique_addresses = parseFloat(d.unique_addresses);
             d.usd_volume = parseFloat(d.usd_volume);
             d.transactions = parseFloat(d.transactions);
-
-            if (d.date > dec2012) {
-                BTC_CROPPED.push(d);
-                DATE_HASH[d.date.toLocaleDateString("en-US")] = i;
-                
-            }
+            DATE_HASH[d.date.toLocaleDateString("en-US")] = i;
         });
 
+
+        var dec2012 = parseDate("12/01/2012");
+
         BTC_ALL = data;
-        BTC_CURRENT = BTC_CROPPED;
+        BTC_CURRENT = BTC_ALL.filter(function (d) { return d.date > dec2012; });
 
         // create mini-visual for brushing
         createMiniVisual();
@@ -670,9 +666,7 @@ var loadMiniVisual = function () {
         mini_svg.selectAll(".dataPoint").remove();
 
     }
-   
 
-    
 
 }
 
@@ -2000,9 +1994,7 @@ var updateGraphType = function (html_element) {
     $("#first-btn-span").html("Left: " + html_element.innerHTML);
 
     var element = $(html_element)
-    
     var graph_type = element.attr("id");
-    var graph_type_text = element.attr("id");
 
     // update GraphType based on ids
     if (graph_type.localeCompare("average-graph1") == 0) {
@@ -2041,7 +2033,6 @@ var updateRightGraphType = function (html_element) {
     var element = $(html_element)
 
     var graph_type = element.attr("id");
-    var graph_type_text = element.attr("id");
 
     // update GraphType based on ids
     if (graph_type.localeCompare("average-graph2") == 0) {
@@ -2072,6 +2063,26 @@ var updateRightGraphType = function (html_element) {
     loadMiniVisual();
 }
 
+var updateTimeFrame = function (html_element) {
+
+    console.log(html_element);
+    $("#time-btn-span").html("Since: " + html_element.innerHTML);
+
+    var element = $(html_element)
+    var timeline = element.attr("id");
+
+    // update GraphType based on ids
+    if (timeline.localeCompare("t-2013") == 0) {
+        console.log("2013~");
+    }
+    else if (timeline.localeCompare("t-2013-6") == 0) {
+        console.log("2013");
+    }
+    else if (timeline.localeCompare("t-2014") == 0) {
+        console.log("2014~");
+    }
+}
+
 /** 
  * EXECUTION CODE
  **/
@@ -2083,6 +2094,10 @@ $(document).ready(function () {
 
     $('.graph-type2').click(function () {
         updateRightGraphType(this);
+    })
+
+    $('.timeframe').click(function () {
+        updateTimeFrame(this);
     })
 
     $('#topTen').click(function () {
