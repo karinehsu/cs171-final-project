@@ -212,7 +212,7 @@ var updateEventsOnGraph = function (selected_event) {
 
 var loadLeftPanel = function () {
 
-    d3.json("../data/btc-events.json", function (data) {
+    d3.json("data/btc-events.json", function (data) {
 
         // cache the events
         EVENTS_ALL = data.events;
@@ -269,7 +269,7 @@ var loadRightPanel = function () {
 
 var loadHistoricalBTCPrices = function () {
 
-    d3.csv("../data/chart-data.csv", function (data) {
+    d3.csv("data/chart-data.csv", function (data) {
 
         var parseDate = d3.time.format("%m/%d/%Y").parse;
 
