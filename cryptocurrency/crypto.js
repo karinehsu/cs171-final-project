@@ -209,13 +209,32 @@ var brushed = function()  {
 
     var brush_extent = brush.extent();
     var time_diff = Math.abs(brush_extent[0].getTime() - brush_extent[1].getTime());
-    if (time_diff <= 127998613) {
+    if (time_diff <= 799861311) {
+        var center_piece = mini_g.selectAll(".event-ptr").attr("width", 0);
         return;
     }
 
     // update main vis and detail vis
     x_scale_main.domain(brush.empty() ? x_scale_mini.domain() : brush_extent);
     x_scale_detail.domain(brush.empty() ? x_scale_mini.domain() : brush_extent);
+
+    console.log("GOT HERE");
+    var center_piece = mini_g.selectAll(".event-ptr");
+    if (center_piece < 1) {
+        center_piece = mini_g.append("rect")
+            .attr("class", "event-ptr")
+            .attr({
+                height: mini_vis.h,
+                y: -margin.top,
+                transform: "translate(" + (x_scale_mini(brush_extent[0].getTime() + time_diff / 2)) + ",0)"
+            })
+            .attr("width", 1)
+            .attr("fill", "black");
+    }
+
+    center_piece.attr({
+        transform: "translate(" + (x_scale_mini(brush_extent[0].getTime() + time_diff / 2)) + ",0)"
+    }).attr("width", 1);
 
     // update the main vis line
     main_g.select(".dataLine").attr({
