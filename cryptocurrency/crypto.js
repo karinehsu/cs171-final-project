@@ -202,8 +202,6 @@ var transactions_line;
 
 var brushed = function()  {
 
-    console.log("DHSAJKDHSAJKDHSJKAHDKSAHDJKHAS");
-
     var brush_extent = brush.extent();
     var time_diff = Math.abs(brush_extent[0].getTime() - brush_extent[1].getTime());
     if (time_diff <= 127998613) {
@@ -1403,6 +1401,11 @@ var updateGraphType = function (element) {
         d3.select("#graph-type-btn").text(graph_type_text);
         loadTransactionsGraph();
     }
+    else {
+        return;
+    }
+
+    loadMiniVisual();
 }
 /** 
  * EXECUTION CODE
