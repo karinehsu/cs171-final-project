@@ -238,7 +238,9 @@ var loadLeftPanel = function () {
 }
 
 var loadRightPanel = function () {
-
+    $("#right-bar-title").html("<h3>Bitcoin TimeLapse Visual!</h3>");
+    $("#right-bar-subtitle").html("<h4>By Alex Liu and Karine Hsu</h4><br>");
+    $("#right-bar-description").html("<b>Instructions:</b><br><li>Draw a rectangle over top visualization to specify time range to zoom in (see brushing and linking in action!)</li><br><li>View different graph types by choosing graph type under Line Graph Dropdown</li><br> <li>Select an event under Event Dropdown and see automatic zoom on graph</li> <br><li>Hover over or select specific data points for more details</li>");
 
 }
 
@@ -281,47 +283,48 @@ var loadMainForceVisual = function () {
 
     radius_scale.domain(d3.extent(BTC_CURRENT, function (d) { return d.average; }));
 
-    var btc = { id: "btc" };
+    //var btc = { id: "btc" };
 
-    var nodes = [btc],
-     foci = [{ x: main_vis.w / 2, y: main_vis.h / 2 }];
+    //var nodes = [btc],
+    // foci = [{ x: main_vis.w / 2, y: main_vis.h / 2 }];
 
-    var force = d3.layout.force()
-        .nodes(nodes)
-        .links([])
-        .gravity(0)
-        .size([main_vis.w, main_vis.h])
-        .on("tick", tick);
+    //var force = d3.layout.force()
+    //    .nodes(nodes)
+    //    .links([])
+    //    .gravity(0)
+    //    .size([main_vis.w, main_vis.h])
+    //    .on("tick", tick);
 
-    var node = main_svg.selectAll("circle")
-        .data(nodes)
-        .enter().append("circle")
-        .attr("class", "node")
-        .attr("id", function (d) { return d.id })
-        .attr("cx", main_vis.w / 2)
-        .attr("cy", main_vis.h / 2)
-        .attr("r", 0)
-        .style("fill", function (d) { return color(d.id); })
-        .style("stroke", function (d) { return d3.rgb(color(d.id)).darker(2); })
-        .call(force.drag);
+    //var node = main_svg.selectAll("circle")
+    //    .data(nodes)
+    //    .enter().append("circle")
+    //    .attr("class", "node")
+    //    .attr("id", function (d) { return d.id })
+    //    .attr("cx", main_vis.w / 2)
+    //    .attr("cy", main_vis.h / 2)
+    //    .attr("r", 0)
+    //    .style("fill", function (d) { return color(d.id); })
+    //    .style("stroke", function (d) { return d3.rgb(color(d.id)).darker(2); })
+    //    .call(force.drag);
 
-    var counter = 0;
-    function tick(e) {
-    }
+    //var counter = 0;
+    //function tick(e) {
 
-    var si = setInterval(function () {
-        force.start();
-        counter += timelapse_speed;
+    //}
 
-        if (counter >= BTC_CURRENT.length) {
-            clearInterval(si);
-        }
+    //var si = setInterval(function () {
+    //    force.start();
+    //    counter += timelapse_speed;
 
-        node = node.data(nodes);
+    //    if (counter >= BTC_CURRENT.length) {
+    //        clearInterval(si);
+    //    }
 
-        console.log(counter);
-        node.attr("r", radius_scale(BTC_CURRENT[counter].average));
-    }, 100);
+    //    node = node.data(nodes);
+
+    //    console.log(counter);
+    //    node.attr("r", radius_scale(BTC_CURRENT[counter].average));
+    //}, 100);
 
 }
 

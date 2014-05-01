@@ -1838,13 +1838,6 @@ var createMainVisual = function () {
         .attr("dy", "1em")
         .style("text-anchor", "middle")
         .text("Time");
-
-    main_svg.append("text")
-        .attr("class", "main axis-label")
-        .attr("transform", "translate(" + ((main_vis.w + main_vis.x) / 2) + " ," + 0 + ")")
-        .attr("dy", "1em")
-        .style("text-anchor", "middle")
-        .text("Price of Bitcoin Over Time");
 }
 
 var createVolumeVisual = function () {
