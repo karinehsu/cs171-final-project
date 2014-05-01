@@ -115,17 +115,8 @@ var main_tooltip = d3.select("body")
 var x_scale_mini = d3.scale.linear().domain([0, 1]).range([0, mini_vis.w]);
 var y_scale_mini = d3.scale.linear().domain([0, 1]).range([mini_vis.h - margin.bottom, 0]);
 
-// Default domains for x_scale_main and y_scale_main.  
-// Ranges should take up the entirety of the vis
-var x_scale_main = d3.scale.linear().domain([0, 1]).range([0, main_vis.w]);
-var y_scale_main = d3.scale.linear().domain([0, 1]).range([main_vis.h - margin.bottom, 0]);
-
 // Axis should default orientation to bottom and left
-var x_axis_main = d3.svg.axis().scale(x_scale_main).orient("bottom");
-var y_axis_main = d3.svg.axis().scale(y_scale_main).orient("left");
-
-// Axis should default orientation to bottom and left
-var x_axis_mini = d3.svg.axis().scale(x_scale_mini).orient("bottom");
+var x_axis_mini = d3.svg.axis().scale(x_scale_mini).orient("bottom").ticks(7);
 var y_axis_mini = d3.svg.axis().scale(y_scale_mini).orient("left");
 
 var radius_scale = d3.scale.linear().domain([0, 1]).range([10, 150]);
@@ -154,6 +145,10 @@ var CURRENT_LINE2;
 var DATE_HASH = {};
 var EVENTS_HASH = {};
 
+var si;
+var force;
+var timeslider;
+var currenttime = 0;
 var isPlay = false;
 var timelapse_speed = 1;
 
@@ -235,13 +230,6 @@ var loadLeftPanel = function () {
 
                 EVENTS_2013.push(d);
 
-                if (d.startDate > may2013) {
-                    EVENTS_2013_JUNE.push(d);
-                }
-                else if (d.startDate > dec2013) {
-                    EVENTS_2014.push(d);
-                }
-
                 EVENTS_NAMES.push(d.headline);
 
                 event_headers += '<li><a href="#" class="event">' + d.headline + '</a></li>';
@@ -278,12 +266,20 @@ var loadHistoricalBTCPrices = function () {
 
         data.forEach(function (d, i) {
             d.date = parseDate(d.date);
-            d.average = parseFloat(d.average);
-            d.total_volume = parseFloat(d.total_volume);
-            d.transactions_all = parseFloat(d.transactions_all);
-            d.unique_addresses = parseFloat(d.unique_addresses);
-            d.usd_volume = parseFloat(d.usd_volume);
-            d.transactions = parseFloat(d.transactions);
+            //d.average = parseFloat(d.average);
+            //d.total_volume = parseFloat(d.total_volume);
+            //d.transactions_all = parseFloat(d.transactions_all);
+            //d.unique_addresses = parseFloat(d.unique_addresses);
+            //d.usd_volume = parseFloat(d.usd_volume);
+            //d.transactions = parseFloat(d.transactions);
+
+            d.average = +d.average;
+            d.total_volume = +d.total_volume;
+            d.transactions_all = +d.transactions_all;
+            d.unique_addresses = +d.unique_addresses;
+            d.usd_volume = +d.usd_volume;
+            d.transactions = +d.transactions;
+
             DATE_HASH[d.date.toLocaleDateString("en-US")] = i;
         });
 
@@ -303,7 +299,87 @@ var loadHistoricalBTCPrices = function () {
 
 var createMainVisual = function () {
     
+    var btc = { id: "btc" };
+
+    var nodes = [btc],
+     foci = [{ x: main_vis.w / 2, y: main_vis.h / 2 }];
+
+    force = d3.layout.force()
+        .nodes(nodes)
+        .size([main_vis.w, main_vis.h])
+        .start();
+
+    var node = main_svg.selectAll("circle")
+        .data(nodes)
+        .enter().append("circle")
+        .attr("class", "node")
+        .attr("id", function (d) { return d.id })
+        .attr("cx", main_vis.w / 2)
+        .attr("cy", main_vis.h / 2)
+        .attr("r", 10)
+        .style("fill", function (d) { return color(d.id); })
+        .style("stroke", function (d) { return d3.rgb(color(d.id)).darker(2); })
+        .call(force.drag);
+
+    force.on("tick", tick);
+
+    function tick(e) {
+
+        // Push different nodes in different directions for clustering.
+        var k = 6 * e.alpha;
+        nodes.forEach(function (o, i) {
+            o.y += i & 1 ? k : -k;
+            o.x += i & 2 ? k : -k;
+        });
+
+        node.attr("cx", function (d) { return d.x; })
+            .attr("cy", function (d) { return d.y; });
+    }
+
 }
+
+//var playSlider = function () {
+
+//    clearInterval(si);
+
+//    si = setInterval(function () {
+//        currenttime += timelapse_speed;
+
+//        if (currenttime >= BTC_CURRENT.length) {
+            
+//            isPlay = false;
+//            timeslider.slider("value", BTC_CURRENT.length);
+//            jQuery("#play").button("option", { label: "play", icons: { primary: "ui-icon-play" } });
+//        }
+//        else if (isPlay == true) {
+//            timeslider.slider("value", currenttime);
+
+//            var node = main_svg.selectAll("circle");
+//            console.log(currenttime);
+//            node.attr("r", radius_scale(BTC_CURRENT[currenttime].average));
+
+//            setTimeout(playSlider, 40);
+//        }
+
+        
+//    }, 100);
+
+//}
+
+function playSlider() {
+
+    if (currenttime >= BTC_CURRENT.length - 1) {
+        isPlay = false;
+        timeslider.slider("value", BTC_CURRENT.length);
+        jQuery("#play").button("option", { label: "play", icons: { primary: "ui-icon-play" } });
+    } else if (isPlay == true) {
+        timeslider.slider("value", currenttime++);
+        var node = main_svg.selectAll("circle");
+        node.attr("r", radius_scale(BTC_CURRENT[currenttime].average));
+        setTimeout(playSlider, 40);
+    }
+};
+
 
 var createMiniVisual = function () {
 
@@ -317,7 +393,62 @@ var createMiniVisual = function () {
         .attr("transform", "translate(0,0)")
         .call(x_axis_mini);
 
+    function sliderResponse() {
 
+        var node = main_svg.selectAll("circle");
+        node.attr("r", radius_scale(BTC_CURRENT[currenttime].average));
+    }
+
+    timeslider = jQuery("#time-slider").slider({
+        value: 0,
+        min: 0,
+        max: BTC_CURRENT.length - 1,
+        orientation: "horizontal",
+        range: "min",
+        animate: true,
+        slide: function (event, ui) {
+            currenttime = ui.value;
+            console.log(currenttime);
+            sliderResponse();
+        },
+    });
+        jQuery("#play").button({ text: false, icons: { primary: "ui-icon-play" } }).click(function () {
+        var options;
+        if (isPlay == false) { //not currently playing
+            isPlay = true;
+            console.log("play mode");
+            options = {
+                label: "pause",
+                icons: {
+                    primary: "ui-icon-pause"
+                }
+            };
+
+            jQuery(this).button("option", options);
+            playSlider();
+        }
+        else {
+            isPlay = false;
+            timeslider.slider("value", timeslider.slider("value"));
+            console.log("pause mode");
+            options = {
+                label: "play",
+                icons: {
+                    primary: "ui-icon-play"
+                }
+            };
+
+        }
+
+        
+
+    });        jQuery("#shuffle").button().click(function () {
+        isPlay = false;
+        timeslider.slider("value", 0);
+        currenttime = 0;
+        sliderResponse();
+    });
+
 
 }
 
@@ -325,88 +456,18 @@ var loadMainForceVisual = function () {
 
     radius_scale.domain(d3.extent(BTC_CURRENT, function (d) { return d.average; }));
 
-    //var btc = { id: "btc" };
-
-    //var nodes = [btc],
-    // foci = [{ x: main_vis.w / 2, y: main_vis.h / 2 }];
-
-    //var force = d3.layout.force()
-    //    .nodes(nodes)
-    //    .links([])
-    //    .gravity(0)
-    //    .size([main_vis.w, main_vis.h])
-    //    .on("tick", tick);
-
-    //var node = main_svg.selectAll("circle")
-    //    .data(nodes)
-    //    .enter().append("circle")
-    //    .attr("class", "node")
-    //    .attr("id", function (d) { return d.id })
-    //    .attr("cx", main_vis.w / 2)
-    //    .attr("cy", main_vis.h / 2)
-    //    .attr("r", 0)
-    //    .style("fill", function (d) { return color(d.id); })
-    //    .style("stroke", function (d) { return d3.rgb(color(d.id)).darker(2); })
-    //    .call(force.drag);
-
-    //var counter = 0;
-    //function tick(e) {
-
-    //}
-
-    //var si = setInterval(function () {
-    //    force.start();
-    //    counter += timelapse_speed;
-
-    //    if (counter >= BTC_CURRENT.length) {
-    //        clearInterval(si);
-    //    }
-
-    //    node = node.data(nodes);
-
-    //    console.log(counter);
-    //    node.attr("r", radius_scale(BTC_CURRENT[counter].average));
-    //}, 100);
-
 }
 
 var playTimeLapse = function () {
 
     console.log("Time Lapse");
 
-    var options;
-
-    if (isPlay == false) { //not currently playing
-        isPlay = true;
-        console.log("play mode");
-        options = {
-            label: "pause",
-            icons: {
-                primary: "ui-icon-pause"
-            }
-        }; // its currently playing
-    }
-    else {
-        isPlay = false;
-        timeslider.slider("value", timeslider.slider("value") - 1);
-        //  console.log("pause mode");
-        options = {
-            label: "play",
-            icons: {
-                primary: "ui-icon-play"
-            }
-        };
-    }
-    jQuery(this).button("option", options);
+    
     //playSlider();
 
 }
 
 $(document).ready(function () {
-
-    jQuery("#play").button({ text: false, icons: { primary: "ui-icon-play" } }).click(function () {
-        playTimeLapse();
-    });
 
     main();
 });

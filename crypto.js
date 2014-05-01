@@ -179,14 +179,10 @@ var detail_time_scale = d3.time.scale().domain([0, 1]).range([0, 1]);
  **/
 var BTC_ALL = [];
 var BTC_2013 = [];
-var BTC_2013_JUNE = [];
-var BTC_2014 = [];
 
 var EVENTS_ALL = [];
 var EVENTS_NAMES = [];
 var EVENTS_2013 = [];
-var EVENTS_2013_JUNE = [];
-var EVENTS_2014 = [];
 
 // CURRENTLY selected mode
 var BTC_CURRENT = [];
@@ -338,7 +334,6 @@ var main = function () {
 
 var updateEventsBarBrushing = function (date) {
 
-    console.log(date.toLocaleDateString("en-US"));
     var correspondingIndex = DATE_HASH[date.toLocaleDateString("en-US")];
     var eventIndex = EVENTS_HASH[date.toLocaleDateString("en-US")];
 
@@ -405,14 +400,6 @@ var loadLeftPanel = function () {
                 EVENTS_HASH[d.startDate.toLocaleDateString("en-US")] = i;
 
                 EVENTS_2013.push(d);
-
-                if (d.startDate > may2013) {
-                    EVENTS_2013_JUNE.push(d);
-                }
-                else if (d.startDate > dec2013) {
-                    EVENTS_2014.push(d);
-                }
-                
                 EVENTS_NAMES.push(d.headline);
 
                 event_headers += '<li><a href="#" class="event">' + d.headline + '</a></li>';
@@ -447,12 +434,20 @@ var loadHistoricalBTCPrices = function () {
 
         data.forEach(function (d, i) {
             d.date = parseDate(d.date);
-            d.average = parseFloat(d.average);
-            d.total_volume = parseFloat(d.total_volume);
-            d.transactions_all = parseFloat(d.transactions_all);
-            d.unique_addresses = parseFloat(d.unique_addresses);
-            d.usd_volume = parseFloat(d.usd_volume);
-            d.transactions = parseFloat(d.transactions);
+            //d.average = parseFloat(d.average);
+            //d.total_volume = parseFloat(d.total_volume);
+            //d.transactions_all = parseFloat(d.transactions_all);
+            //d.unique_addresses = parseFloat(d.unique_addresses);
+            //d.usd_volume = parseFloat(d.usd_volume);
+            //d.transactions = parseFloat(d.transactions);
+
+            d.average = +d.average;
+            d.total_volume = +d.total_volume;
+            d.transactions_all = +d.transactions_all;
+            d.unique_addresses = +d.unique_addresses;
+            d.usd_volume = +d.usd_volume;
+            d.transactions = +d.transactions;
+
             DATE_HASH[d.date.toLocaleDateString("en-US")] = i;
         });
 
@@ -463,8 +458,6 @@ var loadHistoricalBTCPrices = function () {
 
         BTC_ALL = data;
         BTC_2013 = BTC_ALL.filter(function (d) { return d.date > dec2012; });
-        BTC_2013_JUNE = BTC_ALL.filter(function (d) { return d.date > jun2013; });
-        BTC_2014 = BTC_ALL.filter(function (d) { return d.date > dec2013; });
 
         // Assign Current
         BTC_CURRENT = BTC_2013;
@@ -2096,62 +2089,6 @@ var updateRightGraphType = function (html_element) {
     else {
         return;
     }
-
-    loadMiniVisual();
-}
-
-var updateTimeFrame = function (html_element) {
-
-    console.log(html_element);
-    $("#time-btn-span").html("Since: " + html_element.innerHTML);
-
-    var element = $(html_element)
-    var timeline = element.attr("id");
-
-    // update GraphType based on ids
-    if (timeline.localeCompare("t-2013") == 0) {
-        console.log("2013~");
-        BTC_CURRENT = BTC_2013;
-        EVENTS_CURRENT = EVENTS_2013;
-
-        loadBTCLineoGraph();
-        $("#first-btn-span").html("Left: Average Value");
-        $("#second-btn-span").html("Right: None");
-        clearGraph2();
-    }
-    else if (timeline.localeCompare("t-2013-6") == 0) {
-        console.log("2013");
-        BTC_CURRENT = BTC_2013_JUNE;
-        EVENTS_CURRENT = EVENTS_2013_JUNE;
-
-        
-        loadBTCLineoGraph();
-        $("#first-btn-span").html("Left: Average Value");
-        $("#second-btn-span").html("Right: None")
-        clearGraph2();
-    }
-    else if (timeline.localeCompare("t-2014") == 0) {
-        console.log("2014~");
-        BTC_CURRENT = BTC_2014;
-        EVENTS_CURRENT = EVENTS_2014;
-
-        loadBTCLineoGraph();
-        $("#first-btn-span").html("Left: Average Value");
-        $("#second-btn-span").html("Right: None")
-        clearGraph2();
-    }
-    else {
-        return;
-    }
-
-    var event_headers = '';
-    EVENTS_CURRENT.forEach(function (d, i) {
-        event_headers += '<li><a href="#" class="event">' + d.headline + '</a></li>';
-    });
-
-    console.log(event_headers);
-    d3.select("#events-list").html(event_headers);
-
 
     loadMiniVisual();
 }
