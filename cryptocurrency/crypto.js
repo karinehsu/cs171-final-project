@@ -275,8 +275,10 @@ var updateEventsOnGraph = function (selected_event) {
 
     var index = EVENTS_NAMES.indexOf(selected_event.innerHTML);
     var eventObject = EVENTS_CURRENT[index];
+    $("#right-bar-title").html(eventObject.headline);
+    $("#right-bar-subtitle").html(eventObject.startDate);
+    $("#right-bar-description").html(eventObject.text);
 
-    console.log(eventObject);
 
     // generate upper and lowerbound
     var lbound = d3.time.month.offset(eventObject.startDate, -1);
@@ -323,35 +325,28 @@ var loadLeftPanel = function () {
 
         $('.event').click(function () {
             updateEventsOnGraph(this);
-            updateEventsOnRight(this);
+            
+            //$("#right-bar-subtitle").html("<h3>By Alex Liu and Karine Hsu</h3>");
+    
         });
     })
 
 }
 
-var updateEventsOnRight = function (selected_event) {
+// var updateEventsOnRight = function (selected_event) {
 
-    // upon click of event, brushing happens and  detail_vis of transaction volume shown
-    console.log(selected_event);
-
-    var index = EVENTS_NAMES.indexOf(selected_event.innerHTML);
-    console.log(index);
-
-    // generate upper and lowerbound
-    var lbound = d3.time.month.offset(EVENTS_CURRENT[index].startDate, -1);
-    var ubound = d3.time.month.offset(EVENTS_CURRENT[index].startDate, 1);
-
-    // create brushing range
-    brush.extent([lbound, ubound]);
-    mini_svg.selectAll(".brush").call(brush);
-    brushed();
+//    //console.log(eventObject, eventObject.headline, eventObject.startDate, eventObject.text);
+//    $("#right-bar-title").html(eventObject);
+//    $("#right-bar-subtitle").html("<h3>By Alex Liu and Karine Hsu</h3>");
     
     
-}
+// }
 
 
 var loadRightPanel = function () {
-    $("#right-bar-title").html("<h1>WELCOME</h1>");
+    $("#right-bar-title").html("<h1>Welcome to Bitcoin Explorer!</h1>");
+    $("#right-bar-subtitle").html("<h3>By Alex Liu and Karine Hsu</h3>");
+    $("#right-bar-description").html("<b>Instructions:</b><br><li>Draw a rectangle over top visualization to specify time range to zoom in (see brushing and linking in action!)</li><br><li>View different graph types by choosing graph type under Line Graph Dropdown</li><br> <li>Select an event under Event Dropdown and see automatic zoom on graph</li> <br><li>Hover over or select specific data points for more details</li>");
 
 }
 
