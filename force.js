@@ -356,7 +356,8 @@ function playSlider() {
 
         setTimeout(playSlider, 20);
     }
-};
+};
+
 var updateEventsBarBrushing = function () {
 
     var d = BTC_ALL[currenttime];
@@ -591,7 +592,8 @@ function sliderResponse() {
 }
 
 $(document).ready(function () {
-    jQuery("#play").button({ text: false, icons: { primary: "ui-icon-play" } }).click(function () {
+
+    jQuery("#play").button({ text: false, icons: { primary: "ui-icon-play" } }).click(function () {
         var options;
         if (isPlay == false) { //not currently playing
             isPlay = true;
@@ -622,7 +624,9 @@ $(document).ready(function () {
 
 
 
-    });    jQuery("#shuffle").button().click(function () {
+    });
+
+    jQuery("#shuffle").button().click(function () {
         isPlay = false;
         timeslider.slider("value", 0);
         currenttime = 0;

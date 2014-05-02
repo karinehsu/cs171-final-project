@@ -10,6 +10,6 @@ The folder img contains our processbook images and will contain any other images
 The folder js contains d3, bootstrap, FileSaver, and jQuery javascript files. 
 
 
-Project website: 
+Project website: http://zezhouliu.github.io/cs171-final-project/
 
 Screencast video: 
