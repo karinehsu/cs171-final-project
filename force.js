@@ -506,7 +506,7 @@ var updateEventsBarBrushing = function () {
 
         $("#right-bar-title").html("<h3>" + eventObject.headline + "</h3>");
         $("#right-bar-subtitle").html("<h4>(" + eventObject.startDate.toLocaleDateString("en-US") + ")</h4><br>");
-        $("#right-bar-description").html("<b>Description: </b><br>" + eventObject.text + "<br><br>" + "<b> Statistics: </b><br> All Transactions: " + d.transactions_all + " BTC<br>Date: " + d.date.toLocaleDateString("en-US") + "<br>Average: " + d.average + " USD/BTC<br>Volume: " + d.total_volume + " BTC<br>Unique Addresses: " + d.unique_addresses + "<br>Volume in USD: $" + d.usd_volume + "<br>Transactions (w/o top 100): " + d.transactions + <br><li>"Key: Orange - Litecoin,</li>" );
+        $("#right-bar-description").html("<b>Description: </b><br>" + eventObject.text + "<br><br>" + "<b> Statistics: </b><br> All Transactions: " + d.transactions_all + " BTC<br>Date: " + d.date.toLocaleDateString("en-US") + "<br>Average: " + d.average + " USD/BTC<br>Volume: " + d.total_volume + " BTC<br>Unique Addresses: " + d.unique_addresses + "<br>Volume in USD: $" + d.usd_volume + "<br>Transactions (w/o top 100): " + d.transactions + "<br><br><li>Key: Orange - Litecoin, Red- Dogecoin, Purple- Metacoin, Green - Zetacoin</li>" );
     }
     else {
 
