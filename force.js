@@ -254,7 +254,7 @@ var loadLeftPanel = function () {
 var loadRightPanel = function () {
     $("#right-bar-title").html("<h3>Welcome to the Bitcoin TimeLapse Visual</h3>");
     $("#right-bar-subtitle").html("<h4>By Alex Liu and Karine Hsu</h4><br>");
-    $("#right-bar-description").html("<b>Instructions:</b><br><li>Press the Play button to see the circle's size change over time proportional to what you choose from the dropdown. Ex: The larger the average value, the larger the circle becomes.</li><br><li> Choose from the Dropdown for different graphs of All Transactions, Unique Addresses, Total Volume, Volume in USD, and Transactions (minus top 100 traders)</li><br> <li> Press Restart to start over.</li><br><li> Feel free to move the circle around for fun!</li>");
+    $("#right-bar-description").html("<b>Instructions:</b><br><li>Press the Play button to see the circle's size change over time proportional to what you choose from the dropdown. Ex: The larger the selected value, the larger the circle becomes.</li><br><li> Choose from the Dropdown for different graphs of All Transactions, Unique Addresses, Total Volume, Volume in USD, and Transactions (minus top 100 traders)</li><br> <li> Press Restart to start over.</li><br><li> Feel free to move the circle around for fun!</li>");
 
 }
 
@@ -301,7 +301,7 @@ var createMainVisual = function () {
     var btc = { id: "btc" };
 
     var nodes = [btc],
-     foci = [{ x: 2 * main_vis.w / 3, y: 2 * main_vis.h / 3 }];
+     foci = [{ x: 3 * main_vis.w / 4, y: 3 * main_vis.h / 4 }];
 
     force = d3.layout.force()
         .nodes(nodes)
