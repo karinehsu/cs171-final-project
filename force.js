@@ -119,7 +119,7 @@ var y_scale_mini = d3.scale.linear().domain([0, 1]).range([mini_vis.h - margin.b
 var x_axis_mini = d3.svg.axis().scale(x_scale_mini).orient("bottom").ticks(7);
 var y_axis_mini = d3.svg.axis().scale(y_scale_mini).orient("left");
 
-var radius_scale = d3.scale.linear().domain([0, 1]).range([10, 150]);
+var radius_scale = d3.scale.linear().domain([0, 1]).range([20, 200]);
 
 /**
  * CACHE DATA SETS
@@ -258,7 +258,7 @@ var loadRightPanel = function () {
 
 var loadHistoricalBTCPrices = function () {
 
-    d3.csv("data/chart-data.csv", function (data) {
+    d3.csv("data/chart-data-short.csv", function (data) {
 
         var parseDate = d3.time.format("%m/%d/%Y").parse;
 
@@ -298,7 +298,7 @@ var createMainVisual = function () {
     var btc = { id: "btc" };
 
     var nodes = [btc],
-     foci = [{ x: main_vis.w / 2, y: main_vis.h / 2 }];
+     foci = [{ x: 2 * main_vis.w / 3, y: 2 * main_vis.h / 3 }];
 
     force = d3.layout.force()
         .nodes(nodes)
@@ -368,6 +368,9 @@ var updateEventsBarBrushing = function () {
         $("#right-bar-title").html("<h3>" + eventObject.headline + "</h3>");
         $("#right-bar-subtitle").html("<h4>(" + eventObject.startDate.toLocaleDateString("en-US") + ")</h4><br>");
         $("#right-bar-description").html("<b>Description: </b><br>" + eventObject.text + "<br><br>" + "<b> Statistics: </b><br> All Transactions: " + d.transactions_all + " BTC<br>Date: " + d.date.toLocaleDateString("en-US") + "<br>Average: " + d.average + " USD/BTC<br>Volume: " + d.total_volume + " BTC<br>Unique Addresses: " + d.unique_addresses + "<br>Volume in USD: $" + d.usd_volume + "<br>Transactions (w/o top 100): " + d.transactions);
+    }
+    else {
+        console.log(d.date.toLocaleDateString("en-US"));
     }
 }
 
