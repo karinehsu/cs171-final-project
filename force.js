@@ -44,7 +44,7 @@ var mini_vis = {
     x: main_vis.x,
     y: main_vis.y,
     w: main_vis.w,
-    h: main_vis.h / 6
+    h: main_vis.h / 5
 };
 
 // main canvas for our visualization
@@ -267,12 +267,6 @@ var loadHistoricalBTCPrices = function () {
 
         data.forEach(function (d, i) {
             d.date = parseDate(d.date);
-            //d.average = parseFloat(d.average);
-            //d.total_volume = parseFloat(d.total_volume);
-            //d.transactions_all = parseFloat(d.transactions_all);
-            //d.unique_addresses = parseFloat(d.unique_addresses);
-            //d.usd_volume = parseFloat(d.usd_volume);
-            //d.transactions = parseFloat(d.transactions);
 
             d.average = +d.average;
             d.total_volume = +d.total_volume;
@@ -349,12 +343,33 @@ function playSlider() {
         timeslider.slider("value", BTC_CURRENT.length);
         jQuery("#play").button("option", { label: "play", icons: { primary: "ui-icon-play" } });
     } else if (isPlay == true) {
+
+        // update the slider value
         timeslider.slider("value", currenttime++);
+
+        // update the node size
         var node = main_svg.selectAll("circle");
-        node.attr("r", radius_scale(BTC_CURRENT[currenttime].average));
-        setTimeout(playSlider, 40);
+        node.attr("r", radius_scale(CURRENT_ATTRIBUTE(BTC_CURRENT[currenttime])));
+
+        // update the events on the right hand side
+        updateEventsBarBrushing();
+
+        setTimeout(playSlider, 20);
     }
 };
+var updateEventsBarBrushing = function () {
+
+    var d = BTC_ALL[currenttime];
+    if (EVENTS_HASH[d.date.toLocaleDateString("en-US")]) {
+
+        var eventIndex = EVENTS_HASH[d.date.toLocaleDateString("en-US")];
+        var eventObject = EVENTS_ALL[eventIndex];
+
+        $("#right-bar-title").html("<h3>" + eventObject.headline + "</h3>");
+        $("#right-bar-subtitle").html("<h4>(" + eventObject.startDate.toLocaleDateString("en-US") + ")</h4><br>");
+        $("#right-bar-description").html("<b>Description: </b><br>" + eventObject.text + "<br><br>" + "<b> Statistics: </b><br> All Transactions: " + d.transactions_all + " BTC<br>Date: " + d.date.toLocaleDateString("en-US") + "<br>Average: " + d.average + " USD/BTC<br>Volume: " + d.total_volume + " BTC<br>Unique Addresses: " + d.unique_addresses + "<br>Volume in USD: $" + d.usd_volume + "<br>Transactions (w/o top 100): " + d.transactions);
+    }
+}
 
 
 var createMiniVisual = function () {
@@ -369,12 +384,6 @@ var createMiniVisual = function () {
         .attr("transform", "translate(0," + (mini_vis.h - margin.bottom) + ")")
         .call(x_axis_mini);
 
-    function sliderResponse() {
-
-        var node = main_svg.selectAll("circle");
-        node.attr("r", radius_scale(BTC_CURRENT[currenttime].average));
-    }
-
     timeslider = jQuery("#time-slider").slider({
         value: 0,
         min: 0,
@@ -384,45 +393,8 @@ var createMiniVisual = function () {
         animate: true,
         slide: function (event, ui) {
             currenttime = ui.value;
-            console.log(currenttime);
             sliderResponse();
         },
-    });
-        jQuery("#play").button({ text: false, icons: { primary: "ui-icon-play" } }).click(function () {
-        var options;
-        if (isPlay == false) { //not currently playing
-            isPlay = true;
-            console.log("play mode");
-            options = {
-                label: "pause",
-                icons: {
-                    primary: "ui-icon-pause"
-                }
-            };
-
-            jQuery(this).button("option", options);
-            playSlider();
-        }
-        else {
-            isPlay = false;
-            timeslider.slider("value", timeslider.slider("value"));
-            console.log("pause mode");
-            options = {
-                label: "play",
-                icons: {
-                    primary: "ui-icon-play"
-                }
-            };
-
-        }
-
-        
-
-    });        jQuery("#shuffle").button().click(function () {
-        isPlay = false;
-        timeslider.slider("value", 0);
-        currenttime = 0;
-        sliderResponse();
     });
 
 }
@@ -504,7 +476,6 @@ var loadMiniVisual = function () {
 var loadMainForceVisual = function () {
 
     radius_scale.domain(d3.extent(BTC_CURRENT, function (d) { return d.average; }));
-
     loadBTCLineoGraph();
 }
 
@@ -605,10 +576,55 @@ var updateGraphType = function (html_element) {
         return;
     }
 
+    radius_scale.domain(d3.extent(BTC_CURRENT, function (d) { return CURRENT_ATTRIBUTE(d); }));
+
     loadMiniVisual();
 }
 
+function sliderResponse() {
+
+    var node = main_svg.selectAll("circle");
+    node.attr("r", radius_scale(CURRENT_ATTRIBUTE(BTC_CURRENT[currenttime])));
+}
+
 $(document).ready(function () {
+    jQuery("#play").button({ text: false, icons: { primary: "ui-icon-play" } }).click(function () {
+        var options;
+        if (isPlay == false) { //not currently playing
+            isPlay = true;
+            console.log("play mode");
+            options = {
+                label: "pause",
+                icons: {
+                    primary: "ui-icon-pause"
+                }
+            };
+
+            jQuery(this).button("option", options);
+            playSlider();
+        }
+        else {
+            isPlay = false;
+            timeslider.slider("value", timeslider.slider("value"));
+            console.log("pause mode");
+            options = {
+                label: "play",
+                icons: {
+                    primary: "ui-icon-play"
+                }
+            };
+
+            jQuery(this).button("option", options);
+        }
+
+
+
+    });    jQuery("#shuffle").button().click(function () {
+        isPlay = false;
+        timeslider.slider("value", 0);
+        currenttime = 0;
+        sliderResponse();
+    });
 
     main();
 
