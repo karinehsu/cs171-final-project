@@ -764,7 +764,7 @@ var loadBTCLineoGraph = function () {
         .on("mouseover", function (d, i) {
 
             // if it has a data, then display the data using a tooltip
-            main_tooltip.html("All Transactions: " + d.transactions_all + "<br>Date: " + d.date + "<br>Average: " + d.average + "<br>Volume: " + d.total_volume + "<br>Unique Addresses: " + d.unique_addresses + "<br>Volume in USD: " + d.usd_volume + "<br>Transactions (mins top 100 traders): " + d.transactions );
+            main_tooltip.html("<center><h5><b>" + d.date.toLocaleDateString("en-US") + "</b></h5></center><b>Average: </b>" + d.average + "<br><b>All Transactions: </b>" + d.transactions_all + "<br><b>Transactions (w/o top 100): </b>" + d.transactions + "<br><b>Unique Addresses: </b>" + d.unique_addresses + "<br><b>Volume: </b>" + d.total_volume + "<br><b>Volume in USD: </b>" + d.usd_volume);
             return main_tooltip.style("visibility", "visible");
 
         })
