@@ -119,7 +119,7 @@ var y_scale_mini = d3.scale.linear().domain([0, 1]).range([mini_vis.h - margin.b
 var x_axis_mini = d3.svg.axis().scale(x_scale_mini).orient("bottom").ticks(7);
 var y_axis_mini = d3.svg.axis().scale(y_scale_mini).orient("left");
 
-var radius_scale = d3.scale.linear().domain([0, 1]).range([20, 175]);
+var radius_scale = d3.scale.linear().domain([0, 1]).range([10, 175]);
 
 /**
  * CACHE DATA SETS
@@ -143,12 +143,35 @@ var CURRENT_LINE2;
 var DATE_HASH = {};
 var EVENTS_HASH = {};
 
+var ZETA = [];
+var ZETA_HASH = {};
+var ZETA_EXTENT = [];
+
+var LITE = [];
+var LITE_HASH = {};
+var LITE_EXTENT = [];
+
+var MEGA = [];
+var MEGA_HASH = {};
+var MEGA_EXTENT = [];
+
+var DOGE = [];
+var DOGE_HASH = {};
+var DOGE_EXTENT = [];
+
+var CURRENCIES = [BTC_ALL, LITE, DOGE, MEGA, ZETA];
+var CURRENCIES_HASH = [DATE_HASH, LITE_HASH, DOGE_HASH, MEGA_HASH, ZETA_HASH];
+var CURRENCIES_EXTENT = [[], LITE_EXTENT, DOGE_EXTENT, MEGA_EXTENT, ZETA_EXTENT];
+
+var counters = [0, 0, 0, 0, 0];
+
 var si;
 var force;
 var timeslider;
 var currenttime = 0;
 var isPlay = false;
 var timelapse_speed = 1;
+var average_value = true;
 
 // default to average
 var CURRENT_ATTRIBUTE = function (d) {
@@ -181,6 +204,55 @@ var main = function () {
     loadLeftPanel();
     loadRightPanel();
     loadHistoricalBTCPrices();
+
+    d3.json("data/ZETA.json", function (data) {
+        data.data.forEach(function (d, i) {
+            var dat = (new Date(d[0] * 1000));
+            ZETA.push({ average: d[2], date: dat });
+            ZETA_HASH[dat.toLocaleDateString("en-US")] = i;
+
+        });
+
+        ZETA_EXTENT.push(ZETA[0].date, ZETA[ZETA.length - 1].date);
+    });
+
+
+    d3.json("data/LITE.json", function (data) {
+        data.data.forEach(function (d, i) {
+
+            var dat = (new Date(d[0] * 1000));
+            LITE.push({ average: d[2], date: dat });
+            LITE_HASH[dat.toLocaleDateString("en-US")] = i;
+        });
+
+        LITE_EXTENT.push(LITE[0].date, LITE[LITE.length - 1].date);
+    });
+
+
+
+    d3.json("data/DOGE.json", function (data) {
+        data.data.forEach(function (d, i) {
+
+            var dat = (new Date(d[0] * 1000));
+            DOGE.push({ average: d[2], date: dat });
+            DOGE_HASH[dat.toLocaleDateString("en-US")] = i;
+        });
+
+        DOGE_EXTENT.push(DOGE[0].date, DOGE[DOGE.length - 1].date);
+    });
+
+
+
+    d3.json("data/MEGA.json", function (data) {
+        data.data.forEach(function (d, i) {
+
+            var dat = (new Date(d[0] * 1000));
+            MEGA.push({ average: d[2], date: dat });
+            MEGA_HASH[dat.toLocaleDateString("en-US")] = i;
+        });
+
+        MEGA_EXTENT.push(MEGA[0].date, MEGA[MEGA.length - 1].date);
+    });
 
 }
 
@@ -297,11 +369,13 @@ var loadHistoricalBTCPrices = function () {
 }
 
 var createMainVisual = function () {
-    
-    var btc = { id: "btc" };
 
-    var nodes = [btc],
-     foci = [{ x: 3 * main_vis.w / 4, y: 3 * main_vis.h / 4 }];
+    
+
+    var nodes = CURRENCIES,
+        foci = [{ x: 3 * main_vis.w / 4, y: 3 * main_vis.h / 4 }, { x: 1 * main_vis.w / 4, y: 1 * main_vis.h / 4 }, { x: 1 * main_vis.w / 4, y: 3 * main_vis.h / 4 }, { x: 3 * main_vis.w / 4, y: 1 * main_vis.h / 4 }, { x: 10, y: 10 }];
+    
+    console.log(CURRENCIES_HASH);
 
     force = d3.layout.force()
         .nodes(nodes)
@@ -312,20 +386,31 @@ var createMainVisual = function () {
         .data(nodes)
         .enter().append("circle")
         .attr("class", "node")
-        .attr("id", function (d) { return d.id })
-        .attr("cx", main_vis.w / 2)
-        .attr("cy", main_vis.h / 2)
-        .attr("r", 10)
-        .style("fill", function (d) { return color(d.id); })
-        .style("stroke", function (d) { return d3.rgb(color(d.id)).darker(2); })
+        .attr("cx", function (d, i) {
+            return foci[i].x;
+        })
+        .attr("cy", function (d, i) {
+            return foci[i].y;
+        })
+        .attr("r", function (d, i) {
+            if (i == 0) {
+                return 10;
+            }
+            return 0;
+        })
+        .style("fill", function (d, i) { return color(i); })
+        .style("stroke", function (d, i) { return d3.rgb(color(i)).darker(2); })
         .call(force.drag)
-        .on("mouseover", function () {
+        .on("mouseover", function (d, i) {
 
-            var d = BTC_ALL[currenttime];
+            if (i == 0) {
+                var d = BTC_ALL[currenttime];
 
-            // if it has a data, then display the data using a tooltip
-            main_tooltip.html("<center><h5><b>" + d.date.toLocaleDateString("en-US") + "</b></h5></center><b>Average: </b>" + d.average + "<br><b>All Transactions: </b>" + d.transactions_all + "<br><b>Transactions (w/o top 100): </b>" + d.transactions + "<br><b>Unique Addresses: </b>" + d.unique_addresses + "<br><b>Volume: </b>" + d.total_volume + "<br><b>Volume in USD: </b>" + d.usd_volume);
-            return main_tooltip.style("visibility", "visible");
+                // if it has a data, then display the data using a tooltip
+                main_tooltip.html("<center><h5><b>" + d.date.toLocaleDateString("en-US") + "</b></h5></center><b>Average: </b>" + d.average + "<br><b>All Transactions: </b>" + d.transactions_all + "<br><b>Transactions (w/o top 100): </b>" + d.transactions + "<br><b>Unique Addresses: </b>" + d.unique_addresses + "<br><b>Volume: </b>" + d.total_volume + "<br><b>Volume in USD: </b>" + d.usd_volume);
+                return main_tooltip.style("visibility", "visible");
+            }
+            
 
         })
         .on("mousemove", function () { return main_tooltip.style("top", (event.pageY - 10) + "px").style("left", (event.pageX + 10) + "px"); })
@@ -362,8 +447,39 @@ function playSlider() {
         timeslider.slider("value", currenttime++);
 
         // update the node size
-        var node = main_svg.selectAll("circle");
-        node.attr("r", radius_scale(CURRENT_ATTRIBUTE(BTC_CURRENT[currenttime])));
+        var node = main_svg.selectAll("circle").data(CURRENCIES).attr("r", function (d, i) {
+
+            if (i == 0) {
+                return radius_scale(CURRENT_ATTRIBUTE(BTC_CURRENT[currenttime]));
+            }
+            else {
+
+
+                if (average_value) {
+
+                   
+                    // calc index from the current time
+                    var dat = BTC_CURRENT[currenttime].date;
+                    if (CURRENCIES_EXTENT[i][0].getTime() <= dat.getTime() && dat.getTime() <= CURRENCIES_EXTENT[i][1].getTime()) {
+
+                        if (CURRENCIES_HASH[i][dat.toLocaleDateString("en-US")]) {
+                            ++counters[i];
+                            return radius_scale(CURRENT_ATTRIBUTE(CURRENCIES[i][CURRENCIES_HASH[i][dat.toLocaleDateString("en-US")]]));
+                        }
+                        else {
+                            return radius_scale(CURRENT_ATTRIBUTE(CURRENCIES[i][counters[i]]));
+                        }
+
+                    }
+                    else {
+
+                        return 0;
+                    }
+                    
+                    
+                }
+            }
+        });
 
         // update the events on the right hand side
         updateEventsBarBrushing();
@@ -494,6 +610,7 @@ var loadMiniVisual = function () {
 var loadMainForceVisual = function () {
 
     radius_scale.domain(d3.extent(BTC_CURRENT, function (d) { return d.average; }));
+
     loadBTCLineoGraph();
 }
 
@@ -504,6 +621,7 @@ var loadBTCLineoGraph = function () {
         return d.average;
     }
 
+    average_value = true;
 }
 
 var loadBTCLineoGraph = function () {
@@ -568,6 +686,8 @@ var updateGraphType = function (html_element) {
     var element = $(html_element)
     var graph_type = element.attr("id");
 
+    average_value = false;
+
     // update GraphType based on ids
     if (graph_type.localeCompare("average-graph1") == 0) {
         loadBTCLineoGraph();
@@ -602,7 +722,40 @@ var updateGraphType = function (html_element) {
 function sliderResponse() {
 
     var node = main_svg.selectAll("circle");
-    node.attr("r", radius_scale(CURRENT_ATTRIBUTE(BTC_CURRENT[currenttime])));
+    node.attr("r", function (d, i) {
+        if (i == 0) {
+            return radius_scale(CURRENT_ATTRIBUTE(BTC_CURRENT[currenttime]));
+        }
+        else {
+            if (average_value) {
+
+                   
+                // calc index from the current time
+                var dat = BTC_CURRENT[currenttime].date;
+                if (CURRENCIES_EXTENT[i][0].getTime() <= dat.getTime() && dat.getTime() <= CURRENCIES_EXTENT[i][1].getTime()) {
+
+                    if (CURRENCIES_HASH[i][dat.toLocaleDateString("en-US")]) {
+                        ++counters[i];
+                        return radius_scale(CURRENT_ATTRIBUTE(CURRENCIES[i][CURRENCIES_HASH[i][dat.toLocaleDateString("en-US")]]));
+                    }
+                    else {
+                        return radius_scale(CURRENT_ATTRIBUTE(CURRENCIES[i][counters[i]]));
+                    }
+
+                }
+                else {
+
+                    return 0;
+                }
+                    
+                    
+            }
+        }
+    });
+
+
+
+
 }
 
 $(document).ready(function () {
