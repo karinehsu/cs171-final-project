@@ -250,9 +250,9 @@ var loadLeftPanel = function () {
 }
 
 var loadRightPanel = function () {
-    $("#right-bar-title").html("<h3>Bitcoin TimeLapse Visual!</h3>");
+    $("#right-bar-title").html("<h3>Welcome to the Bitcoin TimeLapse Visual</h3>");
     $("#right-bar-subtitle").html("<h4>By Alex Liu and Karine Hsu</h4><br>");
-    $("#right-bar-description").html("<b>Instructions:</b><br><li>Draw a rectangle over top visualization to specify time range to zoom in (see brushing and linking in action!)</li><br><li>View different graph types by choosing graph type under Line Graph Dropdown</li><br> <li>Select an event under Event Dropdown and see automatic zoom on graph</li> <br><li>Hover over or select specific data points for more details</li>");
+    $("#right-bar-description").html("<b>Instructions:</b><br><li>Press the Play button to see the circle's size change over time proportional to what you choose from the dropdown. Ex: The larger the average value, the larger the circle becomes.</li><br><li> Choose from the Dropdown for different graphs of All Transactions, Unique Addresses, Total Volume, Volume in USD, and Transactions (minus top 100 traders)</li><br> <li> Press Restart to start over.</li><br><li> Feel free to move the circle around for fun!</li>");
 
 }
 
