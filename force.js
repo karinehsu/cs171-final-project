@@ -119,7 +119,7 @@ var y_scale_mini = d3.scale.linear().domain([0, 1]).range([mini_vis.h - margin.b
 var x_axis_mini = d3.svg.axis().scale(x_scale_mini).orient("bottom").ticks(7);
 var y_axis_mini = d3.svg.axis().scale(y_scale_mini).orient("left");
 
-var radius_scale = d3.scale.linear().domain([0, 1]).range([20, 200]);
+var radius_scale = d3.scale.linear().domain([0, 1]).range([20, 175]);
 
 /**
  * CACHE DATA SETS
@@ -132,8 +132,6 @@ var BTC_2014 = [];
 var EVENTS_ALL = [];
 var EVENTS_NAMES = [];
 var EVENTS_2013 = [];
-var EVENTS_2013_JUNE = [];
-var EVENTS_2014 = [];
 
 // CURRENTLY selected mode
 var BTC_CURRENT = [];
@@ -189,19 +187,23 @@ var main = function () {
 var updateEventsOnGraph = function (selected_event) {
 
     // upon click of event, brushing happens and  detail_vis of transaction volume shown
-    console.log(selected_event);
-
     var index = EVENTS_NAMES.indexOf(selected_event.innerHTML);
-    console.log(index);
+    var eventObject = EVENTS_CURRENT[index];
 
-    // generate upper and lowerbound
-    var lbound = d3.time.month.offset(EVENTS_CURRENT[index].startDate, -1);
-    var ubound = d3.time.month.offset(EVENTS_CURRENT[index].startDate, 1);
+    var correspondingIndex = DATE_HASH[eventObject.startDate.toLocaleDateString("en-US")];
 
-    // create brushing range
-    brush.extent([lbound, ubound]);
-    mini_svg.selectAll(".brush").call(brush);
-    brushed();
+    if (correspondingIndex) {
+        var d = BTC_ALL[correspondingIndex];
+
+        $("#right-bar-title").html("<h3>" + eventObject.headline + "</h3>");
+        $("#right-bar-subtitle").html("<h4>(" + eventObject.startDate.toLocaleDateString("en-US") + ")</h4><br>");
+        $("#right-bar-description").html("<b>Description: </b><br>" + eventObject.text + "<br><br>" + "<b> Statistics: </b><br> All Transactions: " + d.transactions_all + " BTC<br>Date: " + d.date.toLocaleDateString("en-US") + "<br>Average: " + d.average + " USD/BTC<br>Volume: " + d.total_volume + " BTC<br>Unique Addresses: " + d.unique_addresses + "<br>Volume in USD: $" + d.usd_volume + "<br>Transactions (w/o top 100): " + d.transactions);
+
+        // update the slider over there too
+        currenttime = correspondingIndex;
+        timeslider.slider("value", currenttime);
+    }
+
 
 
 }
@@ -284,6 +286,7 @@ var loadHistoricalBTCPrices = function () {
         BTC_ALL = data;
         BTC_2013 = BTC_ALL.filter(function (d) { return d.date > dec2012; });
         BTC_CURRENT = BTC_2013; 
+
 
         createMainVisual();
         loadMainForceVisual();
@@ -371,7 +374,7 @@ var updateEventsBarBrushing = function () {
         $("#right-bar-description").html("<b>Description: </b><br>" + eventObject.text + "<br><br>" + "<b> Statistics: </b><br> All Transactions: " + d.transactions_all + " BTC<br>Date: " + d.date.toLocaleDateString("en-US") + "<br>Average: " + d.average + " USD/BTC<br>Volume: " + d.total_volume + " BTC<br>Unique Addresses: " + d.unique_addresses + "<br>Volume in USD: $" + d.usd_volume + "<br>Transactions (w/o top 100): " + d.transactions);
     }
     else {
-        console.log(d.date.toLocaleDateString("en-US"));
+
     }
 }
 

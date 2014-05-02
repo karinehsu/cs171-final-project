@@ -351,8 +351,6 @@ var updateEventsBarBrushing = function (date) {
 var updateEventsOnGraph = function (selected_event) {
 
     // upon click of event, brushing happens and  detail_vis of transaction volume shown
-    console.log(selected_event);
-
     var index = EVENTS_NAMES.indexOf(selected_event.innerHTML);
     var eventObject = EVENTS_CURRENT[index];
 
@@ -434,12 +432,6 @@ var loadHistoricalBTCPrices = function () {
 
         data.forEach(function (d, i) {
             d.date = parseDate(d.date);
-            //d.average = parseFloat(d.average);
-            //d.total_volume = parseFloat(d.total_volume);
-            //d.transactions_all = parseFloat(d.transactions_all);
-            //d.unique_addresses = parseFloat(d.unique_addresses);
-            //d.usd_volume = parseFloat(d.usd_volume);
-            //d.transactions = parseFloat(d.transactions);
 
             d.average = +d.average;
             d.total_volume = +d.total_volume;
@@ -2104,10 +2096,6 @@ $(document).ready(function () {
 
     $('.graph-type2').click(function () {
         updateRightGraphType(this);
-    })
-
-    $('.timeframe').click(function () {
-        updateTimeFrame(this);
     })
 
     $('#topTen').click(function () {
