@@ -1,0 +1,119 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="">
+        <meta name="author" content="">
+
+        <title>Alternative Currency Visualization</title>
+
+        <!-- Bootstrap core CSS -->
+        <link href="css/bootstrap.min.css" rel="stylesheet">
+
+        <!-- Custom styles created for visualization -->
+        <link href="css/navbar-fixed-top.css" rel="stylesheet">
+        <link href="css/visualization.css" rel="stylesheet">
+
+        <!-- Handle support for IE clients -->
+        <!--[if lt IE 9]>
+            <script src="../../assets/js/ie8-responsive-file-warning.js">
+        </script><![endif]-->
+
+        <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+        <!--[if lt IE 9]>
+            <script srcyl="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+            <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+        <![endif]-->
+        <style> 
+        .tooltip {   
+          position: absolute;           
+          text-align: center;           
+          width: 60px;                  
+          height: 28px;                 
+          padding: 2px;             
+          font: 12px sans-serif;        
+          background: lightsteelblue;   
+          border: 0px;      
+          border-radius: 8px;           
+          pointer-events: none;         
+        }
+        .verticalLine {
+            border-left: dotted #000000;
+        }
+        </style>
+    </head>
+    <body>
+
+        <!-- Fixed navbar -->
+        <div class="navbar navbar-default navbar-custom navbar-fixed-top"  role="navigation">
+            <div class="header_container">
+                <div class="navbar-header">
+                    <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                        <span class="sr-only">Toggle navigation</span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </button>
+                    <a class="navbar-brand" href="#">Cryptocurrency Visualization</a>
+                </div>
+                <div class="navbar-collapse collapse">
+                    <ul class="nav navbar-nav navbar-right">
+                        <li class="active"><a href="./">Home</a></li>
+                        
+                        <li><a href="about.html">About</a></li>
+                        <li><a href="https://docs.google.com/document/d/1D34OfshcJVaVyGw5_XoeKm96BM2fduQ5e11AQT-JVDI/edit?usp=sharing" target="_blank">Process Book</a></li>
+                    </ul>
+                </div><!--/.nav-collapse -->
+            </div>
+        </div>
+
+        
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-sm-2 col-md-1 sidebar" id="left-col">
+                    <ul class="nav nav-sidebar">
+                        <li><a href="index.html">BTC Explorer</a></li>
+                        <li><a href="force.html">TimeLapse Diagram</a></li>
+                        <li id="topTen" class="active"><a href="top10.html">Top Ten Currencies</a></li>
+                    </ul>
+                </div>
+                <div class="col-sm-8 col-sm-offset-2 col-md-9 col-md-offset-1 main">
+                    
+                    <h2 class="page-header">Top 10 Cryptocurrencies</h2>
+
+                    <div id="main_vis">
+                    </div>
+                </div>
+
+                <div class="col-sm-3 col-sm-offset-10 col-md-2 col-md-offset-10 sidebar" id="right-bar">
+                    <div id="right-bar-title">
+                    </div>
+
+                    <div id="right-bar-subtitle">
+                    </div>
+
+                    <div id="right-bar-description">
+                    </div>
+                </div>
+            </div>
+
+        </div>
+         
+
+        <!-- Bootstrap core JavaScript -->
+        <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/javascript" src="js/jquery-1.11.0.min.js"></script>
+        <script src="js/bootstrap.min.js"></script>
+
+        <!-- D3 and jQuery Libraries -->
+        <script src="http://d3js.org/d3.v3.min.js"></script>
+        
+        
+        <!-- Custom JS for rendering visualization-->
+        <script src="top10.js"></script>
+
+
+    </body>
+</html>
